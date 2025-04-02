@@ -1,15 +1,15 @@
 {
-    "compilerOptions": {
-      "module": "ESNext",
-      "moduleResolution": "bundler",
-      "target": "ESNext",
-      "strict": true,
-      "verbatimModuleSyntax": true,
-      "declaration": true,
-      "sourceMap": true,
-      "declarationMap": true,
-      "esModuleInterop": true,
-      "rootDir": "src",
-      "outDir": "build"
-    }
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ESNext",
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "declaration": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "rootDir": "src",
+    "outDir": "build"
   }
+}
