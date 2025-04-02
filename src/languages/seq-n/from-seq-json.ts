@@ -20,7 +20,7 @@ import type {
   Time,
   VariableDeclaration,
 } from '@nasa-jpl/seq-json-schema/types';
-import { logError } from './logger';
+import { logError } from '../../logger';
 import { quoteEscape } from './sequence-utils';
 
 /**
