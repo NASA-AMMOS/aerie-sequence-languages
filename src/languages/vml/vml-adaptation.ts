@@ -14,13 +14,12 @@ import type {
   FswCommandArgument,
   HwCommand,
 } from '@nasa-jpl/aerie-ampcs';
-import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
-import { SequenceTypes } from '../../../../enums/sequencing';
+// import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
+// import { SequenceTypes } from '../../../../enums/sequencing';
 import type { GlobalType } from '../../../../types/global-type';
-import { type LibrarySequence, type LibrarySequenceMap } from '../../../../types/sequencing';
 import { isFswCommand, unquoteUnescape } from '../../sequence-utils';
 import { getNearestAncestorNodeOfType } from '../../tree-utils';
-import { VmlLanguage } from './vml';
+// import { VmlLanguage } from './vml';
 import { librarySequenceToFswCommand, vmlBlockLibraryToCommandDictionary } from './vml-block-library';
 import {
   RULE_BODY,
@@ -391,22 +390,23 @@ export function getDefaultArgumentValue(argDef: FswCommandArgument, enumMap: Enu
   return '""';
 }
 
-export function parseFunctionSignatures(contents: string, workspaceId: number): LibrarySequence[] {
-  return vmlBlockLibraryToCommandDictionary(contents).fswCommands.map(
-    (fswCommand): LibrarySequence => ({
-      name: fswCommand.stem,
-      parameters: fswCommand.arguments.map((arg: FswCommandArgument) => {
-        return {
-          name: arg.name,
-          type: argTypToVariableType(arg.arg_type),
-        };
-      }),
-      tree: VmlLanguage.parser.parse(contents),
-      type: SequenceTypes.LIBRARY,
-      workspace_id: workspaceId,
-    }),
-  );
-}
+// TODO keep?
+// export function parseFunctionSignatures(contents: string, workspaceId: number): LibrarySequence[] {
+//   return vmlBlockLibraryToCommandDictionary(contents).fswCommands.map(
+//     (fswCommand): LibrarySequence => ({
+//       name: fswCommand.stem,
+//       parameters: fswCommand.arguments.map((arg: FswCommandArgument) => {
+//         return {
+//           name: arg.name,
+//           type: argTypToVariableType(arg.arg_type),
+//         };
+//       }),
+//       tree: VmlLanguage.parser.parse(contents),
+//       type: SequenceTypes.LIBRARY,
+//       workspace_id: workspaceId,
+//     }),
+//   );
+// }
 
 function enumOptions(enumDef: Enum, argDef: FswCommandArgument): Completion[] {
   return enumDef.values.map(
@@ -431,21 +431,21 @@ function globalOptions(globals: GlobalType[]): Completion[] {
   );
 }
 
-function argTypToVariableType(argType: FswCommandArgument['arg_type']): VariableDeclaration['type'] {
-  switch (argType) {
-    case 'enum':
-      return 'ENUM';
-    case 'unsigned':
-      return 'UINT';
-    case 'integer':
-      return 'INT';
-    case 'numeric':
-    case 'float':
-      return 'FLOAT';
-    case 'fixed_string':
-    case 'var_string':
-      return 'STRING';
-  }
-  // 'repeat', 'boolean', 'time' types are not used
-  return 'STRING';
-}
+// function argTypToVariableType(argType: FswCommandArgument['arg_type']): VariableDeclaration['type'] {
+//   switch (argType) {
+//     case 'enum':
+//       return 'ENUM';
+//     case 'unsigned':
+//       return 'UINT';
+//     case 'integer':
+//       return 'INT';
+//     case 'numeric':
+//     case 'float':
+//       return 'FLOAT';
+//     case 'fixed_string':
+//     case 'var_string':
+//       return 'STRING';
+//   }
+//   // 'repeat', 'boolean', 'time' types are not used
+//   return 'STRING';
+// }

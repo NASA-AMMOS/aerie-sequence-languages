@@ -1,8 +1,8 @@
 import { syntaxTree } from '@codemirror/language';
 import { Decoration, ViewPlugin, type DecorationSet, type ViewUpdate } from '@codemirror/view';
 import type { SyntaxNode } from '@lezer/common';
-import { TOKEN_COMMAND } from '../../../../constants/seq-n-grammar-constants';
-import { blockMark } from '../../../codemirror/themes/block';
+import { TOKEN_COMMAND } from './seqn-grammar-constants';
+import { blockMark } from '../../codemirror-utils';
 import { getNearestAncestorNodeOfType } from '../../tree-utils';
 import { computeBlocks, isBlockCommand } from './custom-folder';
 
