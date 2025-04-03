@@ -16,15 +16,15 @@ import {
   TOKEN_REPEAT_ARG,
   TOKEN_REQUEST,
   TOKEN_STRING,
-} from './seq-n-grammar-constants';
-import { SequenceTypes } from '../../../../enums/sequencing';
-import { type LibrarySequence, type UserSequence } from '../../../../types/sequencing';
+} from './seqn-grammar-constants';
+// import { SequenceTypes } from '../../../../enums/sequencing';
+// import { type LibrarySequence, type UserSequence } from '../../../../types/sequencing';
 import { fswCommandArgDefault } from '../../command-dictionary';
 import type { CommandInfoMapper } from '../../command-info-mapper';
-import { validateVariables } from '../../sequence-linter';
-import { parseVariables } from './to-seq-json';
+// import { validateVariables } from '../../sequence-linter';
+// import { parseVariables } from './to-seq-json';
 import { getFromAndTo, getNearestAncestorNodeOfType } from '../../tree-utils';
-import { SeqLanguage } from './seq-n';
+// import { SeqLanguage } from './seq-n';
 
 export function getNameNode(stepNode: SyntaxNode | null) {
   if (stepNode) {
@@ -56,16 +56,16 @@ export function getAncestorStepOrRequest(node: SyntaxNode | null) {
   ]);
 }
 
-export function userSequenceToLibrarySequence(sequence: UserSequence): LibrarySequence {
-  const tree = SeqLanguage.parser.parse(sequence.definition);
-  return {
-    name: sequence.name,
-    parameters: parseVariables(tree.topNode, sequence.definition, 'ParameterDeclaration') ?? [],
-    tree,
-    type: SequenceTypes.LIBRARY,
-    workspace_id: sequence.workspace_id,
-  };
-}
+// export function userSequenceToLibrarySequence(sequence: UserSequence): LibrarySequence {
+//   const tree = SeqLanguage.parser.parse(sequence.definition);
+//   return {
+//     name: sequence.name,
+//     parameters: parseVariables(tree.topNode, sequence.definition, 'ParameterDeclaration') ?? [],
+//     tree,
+//     type: SequenceTypes.LIBRARY,
+//     workspace_id: sequence.workspace_id,
+//   };
+// }
 
 export class SeqNCommandInfoMapper implements CommandInfoMapper {
   formatArgumentArray(values: string[]): string {
@@ -116,10 +116,12 @@ export class SeqNCommandInfoMapper implements CommandInfoMapper {
   }
 
   getVariables(docText: string, tree: Tree): string[] {
-    return [
-      ...validateVariables(tree.topNode.getChildren('LocalDeclaration'), docText, 'LOCALS').variables,
-      ...validateVariables(tree.topNode.getChildren('ParameterDeclaration'), docText, 'INPUT_PARAMS').variables,
-    ].map(v => v.name);
+    // return [
+    //   ...validateVariables(tree.topNode.getChildren('LocalDeclaration'), docText, 'LOCALS').variables,
+    //   ...validateVariables(tree.topNode.getChildren('ParameterDeclaration'), docText, 'INPUT_PARAMS').variables,
+    // ].map(v => v.name);
+    // TODO update interface or include this implementation
+    return [];
   }
 
   isArgumentNodeOfVariableType(argNode: SyntaxNode | null): boolean {

@@ -27,11 +27,18 @@ import type {
   Time,
   VariableDeclaration,
 } from '@nasa-jpl/seq-json-schema/types';
-import { TOKEN_ACTIVATE, TOKEN_COMMAND, TOKEN_LOAD, TOKEN_REPEAT_ARG } from '../../constants/seq-n-grammar-constants';
-import { TimeTypes } from '../../enums/time';
-import { getBalancedDuration, getDurationTimeComponents, parseDurationString, validateTime } from '../time';
-import { logInfo } from './logger';
-import { removeEscapedQuotes, unquoteUnescape } from './sequence-utils';
+import { TOKEN_ACTIVATE, TOKEN_COMMAND, TOKEN_LOAD, TOKEN_REPEAT_ARG } from './seqn-grammar-constants';
+import { getBalancedDuration, getDurationTimeComponents, parseDurationString, validateTime } from '@nasa-jpl/aerie-time-utils';
+import { logInfo } from '../../logger';
+import { removeEscapedQuotes, unquoteUnescape } from '../../sequence-utils';
+
+enum TimeTypes {
+  ABSOLUTE = 'absolute',
+  EPOCH = 'epoch',
+  EPOCH_SIMPLE = 'epoch_simple',
+  RELATIVE = 'relative',
+  RELATIVE_SIMPLE = 'relative_simple',
+}
 
 /**
  * Returns a minimal valid Seq JSON object.
