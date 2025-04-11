@@ -1,0 +1,61 @@
+{
+  "name": "@nasa-jpl/aerie-satf",
+  "version": "1.0.0",
+  "title": "Aerie SATF Library",
+  "description": "Provides helper functions to convert seqN to SATF/SASF and vice versa",
+  "author": "NASA/JPL",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NASA-AMMOS/aerie-sequence-languages/satf"
+  },
+  "main": "dist/cjs/satf/index.js",
+  "module": "dist/esm/satf/index.js",
+  "types": "dist/cjs/satf/index.d.ts",
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      },
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "grammar": "rimraf ./src/satf/grammar/satf-sasf.grammar.js; lezer-generator ./src/satf/grammar/satf-sasf.grammar -o ./src/satf/grammar/satf-sasf.grammar.js",
+    "build": "npm run clean; npm run reformat; npm run grammar && tsc -p tsconfig.json && tsc -p tsconfig.esm.json",
+    "test": "npm run grammar && vitest run",
+    "clean": "rimraf ./dist",
+    "reformat": "npx prettier -w ./src"
+  },
+  "keywords": [
+    "aerie",
+    "satf",
+    "sasf",
+    "seqN",
+    "sequence",
+    "language"
+  ],
+  "dependencies": {
+    "@codemirror/language": "^6.11.0",
+    "@lezer/common": "^1.2.3",
+    "@lezer/generator": "^1.7.3",
+    "@lezer/highlight": "^1.2.1",
+    "@lezer/lr": "^1.4.0",
+    "@nasa-jpl/aerie-ampcs": "^1.0.6",
+    "@nasa-jpl/aerie-time-utils": "git+https://github.com/NASA-AMMOS/aerie-time-utils.git",
+    "vitest": "^3.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.16",
+    "prettier": "^3.5.3",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.8.2"
+  }
+}
