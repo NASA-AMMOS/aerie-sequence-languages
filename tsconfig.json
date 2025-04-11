@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2018",
+    "module": "CommonJS",
+    "outDir": "dist/cjs",
+    "baseUrl": "src",
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "lib": ["ESNext", "DOM"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/satf/grammar/satf-sasf.grammar.js",
+    "src/satf/grammar/satf-sasf.grammar.terms.js"
+  ],
+  "exclude": ["./node_modules","./dist","**/*.test.ts"]
+}
