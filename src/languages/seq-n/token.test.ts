@@ -4,22 +4,23 @@ import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { assert, describe, it } from 'vitest';
 import { SeqLanguage } from './seq-n';
-
-const ERROR = '⚠';
-const ENUM_TOKEN = 'Enum';
-const LINE_COMMENT_TOKEN = 'LineComment';
-const STEM_TOKEN = 'Stem';
-const STRING_TOKEN = 'String';
-const METADATA_TOKEN = 'Metadata';
-const METADATA_ENTRY_TOKEN = 'MetaEntry';
-const ID_DECLARATION = 'IdDeclaration';
-const PARAMETER_DECLARATION = 'ParameterDeclaration';
-const LOCAL_DECLARATION = 'LocalDeclaration';
-const VARIABLE_TOKEN = 'Variable';
-const ACTIVATE_NODE = 'Activate';
-const LOAD_NODE = 'Load';
-const GROUND_BLOCK_NODE = 'GroundBlock';
-const GROUND_EVENT_NODE = 'GroundEvent';
+import {
+  RULE_METADATA,
+  RULE_METADATA_ENTRY,
+  TOKEN_STRING,
+  RULE_ID_DECLARATION,
+  RULE_LOCAL_DECLARATION,
+  RULE_PARAMETER_DECLARATION,
+  RULE_VARIABLE,
+  RULE_ENUM,
+  RULE_ACTIVATE,
+  RULE_LOAD,
+  RULE_GROUND_BLOCK,
+  RULE_GROUND_EVENT,
+  TOKEN_ERROR,
+  TOKEN_LINE_COMMENT,
+  RULE_STEM,
+} from './seqn-grammar-constants';
 
 function getMetaType(node: SyntaxNode) {
   return node?.firstChild?.nextSibling?.firstChild?.name;
@@ -45,10 +46,10 @@ C STEM
 `;
     const parseTree = SeqLanguage.parser.parse(input);
     assertNoErrorNodes(input);
-    const topLevelMetaData = parseTree.topNode.getChild(METADATA_TOKEN);
-    const metaEntries = topLevelMetaData!.getChildren(METADATA_ENTRY_TOKEN);
+    const topLevelMetaData = parseTree.topNode.getChild(RULE_METADATA);
+    const metaEntries = topLevelMetaData!.getChildren(RULE_METADATA_ENTRY);
     assert.equal(metaEntries.length, 4);
-    assert.equal(getMetaType(metaEntries[0]), STRING_TOKEN);
+    assert.equal(getMetaType(metaEntries[0]), TOKEN_STRING);
     assert.equal(getMetaType(metaEntries[1]), 'Boolean');
     assert.equal(getMetaType(metaEntries[2]), 'Number');
     assert.equal(getMetaType(metaEntries[3]), 'Number');
@@ -79,8 +80,8 @@ C STEM
 `;
     assertNoErrorNodes(input);
     const parseTree = SeqLanguage.parser.parse(input);
-    const topLevelMetaData = parseTree.topNode.getChild(METADATA_TOKEN);
-    const metaEntries = topLevelMetaData!.getChildren(METADATA_ENTRY_TOKEN);
+    const topLevelMetaData = parseTree.topNode.getChild(RULE_METADATA);
+    const metaEntries = topLevelMetaData!.getChildren(RULE_METADATA_ENTRY);
     assert.equal(metaEntries.length, 4);
     assert.equal(getMetaType(metaEntries[0]), 'Array');
     assert.equal(getMetaType(metaEntries[1]), 'Array');
@@ -102,7 +103,7 @@ C STEM
 
 describe('header directives', () => {
   function getIdValue(parseTree: Tree, input: string) {
-    const idToken = parseTree.topNode.getChild(ID_DECLARATION)?.firstChild;
+    const idToken = parseTree.topNode.getChild(RULE_ID_DECLARATION)?.firstChild;
     if (idToken) {
       return input.slice(idToken.from, idToken.to);
     }
@@ -174,16 +175,16 @@ describe('header directives', () => {
       assert.equal(getIdValue(parseTree, input), `"test.seq"`);
       assert.deepEqual(
         parseTree.topNode
-          .getChild(LOCAL_DECLARATION)
-          ?.getChildren(VARIABLE_TOKEN)
-          .map(node => getNodeText(node.getChild(ENUM_TOKEN)!, input)),
+          .getChild(RULE_LOCAL_DECLARATION)
+          ?.getChildren(RULE_VARIABLE)
+          .map(node => getNodeText(node.getChild(RULE_ENUM)!, input)),
         ['L01INT', 'L02INT', 'L01UINT', 'L02UINT'],
       );
       assert.deepEqual(
         parseTree.topNode
-          .getChild(PARAMETER_DECLARATION)
-          ?.getChildren(VARIABLE_TOKEN)
-          .map(node => getNodeText(node.getChild(ENUM_TOKEN)!, input)),
+          .getChild(RULE_PARAMETER_DECLARATION)
+          ?.getChildren(RULE_VARIABLE)
+          .map(node => getNodeText(node.getChild(RULE_ENUM)!, input)),
         ['L01STR', 'L02STR'],
       );
     });
@@ -201,7 +202,7 @@ R123T12:34:56 @ACTIVATE("act2.name") "foo" 1 2 3  # Comment text
   `;
     assertNoErrorNodes(input);
     const parseTree = SeqLanguage.parser.parse(input);
-    const activates = parseTree.topNode.firstChild?.getChildren(ACTIVATE_NODE);
+    const activates = parseTree.topNode.firstChild?.getChildren(RULE_ACTIVATE);
     assert.equal(activates?.length, 2);
   });
 
@@ -215,7 +216,7 @@ R123T12:34:56 @ACTIVATE("act2.name") "foo" 1 2 3  # Comment text
     `;
     assertNoErrorNodes(input);
     const parseTree = SeqLanguage.parser.parse(input);
-    const activates = parseTree.topNode.firstChild?.getChildren(LOAD_NODE);
+    const activates = parseTree.topNode.firstChild?.getChildren(RULE_LOAD);
     assert.equal(activates?.length, 2);
   });
 
@@ -227,10 +228,10 @@ R123T12:34:56 @GROUND_EVENT("ground_event.name") "foo" 1 2 3  # No Args
     assertNoErrorNodes(input);
     const parseTree = SeqLanguage.parser.parse(input);
     assert.isNotNull(parseTree.topNode.firstChild);
-    const groundBlocks = parseTree.topNode.firstChild!.getChildren(GROUND_BLOCK_NODE);
+    const groundBlocks = parseTree.topNode.firstChild!.getChildren(RULE_GROUND_BLOCK);
     assert.equal(groundBlocks.length, 1);
     assert.equal(getNodeText(groundBlocks[0].getChild('GroundName')!, input), '"ground_block.name"');
-    const groundEvents = parseTree.topNode.firstChild!.getChildren(GROUND_EVENT_NODE);
+    const groundEvents = parseTree.topNode.firstChild!.getChildren(RULE_GROUND_EVENT);
     assert.equal(groundEvents.length, 1);
     assert.equal(getNodeText(groundEvents[0].getChild('GroundName')!, input), '"ground_event.name"');
   });
@@ -316,7 +317,7 @@ describe('error positions', () => {
       const cursor = SeqLanguage.parser.parse(input).cursor();
       do {
         const { node } = cursor;
-        if (node.type.name === ERROR) {
+        if (node.type.name === TOKEN_ERROR) {
           assert.strictEqual(cursor.from, first_error);
           break;
         }
@@ -366,12 +367,12 @@ CMD0
       };
     };
     const expectedCommentLocations = {
-      [LINE_COMMENT_TOKEN]: [
+      [TOKEN_LINE_COMMENT]: [
         nodeLocation(input, '#COMMENT01'),
         nodeLocation(input, '# COMMENT2'),
         nodeLocation(input, '# COMMENT3'),
       ],
-      [STEM_TOKEN]: [
+      [RULE_STEM]: [
         nodeLocation(input, 'CMD0'),
         nodeLocation(input, 'COMMAND_01'),
         nodeLocation(input, 'COMMAND___002'),
@@ -384,7 +385,7 @@ CMD0
     do {
       const { node } = cursor;
       // printNode(input, node);
-      if ([LINE_COMMENT_TOKEN, STEM_TOKEN].includes(node.type.name)) {
+      if ([TOKEN_LINE_COMMENT, RULE_STEM].includes(node.type.name)) {
         const { to, from } = node;
         if (actualCommentLocations[node.type.name] === undefined) {
           actualCommentLocations[node.type.name] = [];
@@ -401,7 +402,7 @@ CMD0
     assert.strictEqual('"str_arg_2_1"', nodeContents(input, cmd2args!.firstChild!.nextSibling!));
     assert.strictEqual(null, cmd2args!.firstChild!.nextSibling!.nextSibling); // only 2 arguments
 
-    const cmd2meta = cmd2.getChild(METADATA_TOKEN)!.getChild(METADATA_ENTRY_TOKEN);
+    const cmd2meta = cmd2.getChild(RULE_METADATA)!.getChild(RULE_METADATA_ENTRY);
     assert.strictEqual('"md3"', nodeContents(input, cmd2meta!.getChild('Key')!));
     assert.strictEqual('"foobar"', nodeContents(input, cmd2meta!.getChild('Value')!));
   });
@@ -414,7 +415,7 @@ function assertNoErrorNodes(input: string, verbose?: boolean) {
     if (verbose) {
       console.log(node.type.name);
     }
-    assert.notStrictEqual(node.type.name, ERROR);
+    assert.notStrictEqual(node.type.name, TOKEN_ERROR);
   } while (cursor.next());
 }
 
