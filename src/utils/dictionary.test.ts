@@ -1,5 +1,6 @@
 import type { FswCommand, HwCommand } from '@nasa-jpl/aerie-ampcs';
 import { isFswCommand } from './dictionary';
+import { describe, expect, test } from 'vitest';
 
 describe('Command and argument type guards', () => {
   test('isFswCommand', () => {

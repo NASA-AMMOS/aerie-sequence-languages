@@ -13,6 +13,7 @@ import { seqJsonToSequence } from './from-seq-json';
 import { SeqLanguage } from './seq-n';
 import { parser } from './seq-n.grammar';
 import { parseVariables, sequenceToSeqJson } from './to-seq-json';
+import { describe, expect, it } from 'vitest';
 
 function argArrToMap(cmdArgs: FswCommandArgument[]): FswCommandArgumentMap {
   return cmdArgs.reduce((argMap, arg) => ({ ...argMap, [arg.name]: arg }), {});

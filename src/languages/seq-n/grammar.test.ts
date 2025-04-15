@@ -1,5 +1,6 @@
 import { testTree } from '@lezer/generator/dist/test';
 import { SeqLanguage } from './seq-n';
+import { describe, expect, test } from 'vitest';
 
 /*
  * Test cases here are canaries against unintended changes to the grammar. Certain grammar changes will alter the parse tree which

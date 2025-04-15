@@ -1,4 +1,5 @@
 import { isQuoted, quoteEscape, removeEscapedQuotes, unquoteUnescape } from './string';
+import { describe, expect, it } from 'vitest';
 
 describe(`'Escaped quotes' from input`, () => {
   it('Should remove escaped quotes surrounding a string', () => {
