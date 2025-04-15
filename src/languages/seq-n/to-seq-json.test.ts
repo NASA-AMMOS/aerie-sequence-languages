@@ -9,10 +9,9 @@ import {
 } from '@nasa-jpl/aerie-ampcs';
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
 import { readFileSync } from 'fs';
-import { describe, expect, it } from 'vitest';
-import { seqJsonToSequence } from './languages/seq-n/from-seq-json';
-import { SeqLanguage } from './languages/seq-n/seq-n';
-import { parser } from './languages/seq-n/seq-n.grammar';
+import { seqJsonToSequence } from './from-seq-json';
+import { SeqLanguage } from './seq-n';
+import { parser } from './seq-n.grammar';
 import { parseVariables, sequenceToSeqJson } from './to-seq-json';
 
 function argArrToMap(cmdArgs: FswCommandArgument[]): FswCommandArgumentMap {

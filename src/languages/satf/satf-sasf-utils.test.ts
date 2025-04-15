@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import { satfToSequence } from './satf-sasf-utils';
 
 describe('satfToSequence', () => {

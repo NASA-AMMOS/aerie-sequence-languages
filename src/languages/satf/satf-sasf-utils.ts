@@ -2,7 +2,7 @@ import type { SyntaxNode } from '@lezer/common';
 import { Tree } from '@lezer/common';
 import type { CommandDictionary, FswCommandArgument } from '@nasa-jpl/aerie-ampcs';
 import { getBalancedDuration, getDurationTimeComponents, parseDurationString, validateTime } from '@nasa-jpl/aerie-time-utils';
-import { unquoteUnescape } from '../../sequence-utils';
+import { unquoteUnescape } from '../../utils/string';
 import { SatfLanguage } from './satf';
 import {
   ACTIVITY_TYPE_DEFINITIONS,
