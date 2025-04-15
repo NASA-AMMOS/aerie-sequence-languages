@@ -16,5 +16,8 @@ export default {
     },
   ],
   external: ['@lezer/lr'],
-  plugins: [lezer(), typescript({ tsconfig: './tsconfig.json' })],
+  plugins: [lezer(), typescript({ 
+    tsconfig: './tsconfig.json',
+    exclude: ["./node_modules","./dist","**/*.test.ts"], // Exclude all files ending with .test.ts in any subdirectory
+  })],
 };
