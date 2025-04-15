@@ -1,5 +1,6 @@
 import type { SeqJson } from '@nasa-jpl/seq-json-schema/types';
 import { seqJsonToSequence } from './from-seq-json';
+import { describe, expect, it } from 'vitest';
 
 describe('from-seq-json.ts', async () => {
   it('converts a seq json id and metadata to sequence', async () => {
