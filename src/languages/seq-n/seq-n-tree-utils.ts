@@ -7,14 +7,13 @@ import {
   RULE_REQUEST_NAME,
   RULE_SEQUENCE_NAME,
   RULE_STEM,
-  TOKEN_ACTIVATE,
-  TOKEN_COMMAND,
-  TOKEN_GROUND_BLOCK,
-  TOKEN_GROUND_EVENT,
-  TOKEN_LOAD,
+  RULE_ACTIVATE,
+  RULE_GROUND_BLOCK,
+  RULE_GROUND_EVENT,
+  RULE_LOAD,
   TOKEN_NUMBER,
-  TOKEN_REPEAT_ARG,
-  TOKEN_REQUEST,
+  RULE_REPEAT_ARG,
+  RULE_REQUEST,
   TOKEN_STRING,
 } from './seqn-grammar-constants';
 // import { SequenceTypes } from '../../../../enums/sequencing';
@@ -29,15 +28,15 @@ import { getFromAndTo, getNearestAncestorNodeOfType } from '../../utils/tree';
 export function getNameNode(stepNode: SyntaxNode | null) {
   if (stepNode) {
     switch (stepNode.name) {
-      case TOKEN_ACTIVATE:
-      case TOKEN_LOAD:
+      case RULE_ACTIVATE:
+      case RULE_LOAD:
         return stepNode.getChild(RULE_SEQUENCE_NAME);
-      case TOKEN_GROUND_BLOCK:
-      case TOKEN_GROUND_EVENT:
+      case RULE_GROUND_BLOCK:
+      case RULE_GROUND_EVENT:
         return stepNode.getChild(RULE_GROUND_NAME);
-      case TOKEN_COMMAND:
+      case RULE_COMMAND:
         return stepNode.getChild(RULE_STEM);
-      case TOKEN_REQUEST:
+      case RULE_REQUEST:
         return stepNode.getChild(RULE_REQUEST_NAME);
     }
   }
@@ -47,12 +46,12 @@ export function getNameNode(stepNode: SyntaxNode | null) {
 
 export function getAncestorStepOrRequest(node: SyntaxNode | null) {
   return getNearestAncestorNodeOfType(node, [
-    TOKEN_COMMAND,
-    TOKEN_ACTIVATE,
-    TOKEN_GROUND_BLOCK,
-    TOKEN_GROUND_EVENT,
-    TOKEN_LOAD,
-    TOKEN_REQUEST,
+    RULE_COMMAND,
+    RULE_ACTIVATE,
+    RULE_GROUND_BLOCK,
+    RULE_GROUND_EVENT,
+    RULE_LOAD,
+    RULE_REQUEST,
   ]);
 }
 
@@ -75,13 +74,13 @@ export class SeqNCommandInfoMapper implements CommandInfoMapper {
   getArgumentAppendPosition(commandOrRepeatArgNode: SyntaxNode | null): number | undefined {
     if (
       commandOrRepeatArgNode?.name === RULE_COMMAND ||
-      commandOrRepeatArgNode?.name === TOKEN_ACTIVATE ||
-      commandOrRepeatArgNode?.name === TOKEN_LOAD
+      commandOrRepeatArgNode?.name === RULE_ACTIVATE ||
+      commandOrRepeatArgNode?.name === RULE_LOAD
     ) {
       const argsNode = commandOrRepeatArgNode.getChild('Args');
       const stemNode = commandOrRepeatArgNode.getChild('Stem');
       return getFromAndTo([stemNode, argsNode]).to;
-    } else if (commandOrRepeatArgNode?.name === TOKEN_REPEAT_ARG) {
+    } else if (commandOrRepeatArgNode?.name === RULE_REPEAT_ARG) {
       return commandOrRepeatArgNode.to - 1;
     }
     return undefined;
@@ -137,7 +136,7 @@ export class SeqNCommandInfoMapper implements CommandInfoMapper {
   }
 
   nodeTypeHasArguments(node: SyntaxNode | null): boolean {
-    return node?.name === TOKEN_COMMAND;
+    return node?.name === RULE_COMMAND;
   }
 
   nodeTypeNumberCompatible(node: SyntaxNode | null): boolean {
