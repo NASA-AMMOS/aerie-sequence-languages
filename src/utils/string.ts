@@ -13,6 +13,13 @@ export function quoteEscape(s: string): string {
   return `"${s.replaceAll('"', '\\"')}"`;
 }
 
+export function removeQuote(s: string) {
+  if (isQuoted(s) && s.length > 1) {
+    return s.trim().slice(1, -1);
+  }
+  return s;
+}
+
 export function removeEscapedQuotes(text: string): string;
 export function removeEscapedQuotes(text: number): number;
 export function removeEscapedQuotes(text: boolean): boolean;
