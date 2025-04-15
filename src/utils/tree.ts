@@ -1,3 +1,4 @@
+// TODO can remove this file unless SATF/SASF uses it
 import type { SyntaxNode, TreeCursor } from '@lezer/common';
 
 export function numberOfChildren(node: SyntaxNode): number {
