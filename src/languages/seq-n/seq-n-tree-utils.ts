@@ -19,11 +19,11 @@ import {
 } from './seqn-grammar-constants';
 // import { SequenceTypes } from '../../../../enums/sequencing';
 // import { type LibrarySequence, type UserSequence } from '../../../../types/sequencing';
-import { fswCommandArgDefault } from '../../command-dictionary';
+import { fswCommandArgDefault } from '../../utils/dictionary';
 import type { CommandInfoMapper } from '../../command-info-mapper';
 // import { validateVariables } from '../../sequence-linter';
 // import { parseVariables } from './to-seq-json';
-import { getFromAndTo, getNearestAncestorNodeOfType } from '../../tree-utils';
+import { getFromAndTo, getNearestAncestorNodeOfType } from '../../utils/tree';
 // import { SeqLanguage } from './seq-n';
 
 export function getNameNode(stepNode: SyntaxNode | null) {
