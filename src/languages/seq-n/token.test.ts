@@ -1,11 +1,9 @@
-/* eslint-disable no-undef */
-
 import type { SyntaxNode, Tree } from '@lezer/common';
 import { readFileSync, readdirSync } from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { assert, describe, it } from 'vitest';
-import { SeqLanguage } from './languages/seq-n/seq-n';
+import { SeqLanguage } from './seq-n';
 
 const ERROR = '⚠';
 const ENUM_TOKEN = 'Enum';

@@ -2,6 +2,8 @@ import {
   parse,
   type CommandDictionary,
   type EnumMap,
+  type FswCommand,
+  type HwCommand,
   type FswCommandArgument,
   type FswCommandArgumentBoolean,
   type FswCommandArgumentEnum,
@@ -12,7 +14,7 @@ import {
   type FswCommandArgumentUnsigned,
   type FswCommandArgumentVarString,
 } from '@nasa-jpl/aerie-ampcs';
-import { logError } from './logger';
+import { logError } from '../logger';
 
 /**
  * Return a default argument for a given argument definition.
@@ -173,4 +175,8 @@ export async function parseCommandDictionaryFromFile(
     logError('No file provided');
     return null;
   }
+}
+
+export function isFswCommand(command: FswCommand | HwCommand): command is FswCommand {
+  return (command as FswCommand).type === 'fsw_command';
 }

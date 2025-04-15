@@ -30,7 +30,7 @@ import type {
 import { TOKEN_ACTIVATE, TOKEN_COMMAND, TOKEN_LOAD, TOKEN_REPEAT_ARG } from './seqn-grammar-constants';
 import { getBalancedDuration, getDurationTimeComponents, parseDurationString, validateTime } from '@nasa-jpl/aerie-time-utils';
 import { logInfo } from '../../logger';
-import { removeEscapedQuotes, unquoteUnescape } from '../../sequence-utils';
+import { removeEscapedQuotes, unquoteUnescape } from '../../utils/string';
 
 enum TimeTypes {
   ABSOLUTE = 'absolute',
