@@ -1,5 +1,5 @@
 import { testTree } from '@lezer/generator/dist/test';
-import { SeqLanguage } from './seq-n';
+import { SeqParser } from './seq-n';
 import { describe, expect, test } from 'vitest';
 
 /*
@@ -582,6 +582,6 @@ describe.each([
 
     testTree will throw if there's a mismatch between the returned actual and expected trees, it returns
     undefined when they match. */
-    expect(testTree(SeqLanguage.parser.parse(input), expected, undefined)).toBeUndefined();
+    expect(testTree(SeqParser.parse(input), expected, undefined)).toBeUndefined();
   });
 });
