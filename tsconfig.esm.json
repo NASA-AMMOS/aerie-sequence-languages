@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "module": "CommonJS",
-    "outDir": "dist/cjs",
+    "target": "ES2022",
+    "module": "ES2020",
+    "outDir": "dist/esm",
     "baseUrl": "src",
     "strict": true,
     "moduleResolution": "node",
@@ -21,6 +21,6 @@
     "src/languages/satf/grammar/satf-sasf.grammar.terms.js",
     "src/languages/seq-n/seq-n.grammar.js",
     "src/languages/seq-n/seq-n.grammar.terms.js"
-  ],
+  ], 
   "exclude": ["./node_modules","./dist","**/*.test.ts"]
 }

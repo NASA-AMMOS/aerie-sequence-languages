@@ -25,9 +25,12 @@
     }
   },
   "scripts": {
-    "test": "vitest run",
-    "build": "npm run clean; rollup -c",
-    "clean": "rimraf -g ./dist **/*.grammar.js",
+    "satf": "rimraf ./src/languages/satf/grammar/satf-sasf.grammar.js; lezer-generator ./src/languages/satf/grammar/satf-sasf.grammar -o ./src/languages/satf/grammar/satf-sasf.grammar.js",
+    "seqn": "rimraf ./src/languages/seq-n/seq-n.grammar.js; lezer-generator ./src/languages/seq-n/seq-n.grammar -o ./src/languages/seq-n/seq-n.grammar.js",
+    "grammar-builder" :"npm run satf; npm run seqn",
+    "test": "npm run grammar-builder && vitest run",
+    "build": "npm run clean; npm run grammar-builder; tsc -p tsconfig.json && tsc -p tsconfig.esm.json",
+    "clean": "rimraf ./dist",
     "reformat": "prettier --write ./src"
   },
   "files": [
@@ -43,11 +46,8 @@
   ],
   "devDependencies": {
     "@lezer/generator": "^1.7.3",
-    "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-typescript": "^12.1.2",
     "prettier": "^3.5.3",
     "rimraf": "^5.0.5",
-    "rollup": "^4.39.0",
     "typescript": "^5.8.2",
     "vitest": "^3.1.1"
   },
