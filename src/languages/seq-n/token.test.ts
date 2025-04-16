@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { assert, describe, it } from 'vitest';
-import { SeqLanguage } from './seq-n';
+import { SeqParser } from './seq-n';
 import {
   RULE_METADATA,
   RULE_METADATA_ENTRY,
@@ -44,7 +44,7 @@ describe('metadata', () => {
 @METADATA "name4" 4e1
 C STEM
 `;
-    const parseTree = SeqLanguage.parser.parse(input);
+    const parseTree = SeqParser.parse(input);
     assertNoErrorNodes(input);
     const topLevelMetaData = parseTree.topNode.getChild(RULE_METADATA);
     const metaEntries = topLevelMetaData!.getChildren(RULE_METADATA_ENTRY);
@@ -79,7 +79,7 @@ C STEM
 C STEM
 `;
     assertNoErrorNodes(input);
-    const parseTree = SeqLanguage.parser.parse(input);
+    const parseTree = SeqParser.parse(input);
     const topLevelMetaData = parseTree.topNode.getChild(RULE_METADATA);
     const metaEntries = topLevelMetaData!.getChildren(RULE_METADATA_ENTRY);
     assert.equal(metaEntries.length, 4);
@@ -134,7 +134,7 @@ describe('header directives', () => {
   C CMD_NO_ARGS
     `;
     assertNoErrorNodes(input);
-    const parseTree = SeqLanguage.parser.parse(input);
+    const parseTree = SeqParser.parse(input);
     assert.equal(getIdValue(parseTree, input), '"test.name"');
   });
 
@@ -146,7 +146,7 @@ describe('header directives', () => {
   C CMD_NO_ARGS
     `;
     assertNoErrorNodes(input);
-    const parseTree = SeqLanguage.parser.parse(input);
+    const parseTree = SeqParser.parse(input);
     assert.equal(getIdValue(parseTree, input), 'test_name');
   });
 
@@ -158,7 +158,7 @@ describe('header directives', () => {
   C CMD_NO_ARGS
     `;
     assertNoErrorNodes(input);
-    const parseTree = SeqLanguage.parser.parse(input);
+    const parseTree = SeqParser.parse(input);
     assert.equal(getIdValue(parseTree, input), '21');
   });
 
@@ -171,7 +171,7 @@ describe('header directives', () => {
     permutations.forEach((ordering: string[]) => {
       const input = ordering.join('\n\n');
       assertNoErrorNodes(input);
-      const parseTree = SeqLanguage.parser.parse(input);
+      const parseTree = SeqParser.parse(input);
       assert.equal(getIdValue(parseTree, input), `"test.seq"`);
       assert.deepEqual(
         parseTree.topNode
@@ -201,7 +201,7 @@ R123T12:34:56 @ACTIVATE("act2.name") "foo" 1 2 3  # Comment text
 @ENGINE -1
   `;
     assertNoErrorNodes(input);
-    const parseTree = SeqLanguage.parser.parse(input);
+    const parseTree = SeqParser.parse(input);
     const activates = parseTree.topNode.firstChild?.getChildren(RULE_ACTIVATE);
     assert.equal(activates?.length, 2);
   });
@@ -215,7 +215,7 @@ R123T12:34:56 @ACTIVATE("act2.name") "foo" 1 2 3  # Comment text
   @ENGINE -1
     `;
     assertNoErrorNodes(input);
-    const parseTree = SeqLanguage.parser.parse(input);
+    const parseTree = SeqParser.parse(input);
     const activates = parseTree.topNode.firstChild?.getChildren(RULE_LOAD);
     assert.equal(activates?.length, 2);
   });
@@ -226,7 +226,7 @@ A2024-123T12:34:56 @GROUND_BLOCK("ground_block.name") # No Args
 R123T12:34:56 @GROUND_EVENT("ground_event.name") "foo" 1 2 3  # No Args
   `;
     assertNoErrorNodes(input);
-    const parseTree = SeqLanguage.parser.parse(input);
+    const parseTree = SeqParser.parse(input);
     assert.isNotNull(parseTree.topNode.firstChild);
     const groundBlocks = parseTree.topNode.firstChild!.getChildren(RULE_GROUND_BLOCK);
     assert.equal(groundBlocks.length, 1);
@@ -261,7 +261,7 @@ A2024-123T12:34:56 @REQUEST_BEGIN("request2.name")
 @METADATA "foo" "bar"
 `;
     assertNoErrorNodes(input);
-    const parseTree = SeqLanguage.parser.parse(input);
+    const parseTree = SeqParser.parse(input);
     assert.isNotNull(parseTree.topNode.firstChild);
     const requests = parseTree.topNode.firstChild!.getChildren('Request');
     assert.equal(requests.length, 2);
@@ -314,7 +314,7 @@ describe('error positions', () => {
     },
   ]) {
     it(testname, () => {
-      const cursor = SeqLanguage.parser.parse(input).cursor();
+      const cursor = SeqParser.parse(input).cursor();
       do {
         const { node } = cursor;
         if (node.type.name === TOKEN_ERROR) {
@@ -380,7 +380,7 @@ CMD0
     };
     const actualCommentLocations: { [name: string]: { from: number; to: number }[] } = {};
     assertNoErrorNodes(input);
-    const parseTree = SeqLanguage.parser.parse(input);
+    const parseTree = SeqParser.parse(input);
     const cursor = parseTree.cursor();
     do {
       const { node } = cursor;
@@ -409,7 +409,7 @@ CMD0
 });
 
 function assertNoErrorNodes(input: string, verbose?: boolean) {
-  const cursor = SeqLanguage.parser.parse(input).cursor();
+  const cursor = SeqParser.parse(input).cursor();
   do {
     const { node } = cursor;
     if (verbose) {
@@ -430,7 +430,7 @@ function printNode(input: string, node: SyntaxNode) {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function printNodes(input: string, filter?: (name: string) => boolean) {
-  const cursor = SeqLanguage.parser.parse(input).cursor();
+  const cursor = SeqParser.parse(input).cursor();
   do {
     const { node } = cursor;
     if (!filter || filter(node.type.name)) {
