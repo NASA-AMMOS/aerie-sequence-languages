@@ -11,7 +11,7 @@ import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
 import { readFileSync } from 'fs';
 import { seqJsonToSequence } from './from-seq-json';
 import { SeqLanguage } from './seq-n';
-import { parser } from './seq-n.grammar';
+import { parser } from './seq-n.grammar.js';
 import { parseVariables, sequenceToSeqJson } from './to-seq-json';
 import { describe, expect, it } from 'vitest';
 
@@ -68,7 +68,7 @@ const commandDictionary: CommandDictionary = {
   path: '/file/path',
 };
 
-const commandBanana = parse(readFileSync('src/tests/mocks/sequencing/dictionaries/command_banananation.xml', 'utf-8'));
+const commandBanana = parse(readFileSync('tests/dictionary/command_banananation.xml', 'utf-8'));
 
 describe('convert a sequence to seq json', async () => {
   it('hardware command', async () => {

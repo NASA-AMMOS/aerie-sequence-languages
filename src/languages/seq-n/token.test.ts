@@ -327,7 +327,7 @@ describe('error positions', () => {
 });
 
 describe('seqfiles', () => {
-  const seqDir = path.dirname(fileURLToPath(import.meta.url)) + '/../../tests/mocks/sequencing/sequences';
+  const seqDir = path.dirname(fileURLToPath(import.meta.url)) + '/../../../tests/sequence';
   for (const file of readdirSync(seqDir)) {
     if (!/\.txt$/.test(file)) {
       continue;
