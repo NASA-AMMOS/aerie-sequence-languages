@@ -27,7 +27,7 @@
   "scripts": {
     "satf": "rimraf ./src/languages/satf/grammar/satf-sasf.grammar.js; lezer-generator ./src/languages/satf/grammar/satf-sasf.grammar -o ./src/languages/satf/grammar/satf-sasf.grammar.js",
     "seqn": "rimraf ./src/languages/seq-n/seq-n.grammar.js; lezer-generator ./src/languages/seq-n/seq-n.grammar -o ./src/languages/seq-n/seq-n.grammar.js",
-    "grammar-builder" :"npm run satf; npm run seqn",
+    "grammar-builder": "npm run satf; npm run seqn",
     "test": "npm run grammar-builder && vitest run",
     "build": "npm run clean; npm run grammar-builder; tsc -p tsconfig.json && tsc -p tsconfig.esm.json",
     "clean": "rimraf ./dist",
@@ -52,6 +52,7 @@
     "vitest": "^3.1.1"
   },
   "dependencies": {
+    "@codemirror/language": "^6.11.0",
     "@lezer/lr": "^1.4.2",
     "@nasa-jpl/aerie-ampcs": "^1.0.6",
     "@nasa-jpl/aerie-time-utils": "git+https://github.com/NASA-AMMOS/aerie-time-utils.git",
