@@ -27,10 +27,10 @@ import type {
   Time,
   VariableDeclaration,
 } from '@nasa-jpl/seq-json-schema/types';
-import { RULE_ACTIVATE, RULE_COMMAND, RULE_LOAD, RULE_REPEAT_ARG } from './seqn-grammar-constants';
+import { RULE_ACTIVATE, RULE_COMMAND, RULE_LOAD, RULE_REPEAT_ARG } from '../languages/seq-n/seqn-grammar-constants';
 import { getBalancedDuration, getDurationTimeComponents, parseDurationString, validateTime } from '@nasa-jpl/aerie-time-utils';
-import { logInfo } from '../../logger';
-import { removeEscapedQuotes, unquoteUnescape } from '../../utils/string';
+import { logInfo } from '../logger';
+import { removeEscapedQuotes, unquoteUnescape } from '../utils/string';
 
 enum TimeTypes {
   ABSOLUTE = 'absolute',
@@ -51,7 +51,7 @@ function seqJsonDefault(): SeqJson {
 /**
  * Walks the sequence parse tree and converts it to a valid Seq JSON object.
  */
-export function sequenceToSeqJson(
+export function seqnToSeqJson(
   node: Tree,
   text: string,
   commandDictionary: CommandDictionary | null,
