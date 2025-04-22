@@ -10,7 +10,7 @@ import {
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
 import { readFileSync } from 'fs';
 import { seqJsonToSequence } from './from-seq-json';
-import { SeqParser } from './seq-n';
+import { SeqnParser } from './seq-n';
 import { parser } from './seq-n.grammar.js';
 import { parseVariables, sequenceToSeqJson } from './to-seq-json';
 import { describe, expect, it } from 'vitest';
@@ -84,7 +84,7 @@ HDW_CMD`;
       id: 'test',
       metadata: {},
     };
-    const actual = sequenceToSeqJson(SeqParser.parse(seq), seq, commandDictionary, id);
+    const actual = sequenceToSeqJson(SeqnParser.parse(seq), seq, commandDictionary, id);
     expect(actual).toEqual(expectedJson);
   });
 
@@ -127,7 +127,7 @@ ECHO "hello"
       ],
       metadata: {},
     };
-    const actual = sequenceToSeqJson(SeqParser.parse(seq), seq, commandDictionary, id);
+    const actual = sequenceToSeqJson(SeqnParser.parse(seq), seq, commandDictionary, id);
     expect(actual).toEqual(expectedJson);
   });
 
@@ -150,7 +150,7 @@ HDW_CMD_2
       id: 'test',
       metadata: {},
     };
-    const actual = sequenceToSeqJson(SeqParser.parse(seq), seq, commandDictionary, id);
+    const actual = sequenceToSeqJson(SeqnParser.parse(seq), seq, commandDictionary, id);
     expect(actual).toEqual(expectedJson);
   });
 
@@ -208,7 +208,7 @@ C FSW_CMD_1 0.123 -2.34 # inline description
         },
       ],
     };
-    const actual = sequenceToSeqJson(SeqParser.parse(seq), seq, commandDictionary, id);
+    const actual = sequenceToSeqJson(SeqnParser.parse(seq), seq, commandDictionary, id);
     expect(actual).toEqual(expectedJson);
   });
 
@@ -273,7 +273,7 @@ R71 ECHO    L02STR
         },
       ],
     };
-    const actual = sequenceToSeqJson(SeqParser.parse(seq), seq, commandBanana, id);
+    const actual = sequenceToSeqJson(SeqnParser.parse(seq), seq, commandBanana, id);
     expect(actual).toEqual(expectedJson);
   });
 
@@ -335,7 +335,7 @@ R10 PACKAGE_BANANA     2      [    "bundle1"    5 "bundle2" 10]
         },
       ],
     };
-    const actual = sequenceToSeqJson(SeqParser.parse(seq), seq, commandBanana, id);
+    const actual = sequenceToSeqJson(SeqnParser.parse(seq), seq, commandBanana, id);
     expect(actual).toEqual(expectedJson);
   });
 
@@ -347,7 +347,7 @@ C ECHO L00STR
 C ECHO "L00STR"
 C ECHO L01STR
     `;
-    const actual = sequenceToSeqJson(SeqParser.parse(seq), seq, commandBanana, id);
+    const actual = sequenceToSeqJson(SeqnParser.parse(seq), seq, commandBanana, id);
     const expectedJson = {
       id: 'test.inline',
       locals: [
@@ -425,7 +425,7 @@ C ECHO L00STR
 C ECHO "L01"
 C ECHO SIZE
     `;
-    const actual = sequenceToSeqJson(SeqParser.parse(seq), seq, commandBanana, id);
+    const actual = sequenceToSeqJson(SeqnParser.parse(seq), seq, commandBanana, id);
     const expectedJson = {
       id: 'test.inline',
       locals: [
@@ -539,7 +539,7 @@ C ECHO SIZE
 
     for (const ordering of permutations) {
       const input = ordering.join('\n\n');
-      const actual = sequenceToSeqJson(SeqParser.parse(input), input, commandBanana, 'id');
+      const actual = sequenceToSeqJson(SeqnParser.parse(input), input, commandBanana, 'id');
       const expected = {
         id: 'test.seq',
         locals: [
@@ -581,7 +581,7 @@ C ECHO SIZE
 
     R1 ECHO "Can this handle \\"Escaped\\" quotes??" # and this "too"`;
     const id = 'escaped_quotes';
-    const actual = await sequenceToSeqJson(SeqParser.parse(seq), seq, commandBanana, id);
+    const actual = await sequenceToSeqJson(SeqnParser.parse(seq), seq, commandBanana, id);
     const expected = `{
   "id": "escaped_quotes",
   "metadata": {},
@@ -619,7 +619,7 @@ R00:00:01 ECHO "Can this handle \\"Escaped\\" quotes??" # and this "too"
 @MODEL "Variable" 0 "Offset"
 @MODEL "Variable \\"Escaped\\"" 0 "Offset \\" \\" \\"\\""`;
     const id = 'escaped_metadata';
-    const actual = await sequenceToSeqJson(SeqParser.parse(seq), seq, commandBanana, id);
+    const actual = await sequenceToSeqJson(SeqnParser.parse(seq), seq, commandBanana, id);
     const expected = `{
   "id": "escaped_metadata",
   "metadata": {},
@@ -700,7 +700,7 @@ R123T11:55:33 @GROUND_EVENT("ground_event.name") "foo" 1 2 3
 R123T12:34:56 @ACTIVATE("act2.name") "foo" 1 2 3  # Comment text
 @ENGINE -1
     `;
-    const actual = sequenceToSeqJson(SeqParser.parse(seq), seq, commandBanana, '');
+    const actual = sequenceToSeqJson(SeqnParser.parse(seq), seq, commandBanana, '');
     const expectedJson = {
       id,
       metadata: {},
@@ -835,7 +835,7 @@ A2024-123T12:34:56 @REQUEST_BEGIN("request.name") # Description Text
   "boolean": true
 }
     `;
-    const actual = sequenceToSeqJson(SeqParser.parse(input), input, commandBanana, 'id');
+    const actual = sequenceToSeqJson(SeqnParser.parse(input), input, commandBanana, 'id');
     const expected = {
       id: 'id',
       metadata: {},
@@ -911,7 +911,7 @@ G+03:00:00 "GroundEpochName" @REQUEST_BEGIN("request2.name")
 @REQUEST_END
 @METADATA "req_0_meta_name" "req_0_meta_value"
     `;
-    const actual = sequenceToSeqJson(SeqParser.parse(input), input, commandBanana, 'id');
+    const actual = sequenceToSeqJson(SeqnParser.parse(input), input, commandBanana, 'id');
     const expected = {
       id: 'id',
       metadata: {},
@@ -1000,7 +1000,7 @@ G03:00:00 "GroundEpochName" @REQUEST_BEGIN("request2.name")
 
 `;
 
-    const actual = sequenceToSeqJson(SeqParser.parse(input), input, commandBanana, 'id');
+    const actual = sequenceToSeqJson(SeqnParser.parse(input), input, commandBanana, 'id');
     const expected = {
       id: 'id',
       metadata: {},
@@ -1204,7 +1204,7 @@ E-00:06:40.333 BAKE_BREAD`;
         },
       ],
     };
-    const actual = sequenceToSeqJson(SeqParser.parse(seq), seq, commandDictionary, id);
+    const actual = sequenceToSeqJson(SeqnParser.parse(seq), seq, commandDictionary, id);
     expect(actual).toEqual(expectedJson);
   });
 
@@ -1216,9 +1216,9 @@ E-00:06:40.333 BAKE_BREAD`;
   # comment
   C FSW_CMD_1 0.123 -2.34 # inline description`;
 
-      const seqJson1 = await sequenceToSeqJson(SeqParser.parse(input), input, commandDictionary, 'id');
+      const seqJson1 = await sequenceToSeqJson(SeqnParser.parse(input), input, commandDictionary, 'id');
       const seqN1 = await seqJsonToSequence(seqJson1);
-      const seqJson2 = await sequenceToSeqJson(SeqParser.parse(seqN1), seqN1, commandDictionary, 'id');
+      const seqJson2 = await sequenceToSeqJson(SeqnParser.parse(seqN1), seqN1, commandDictionary, 'id');
       expect(seqJson1).toEqual(seqJson2);
     });
 
@@ -1246,9 +1246,9 @@ G+3 "GroundEpochName" @REQUEST_BEGIN("request2.name")
 @METADATA "foo" "bar"
   `;
 
-      const seqJson1 = await sequenceToSeqJson(SeqParser.parse(input), input, commandDictionary, 'id');
+      const seqJson1 = await sequenceToSeqJson(SeqnParser.parse(input), input, commandDictionary, 'id');
       const seqN1 = await seqJsonToSequence(seqJson1);
-      const seqJson2 = await sequenceToSeqJson(SeqParser.parse(seqN1), seqN1, commandDictionary, 'id');
+      const seqJson2 = await sequenceToSeqJson(SeqnParser.parse(seqN1), seqN1, commandDictionary, 'id');
       expect(seqJson1).toEqual(seqJson2);
     });
   });
@@ -1261,7 +1261,7 @@ C CMD_0 true false [ false true ]
 @METADATA "foo" "bar"
 @MODEL "a" true "00:00:00"
   `;
-  const actual = sequenceToSeqJson(SeqParser.parse(input), input, commandBanana, 'id');
+  const actual = sequenceToSeqJson(SeqnParser.parse(input), input, commandBanana, 'id');
   const expected = {
     id: 'id',
     metadata: {},
