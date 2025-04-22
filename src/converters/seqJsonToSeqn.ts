@@ -148,7 +148,7 @@ function seqJsonDescriptionToSequence(description: Description): string {
 /**
  * Transforms a sequence JSON to a sequence string.
  */
-export function seqJsonToSequence(seqJson: SeqJson): string {
+export function seqJsonToSeqn(seqJson: SeqJson): string {
   const sequence: string[] = [];
 
   // ID

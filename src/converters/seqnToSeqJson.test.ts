@@ -9,7 +9,7 @@ import {
 } from '@nasa-jpl/aerie-ampcs';
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
 import { readFileSync } from 'fs';
-import { seqJsonToSequence } from './seqJsonToSeqn.js';
+import { seqJsonToSeqn } from './seqJsonToSeqn.js';
 import { SeqnParser } from '../languages/seq-n/seq-n.js';
 import { parseVariables, seqnToSeqJson } from './seqnToSeqJson.js';
 import { describe, expect, it } from 'vitest';
@@ -1216,7 +1216,7 @@ E-00:06:40.333 BAKE_BREAD`;
   C FSW_CMD_1 0.123 -2.34 # inline description`;
 
       const seqJson1 = await seqnToSeqJson(SeqnParser.parse(input), input, commandDictionary, 'id');
-      const seqN1 = await seqJsonToSequence(seqJson1);
+      const seqN1 = await seqJsonToSeqn(seqJson1);
       const seqJson2 = await seqnToSeqJson(SeqnParser.parse(seqN1), seqN1, commandDictionary, 'id');
       expect(seqJson1).toEqual(seqJson2);
     });
@@ -1246,7 +1246,7 @@ G+3 "GroundEpochName" @REQUEST_BEGIN("request2.name")
   `;
 
       const seqJson1 = await seqnToSeqJson(SeqnParser.parse(input), input, commandDictionary, 'id');
-      const seqN1 = await seqJsonToSequence(seqJson1);
+      const seqN1 = await seqJsonToSeqn(seqJson1);
       const seqJson2 = await seqnToSeqJson(SeqnParser.parse(seqN1), seqN1, commandDictionary, 'id');
       expect(seqJson1).toEqual(seqJson2);
     });
