@@ -1,5 +1,5 @@
 @top Sequence {
-  optSpace
+  newLine?
   (
     commentLine* ~maybeComments
     (IdDeclaration | ParameterDeclaration | LocalDeclaration | GenericDirective)
@@ -19,22 +19,28 @@
 }
 
 GenericDirective {
-  genericDirective (whiteSpace String)* newLine
+  genericDirective String* newLine
 }
 
 IdDeclaration {
-  idDirective (whiteSpace (String | Enum | Number)?)? newLine
+  idDirective (String | Enum | Number)? newLine
 }
 
 ParameterDeclaration {
-  (parameterDirective whiteSpace Variable{((Enum whiteSpace?) | (Enum whiteSpace? Object whiteSpace?))}+ newLine) |
-  (parameterStartDirective newLine (whiteSpace? Variable{((Enum whiteSpace?) | (Enum whiteSpace? Type { identifier } whiteSpace? ( (EnumName { identifier}) | (Range { String } (whiteSpace Values {String})? ) |  (EnumName { identifier} whiteSpace (Range { String } (whiteSpace Values {String})?) )? whiteSpace?)) )} newLine)* parameterEndDirective newLine )
+  (parameterDirective Variable{ Enum Object? }+ newLine) |
+  (parameterStartDirective newLine (Variable newLine)* parameterEndDirective newLine )
 }
 
 LocalDeclaration {
-  (localsDirective whiteSpace Variable{((Enum whiteSpace?) | (Enum whiteSpace? Object whiteSpace?))}+ newLine) |
-  (localsStartDirective newLine (whiteSpace? Variable{((Enum whiteSpace?) | (Enum whiteSpace? Type { identifier } whiteSpace? ( (EnumName { identifier}) | (Range { String } (whiteSpace Values {String})? ) |  (EnumName { identifier} whiteSpace (Range { String } (whiteSpace Values {String})?) )? whiteSpace?)) )} newLine)* localsEndDirective newLine )
+  (localsDirective Variable{ Enum Object? }+ newLine) |
+  (localsStartDirective newLine (Variable newLine)* localsEndDirective newLine )
+}
 
+Variable {
+  Enum (Type { identifier } (
+    (EnumName { identifier } (Range { String } (Values {String})?)? )?
+    | (Range { String } (Values {String})? )
+  ))?
 }
 
 commandBlock {
@@ -45,14 +51,10 @@ commandBlock {
   )+
 }
 
-step { Command | Activate | GroundBlock | GroundEvent | Load | Note }
+step { Command | Activate | GroundBlock | GroundEvent | Load }
 
 commentLine {
   LineComment newLine
-}
-
-optSpace {
-  (newLine | whiteSpace)?
 }
 
 Commands {
@@ -70,15 +72,11 @@ HardwareCommands {
   commandBlock
 }
 
-TimeTag { TimeAbsolute | (TimeGroundEpoch Name { String } whiteSpace)  | TimeEpoch | TimeRelative  | TimeComplete | TimeBlockRelative }
+TimeTag { TimeAbsolute | (TimeGroundEpoch Name { String })  | TimeEpoch | TimeRelative  | TimeComplete }
 
-Args {
-  (whiteSpace (arg))* whiteSpace?
-}
+Args { arg* }
 
-RepeatArg {
-  "[" (whiteSpace? arg)* whiteSpace? "]"
-}
+RepeatArg { "[" (arg)* "]" }
 
 arg[@isGroup=Arguments] { Number | String | Boolean | Enum | RepeatArg }
 
@@ -101,8 +99,8 @@ commonLoadActivate {
   Args
   LineComment?
   newLine
-  Engine { engineDirective whiteSpace Number newLine }?
-  Epoch { epochDirective whiteSpace String newLine }?
+  Engine { engineDirective Number newLine }?
+  Epoch { epochDirective String newLine }?
   Metadata?
   Models?
 }
@@ -120,19 +118,10 @@ commonGround {
   Models?
 }
 
-Note {
-  TimeTag
-  noteDirective "(" NoteValue { String } ")"
-  LineComment?
-  newLine
-  Metadata?
-  Models?
-}
-
 Request {
   TimeTag
   requestStartDirective "(" RequestName { String } ")"
-  whiteSpace? LineComment? newLine
+  LineComment? newLine
   // json schema requires step+, catch error in linter for cleaner message
   Steps { step* }
   requestEndDirective newLine
@@ -142,8 +131,8 @@ Request {
 Metadata {
   MetaEntry {
     metadataDirective
-    whiteSpace Key { String }
-    whiteSpace Value { metaValue }
+    Key { String }
+    Value { metaValue }
     newLine
   }+
 }
@@ -152,20 +141,20 @@ metaValue {
   String | Number | Boolean | Null | Array | Object
 }
 
-Object { "{" (optSpace | list<Property>) "}" }
-Array  { "[" (optSpace | list<metaValue>) "]" }
+Object { "{" (newLine? | list<Property>) "}" }
+Array  { "[" (newLine? | list<metaValue>) "]" }
 
-Property { PropertyName optSpace ":" optSpace metaValue }
+Property { PropertyName newLine? ":" newLine? metaValue }
 PropertyName[isolate] { String }
 
-list<item> { optSpace item (optSpace "," optSpace item)* optSpace }
+list<item> { newLine? item (newLine? "," newLine? item)* newLine? }
 
 Models {
   Model {
     modelDirective
-    whiteSpace Variable { String }
-    whiteSpace Value { String | Number | Boolean }
-    whiteSpace Offset { String }
+    Variable { String }
+    Value { String | Number | Boolean }
+    Offset { String }
     newLine
   }+
 }
@@ -183,19 +172,15 @@ Stem { !stemStart identifier }
 
   timeSecond { $[1-9] @digit* ("."@digit+)? }
 
-  timeSegments { timeSecond | timeDOY | timeHhmmss }
+  TimeAbsolute { 'A'@digit@digit@digit@digit"-"@digit@digit@digit"T"timeHhmmss }
 
-  TimeAbsolute { 'A'@digit@digit@digit@digit"-"@digit@digit@digit"T"timeHhmmss whiteSpace }
+  TimeRelative { 'R'(timeSecond | timeDOY | timeHhmmss) }
 
-  TimeRelative { 'R'timeSegments whiteSpace}
+  TimeEpoch { 'E'$[+\-]?(timeSecond | timeDOY | timeHhmmss) }
 
-  TimeBlockRelative { 'B'$[+\-]?timeSegments whiteSpace }
+  TimeGroundEpoch { 'G'$[+\-]?(timeSecond | timeDOY | timeHhmmss) }
 
-  TimeEpoch { 'E'$[+\-]?timeSegments whiteSpace}
-
-  TimeGroundEpoch { 'G'$[+\-]?timeSegments whiteSpace}
-
-  TimeComplete { 'C' whiteSpace }
+  TimeComplete { 'C ' }
 
   String { '"' (!["\\] | "\\" _)* '"' }
 
@@ -215,7 +200,7 @@ Stem { !stemStart identifier }
 
   LineComment { "#"![\n\r]* }
 
-  newLine { ($[ \t]* "\n")+ $[ \t]* |  (whiteSpace? @eof) }
+  newLine { @whitespace* ("\n" | @eof) }
 
   whiteSpace { $[ \t]+ }
 
@@ -239,12 +224,11 @@ Stem { !stemStart identifier }
   requestEndDirective { "@REQUEST_END" }
   metadataDirective { "@METADATA" }
   modelDirective { "@MODEL" }
-  noteDirective { "@NOTE" }
   genericDirective { "@"identifier }
 
   @precedence { newLine, whiteSpace }
 
-  @precedence{ TimeAbsolute, TimeRelative, TimeEpoch, TimeComplete, TimeGroundEpoch, TimeBlockRelative, Boolean, identifier }
+  @precedence{ TimeAbsolute, TimeRelative, TimeEpoch, TimeComplete, TimeGroundEpoch, Boolean, identifier }
 
   @precedence {
     LoadAndGoDirective,
@@ -263,7 +247,6 @@ Stem { !stemStart identifier }
     loadDirective,
     groundBlockDirective,
     groundEventDirective,
-    noteDirective,
     requestStartDirective,
     requestEndDirective,
     engineDirective,
@@ -272,3 +255,5 @@ Stem { !stemStart identifier }
     identifier
   }
 }
+
+@skip { whiteSpace }
