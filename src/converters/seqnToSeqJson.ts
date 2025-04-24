@@ -553,7 +553,7 @@ export function parseVariables(
   }
 
   return variables.map((variableNode: SyntaxNode) => {
-    const nameNode = variableNode.getChild('Enum');
+    const nameNode = variableNode.getChild('VariableName');
     const typeNode = variableNode.getChild('Type');
     const enumNode = variableNode.getChild('EnumName');
     const rangeNode = variableNode.getChild('Range');

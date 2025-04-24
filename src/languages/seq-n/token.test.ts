@@ -161,17 +161,38 @@ describe('header directives', () => {
         parseTree.topNode
           .getChild(SEQN_NODES.LOCAL_DECLARATION)
           ?.getChildren(SEQN_NODES.VARIABLE)
-          .map(node => getNodeText(node.getChild(SEQN_NODES.ENUM)!, input)),
+          .map(node => getNodeText(node.getChild(SEQN_NODES.VARIABLE_NAME)!, input)),
         ['L01INT', 'L02INT', 'L01UINT', 'L02UINT'],
       );
       assert.deepEqual(
         parseTree.topNode
           .getChild(SEQN_NODES.PARAMETER_DECLARATION)
           ?.getChildren(SEQN_NODES.VARIABLE)
-          .map(node => getNodeText(node.getChild(SEQN_NODES.ENUM)!, input)),
+          .map(node => getNodeText(node.getChild(SEQN_NODES.VARIABLE_NAME)!, input)),
         ['L01STR', 'L02STR'],
       );
     });
+  });
+});
+
+describe('variables', () => {
+  it('should correctly parse declarations', () => {
+    const input = `
+@LOCALS L00INT true
+@INPUT_PARAMS_BEGIN
+  L01INT
+  false
+@INPUT_PARAMS_END
+    `;
+    assertNoErrorNodes(input);
+    const parseTree = SeqnParser.parse(input);
+    const localNodes = parseTree.topNode.getChild(SEQN_NODES.LOCAL_DECLARATION)?.getChildren(SEQN_NODES.VARIABLE) ?? [];
+    const paramNodes = parseTree.topNode.getChild(SEQN_NODES.PARAMETER_DECLARATION)?.getChildren(SEQN_NODES.VARIABLE) ?? [];
+    const variableNodes = [...localNodes, ...paramNodes];
+    assert.deepEqual(
+      variableNodes?.map(node => getNodeText(node.getChild(SEQN_NODES.VARIABLE_NAME)!, input)),
+      ['L00INT', 'true', 'L01INT', 'false'],
+    );
   });
 });
 
@@ -405,20 +426,4 @@ function assertNoErrorNodes(input: string, verbose?: boolean) {
 
 function nodeContents(input: string, node: SyntaxNode) {
   return input.substring(node.from, node.to);
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function printNode(input: string, node: SyntaxNode) {
-  console.log(`${node.type.name}[${node.from}.${node.to}] --> '${nodeContents(input, node)}'`);
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function printNodes(input: string, filter?: (name: string) => boolean) {
-  const cursor = SeqnParser.parse(input).cursor();
-  do {
-    const { node } = cursor;
-    if (!filter || filter(node.type.name)) {
-      printNode(input, node);
-    }
-  } while (cursor.next());
 }

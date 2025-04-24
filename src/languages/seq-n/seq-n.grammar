@@ -27,13 +27,13 @@ IdDeclaration {
 }
 
 ParameterDeclaration {
-  (parameterDirective whiteSpace Variable{((Enum whiteSpace?) | (Enum whiteSpace? Object whiteSpace?))}+ newLine) |
-  (parameterStartDirective newLine (whiteSpace? Variable{((Enum whiteSpace?) | (Enum whiteSpace? Type { identifier } whiteSpace? ( (EnumName { identifier}) | (Range { String } (whiteSpace Values {String})? ) |  (EnumName { identifier} whiteSpace (Range { String } (whiteSpace Values {String})?) )? whiteSpace?)) )} newLine)* parameterEndDirective newLine )
+  (parameterDirective whiteSpace Variable{((VariableName whiteSpace?) | (VariableName whiteSpace? Object whiteSpace?))}+ newLine) |
+  (parameterStartDirective newLine (whiteSpace? Variable{((VariableName whiteSpace?) | (VariableName whiteSpace? Type { identifier } whiteSpace? ( (EnumName { identifier}) | (Range { String } (whiteSpace Values {String})? ) |  (EnumName { identifier} whiteSpace (Range { String } (whiteSpace Values {String})?) )? whiteSpace?)) )} newLine)* parameterEndDirective newLine )
 }
 
 LocalDeclaration {
-  (localsDirective whiteSpace Variable{((Enum whiteSpace?) | (Enum whiteSpace? Object whiteSpace?))}+ newLine) |
-  (localsStartDirective newLine (whiteSpace? Variable{((Enum whiteSpace?) | (Enum whiteSpace? Type { identifier } whiteSpace? ( (EnumName { identifier}) | (Range { String } (whiteSpace Values {String})? ) |  (EnumName { identifier} whiteSpace (Range { String } (whiteSpace Values {String})?) )? whiteSpace?)) )} newLine)* localsEndDirective newLine )
+  (localsDirective whiteSpace Variable{((VariableName whiteSpace?) | (VariableName whiteSpace? Object whiteSpace?))}+ newLine) |
+  (localsStartDirective newLine (whiteSpace? Variable{((VariableName whiteSpace?) | (VariableName whiteSpace? Type { identifier } whiteSpace? ( (EnumName { identifier}) | (Range { String } (whiteSpace Values {String})? ) |  (EnumName { identifier} whiteSpace (Range { String } (whiteSpace Values {String})?) )? whiteSpace?)) )} newLine)* localsEndDirective newLine )
 
 }
 
@@ -61,7 +61,7 @@ Commands {
 }
 
 ImmediateCommands {
-  immediateDirective newLine
+immediateDirective newLine
   commandBlock
 }
 
@@ -212,6 +212,8 @@ Stem { !stemStart identifier }
   FALSE { 'false' }
   Boolean { TRUE | FALSE }
   Null { "null" }
+
+  VariableName { identifier }
 
   LineComment { "#"![\n\r]* }
 

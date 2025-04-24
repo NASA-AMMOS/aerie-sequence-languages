@@ -26,6 +26,7 @@ export const SEQN_NODES = {
   PARAMETER_DECLARATION: 'ParameterDeclaration',
   LOCAL_DECLARATION: 'LocalDeclaration',
   VARIABLE: 'Variable',
+  VARIABLE_NAME: 'VariableName',
   VALUES: 'Values',
   PROPERTY: 'Property',
   PROPERTY_VALUE: 'PropertyValue',

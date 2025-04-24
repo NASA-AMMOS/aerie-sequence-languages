@@ -422,7 +422,7 @@ function getSatfVariableNames(seqnTree: Tree, text: string): string[] {
       continue;
     }
     variables.forEach((variableNode: SyntaxNode) => {
-      const nameNode = variableNode.getChild(SEQN_NODES.ENUM);
+      const nameNode = variableNode.getChild(SEQN_NODES.VARIABLE_NAME);
       if (nameNode) {
         names.push(text.slice(nameNode.from, nameNode.to));
       }
@@ -453,7 +453,7 @@ function satfVariablesFromSeqn(
 
   const serializedVariables = variables
     .map((variableNode: SyntaxNode) => {
-      const nameNode = variableNode.getChild(SEQN_NODES.ENUM);
+      const nameNode = variableNode.getChild(SEQN_NODES.VARIABLE_NAME);
       const typeNode = variableNode.getChild(SEQN_NODES.TYPE);
       const enumNode = variableNode.getChild(SEQN_NODES.ENUM_NAME);
       const rangeNode = variableNode.getChild(SEQN_NODES.RANGE);
