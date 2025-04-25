@@ -28,17 +28,9 @@ import type {
   VariableDeclaration,
 } from '@nasa-jpl/seq-json-schema/types';
 import { RULE_ACTIVATE, RULE_COMMAND, RULE_LOAD, RULE_REPEAT_ARG } from '../languages/seq-n/seqn-grammar-constants';
-import { getBalancedDuration, getDurationTimeComponents, parseDurationString, validateTime } from '@nasa-jpl/aerie-time-utils';
+import { getBalancedDuration, getDurationTimeComponents, parseDurationString, TimeTypes, validateTime } from '@nasa-jpl/aerie-time-utils';
 import { logInfo } from '../logger';
 import { removeEscapedQuotes, unquoteUnescape } from '../utils/string';
-
-enum TimeTypes {
-  ABSOLUTE = 'absolute',
-  EPOCH = 'epoch',
-  EPOCH_SIMPLE = 'epoch_simple',
-  RELATIVE = 'relative',
-  RELATIVE_SIMPLE = 'relative_simple',
-}
 
 /**
  * Returns a minimal valid Seq JSON object.
@@ -486,7 +478,7 @@ function parseTime(commandNode: SyntaxNode, text: string): Time {
     const timeTagEpochText = text.slice(timeTagEpochNode.from + 1, timeTagEpochNode.to).trim();
 
     // a regex to determine if this string [+/-]####T##:##:##.###
-    if (validateTime(timeTagEpochText, TimeTypes.EPOCH)) {
+    if (validateTime(timeTagEpochText, TimeTypes.DOY_TIME) || validateTime(timeTagEpochText, TimeTypes.SECOND_TIME)) {
       const { isNegative, days, hours, minutes, seconds, milliseconds } = getDurationTimeComponents(
         parseDurationString(timeTagEpochText, 'seconds'),
       );
@@ -495,7 +487,7 @@ function parseTime(commandNode: SyntaxNode, text: string): Time {
     }
 
     // a regex to determine if this string [+/-]###.###
-    if (validateTime(timeTagEpochText, TimeTypes.EPOCH_SIMPLE)) {
+    if (validateTime(timeTagEpochText, TimeTypes.SECOND_TIME)) {
       tag = getBalancedDuration(timeTagEpochText);
       if (parseDurationString(tag, 'seconds').milliseconds === 0) {
         tag = tag.slice(0, -4);
@@ -506,7 +498,7 @@ function parseTime(commandNode: SyntaxNode, text: string): Time {
     const timeTagRelativeText = text.slice(timeTagRelativeNode.from + 1, timeTagRelativeNode.to).trim();
 
     // a regex to determine if this string ####T##:##:##.###
-    if (validateTime(timeTagRelativeText, TimeTypes.RELATIVE)) {
+    if (validateTime(timeTagRelativeText, TimeTypes.DOY_TIME)) {
       const { isNegative, days, hours, minutes, seconds, milliseconds } = getDurationTimeComponents(
         parseDurationString(timeTagRelativeText, 'seconds'),
       );
@@ -514,7 +506,7 @@ function parseTime(commandNode: SyntaxNode, text: string): Time {
       return { tag, type: 'COMMAND_RELATIVE' };
     }
 
-    if (validateTime(timeTagRelativeText, TimeTypes.RELATIVE_SIMPLE)) {
+    if (validateTime(timeTagRelativeText, TimeTypes.SECOND_TIME)) {
       tag = getBalancedDuration(timeTagRelativeText);
       if (parseDurationString(tag).milliseconds === 0) {
         tag = tag.slice(0, -4);
@@ -524,7 +516,7 @@ function parseTime(commandNode: SyntaxNode, text: string): Time {
   } else if (timeTagBlockRelativeNode) {
     const timeTagBlockRelativeText = text.slice(timeTagBlockRelativeNode.from + 1, timeTagBlockRelativeNode.to).trim();
 
-    if (validateTime(timeTagBlockRelativeText, TimeTypes.RELATIVE)) {
+    if (validateTime(timeTagBlockRelativeText, TimeTypes.DOY_TIME)) {
       const { isNegative, days, hours, minutes, seconds, milliseconds } = getDurationTimeComponents(
         parseDurationString(timeTagBlockRelativeText, 'seconds'),
       );
