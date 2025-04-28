@@ -10,9 +10,7 @@ import {
 } from '@nasa-jpl/aerie-time-utils';
 import { removeEscapedQuotes, removeQuote, unquoteUnescape } from '../utils/string';
 import { SatfLanguage } from '../languages/satf/grammar/satf-sasf.js';
-import {
-  SATF_SASF_NODES,
-} from '../languages/satf/constants/satf-sasf-constants.js';
+import { SATF_SASF_NODES } from '../languages/satf/constants/satf-sasf-constants.js';
 import { ParsedSatf, ParsedSeqn, ParseSasf, Seqn } from '../languages/satf/types/types.js';
 import { SeqnParser } from '../languages/seq-n/seq-n';
 import { SEQN_NODES } from '../languages/seq-n/seqn-grammar-constants';
@@ -701,7 +699,11 @@ function parseHeader(headerNode: SyntaxNode | null, text: string): string {
     return header;
   }
 
-  const sfduHeader = headerNode.getChild(SATF_SASF_NODES.SFDU_HEADER)?.getChild(SATF_SASF_NODES.HEADER_PAIRS)?.getChildren(SATF_SASF_NODES.HEADER_PAIR) ?? [];
+  const sfduHeader =
+    headerNode
+      .getChild(SATF_SASF_NODES.SFDU_HEADER)
+      ?.getChild(SATF_SASF_NODES.HEADER_PAIRS)
+      ?.getChildren(SATF_SASF_NODES.HEADER_PAIR) ?? [];
 
   return sfduHeader
     .map((pairNode: SyntaxNode) => {
@@ -728,7 +730,9 @@ function parseBody(bodyNode: SyntaxNode | null, globalVariables: string[] = [], 
 
   //satf
   if (bodyNode.getChild(SATF_SASF_NODES.ACTIVITY_TYPE_DEFINITIONS)) {
-    const activityTypeNodes = bodyNode.getChild(SATF_SASF_NODES.ACTIVITY_TYPE_DEFINITIONS)?.getChildren(SATF_SASF_NODES.ACTIVITY_TYPE_GROUP) ?? [];
+    const activityTypeNodes =
+      bodyNode.getChild(SATF_SASF_NODES.ACTIVITY_TYPE_DEFINITIONS)?.getChildren(SATF_SASF_NODES.ACTIVITY_TYPE_GROUP) ??
+      [];
 
     return activityTypeNodes.map((group, i) => {
       let sequenceName = 'sequence-' + i;
@@ -792,9 +796,13 @@ function parseBody(bodyNode: SyntaxNode | null, globalVariables: string[] = [], 
       const requestorNode = group.getChild(SATF_SASF_NODES.REQUESTOR);
       const processorNode = group.getChild(SATF_SASF_NODES.PROCESSOR);
       const keyNode = group.getChild(SATF_SASF_NODES.KEY);
-      const startTimeNode = group.getChild(SATF_SASF_NODES.START_TIME)
+      const startTimeNode = group.getChild(SATF_SASF_NODES.START_TIME);
       const sequenceName = requestNameNode ? text.slice(requestNameNode.from, requestNameNode.to) : 'sequence-' + i;
-      requests += parseTimeTagNode(startTimeNode? startTimeNode.getChild(SATF_SASF_NODES.TIME) : null, startTimeNode ? startTimeNode.getChild(SATF_SASF_NODES.TIME_RELATION) : null, text);
+      requests += parseTimeTagNode(
+        startTimeNode ? startTimeNode.getChild(SATF_SASF_NODES.TIME) : null,
+        startTimeNode ? startTimeNode.getChild(SATF_SASF_NODES.TIME_RELATION) : null,
+        text,
+      );
       requests += `@REQUEST_BEGIN("${sequenceName}")\n`;
       requests += parseSteps(group.getChild(SATF_SASF_NODES.STEPS), globalVariables, text)
         .split('\n')

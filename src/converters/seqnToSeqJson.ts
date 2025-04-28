@@ -28,7 +28,13 @@ import type {
   VariableDeclaration,
 } from '@nasa-jpl/seq-json-schema/types';
 import { SEQN_NODES } from '../languages/seq-n/seqn-grammar-constants';
-import { getBalancedDuration, getDurationTimeComponents, parseDurationString, TimeTypes, validateTime } from '@nasa-jpl/aerie-time-utils';
+import {
+  getBalancedDuration,
+  getDurationTimeComponents,
+  parseDurationString,
+  TimeTypes,
+  validateTime,
+} from '@nasa-jpl/aerie-time-utils';
 import { logInfo } from '../logger';
 import { removeEscapedQuotes, unquoteUnescape } from '../utils/string';
 

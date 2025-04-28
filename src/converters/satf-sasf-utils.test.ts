@@ -619,8 +619,8 @@ end`);
 end`);
   });
 
-    it('should round trip a satf', async () => {
-      const satf = `
+  it('should round trip a satf', async () => {
+    const satf = `
   $$EOH
 
   RT_on_board_block(/eng/seq/instrument.mod,\\instrument\\,
@@ -651,11 +651,11 @@ end`);
           )
       end,
   )
-  $$EOF`
-      const seqn = await satfToSeqn(satf);
-      const result = await seqnToSATF(`${seqn.sequences[0].inputParameters}\n${seqn.sequences[0].steps}`);
-      expect(result.parameters?.trimEnd()).toEqual(
-`PARAMETERS,
+  $$EOF`;
+    const seqn = await satfToSeqn(satf);
+    const result = await seqnToSATF(`${seqn.sequences[0].inputParameters}\n${seqn.sequences[0].steps}`);
+    expect(result.parameters?.trimEnd()).toEqual(
+      `PARAMETERS,
  	status(
 		TYPE,UNSIGNED_DECIMAL
 	),
@@ -666,9 +666,10 @@ end`);
 	temp(
 		TYPE,UNSIGNED_DECIMAL
 	),
-end,`)
-      expect(result.steps?.trimEnd()).toEqual(
-`STEPS,
+end,`,
+    );
+    expect(result.steps?.trimEnd()).toEqual(
+      `STEPS,
 	command(1,
 		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
 		NTEXT,\\Set package\\,
@@ -679,8 +680,9 @@ end,`)
 		NTEXT,\\Disable volatage\\,
 		VOLTAGE_OFF("OFF")
 	),
-end`);
-    });
+end`,
+    );
+  });
 });
 
 describe('seqnToSasf', () => {
