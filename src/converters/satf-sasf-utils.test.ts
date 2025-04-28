@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { satfToSeqn, sasfToSeqn, seqnToSATF, seqnToSASF } from './satf-sasf-utils.js';
-import { ParsedSatf, ParsedSeqn } from './types/types.js';
+import { ParsedSatf, ParsedSeqn } from '../languages/satf/types/types.js';
 
 describe('satfToSeqn', () => {
   it('should return empty header and sequences for empty SATF string', async () => {

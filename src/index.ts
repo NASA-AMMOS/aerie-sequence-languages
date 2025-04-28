@@ -4,5 +4,5 @@ export * from './languages/seq-n/seq-n';
 export { SEQN_CONSTANTS } from './languages/seq-n/seqn-grammar-constants';
   
 export * from './languages/satf/types/types'
-export * from './languages/satf/satf-sasf-utils';
+export * from './converters/satf-sasf-utils';
 export { SASF_SATF_CONST } from './languages/satf/constants/satf-sasf-constants';
