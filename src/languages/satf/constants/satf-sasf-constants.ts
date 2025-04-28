@@ -72,7 +72,7 @@ export const PARAM_QUOTED_STRING = 'QUOTED_STRING';
 export const PARAM_STRING = 'STRING';
 
 
-export const SASF_SATF_CONST = {
+export const SATF_SASF_NODES = {
     SATF,
     SASF,
     HEADER,

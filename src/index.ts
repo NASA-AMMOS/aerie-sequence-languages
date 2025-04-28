@@ -5,4 +5,4 @@ export { SEQN_NODES } from './languages/seq-n/seqn-grammar-constants';
   
 export * from './languages/satf/types/types'
 export * from './converters/satf-sasf-utils';
-export { SASF_SATF_CONST } from './languages/satf/constants/satf-sasf-constants';
+export { SATF_SASF_NODES } from './languages/satf/constants/satf-sasf-constants';
