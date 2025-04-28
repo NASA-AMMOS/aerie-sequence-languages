@@ -11,7 +11,7 @@ import {
 import { removeEscapedQuotes, removeQuote, unquoteUnescape } from '../utils/string';
 import { SatfLanguage } from '../languages/satf/grammar/satf-sasf.js';
 import {
-  SASF_SATF_CONST,
+  SATF_SASF_NODES,
 } from '../languages/satf/constants/satf-sasf-constants.js';
 import { ParsedSatf, ParsedSeqn, ParseSasf, Seqn } from '../languages/satf/types/types.js';
 import { SeqnParser } from '../languages/seq-n/seq-n';
@@ -129,14 +129,14 @@ function satfStepsFromSeqn(
   variables: string[],
   commandDictionary?: CommandDictionary,
 ): string | undefined {
-  let stepNode = seqnTree.topNode.getChild(SASF_SATF_CONST.COMMANDS)?.firstChild;
+  let stepNode = seqnTree.topNode.getChild(SATF_SASF_NODES.COMMANDS)?.firstChild;
   let steps = [];
   while (stepNode) {
     steps.push(stepNode);
     stepNode = stepNode.nextSibling;
   }
 
-  steps = steps.filter((step: SyntaxNode) => step.name !== SASF_SATF_CONST.LINE_COMMENT);
+  steps = steps.filter((step: SyntaxNode) => step.name !== SATF_SASF_NODES.LINE_COMMENT);
 
   if (steps === null || steps.length === 0) {
     return undefined;
@@ -231,12 +231,12 @@ function parseSeqNActivate(
 }
 
 function parseSeqNEngine(stepNode: SyntaxNode, text: string): number | undefined {
-  const engineNode = stepNode.getChild(SASF_SATF_CONST.ENGINE)?.getChild(SASF_SATF_CONST.NUMBER);
+  const engineNode = stepNode.getChild(SATF_SASF_NODES.ENGINE)?.getChild(SATF_SASF_NODES.NUMBER);
   return engineNode ? parseInt(text.slice(engineNode.from, engineNode.to), 10) : undefined;
 }
 
 function parseSeqNEpoch(stepNode: SyntaxNode, text: string): string | undefined {
-  const epochNode = stepNode.getChild(SASF_SATF_CONST.EPOCH)?.getChild(SASF_SATF_CONST.STRING);
+  const epochNode = stepNode.getChild(SATF_SASF_NODES.EPOCH)?.getChild(SATF_SASF_NODES.STRING);
   return epochNode ? unquoteUnescape(text.slice(epochNode.from, epochNode.to)) : undefined;
 }
 
@@ -543,18 +543,18 @@ function satfVariablesFromSeqn(
       //convert seqn type to satf type
       switch (variable.type) {
         case SEQN_NODES.VAR_UINT:
-          variable.type = SASF_SATF_CONST.PARAM_UNSIGNED_DECIMAL;
+          variable.type = SATF_SASF_NODES.PARAM_UNSIGNED_DECIMAL;
           break;
         case SEQN_NODES.VAR_INT:
-          variable.type = SASF_SATF_CONST.PARAM_SIGNED_DECIMAL;
+          variable.type = SATF_SASF_NODES.PARAM_SIGNED_DECIMAL;
           break;
         case SEQN_NODES.VAR_STRING:
-          variable.type = SASF_SATF_CONST.PARAM_QUOTED_STRING;
+          variable.type = SATF_SASF_NODES.PARAM_QUOTED_STRING;
           break;
         case SEQN_NODES.VAR_FLOAT:
           break;
         case SEQN_NODES.VAR_ENUM:
-          variable.type = SASF_SATF_CONST.PARAM_STRING;
+          variable.type = SATF_SASF_NODES.PARAM_STRING;
           break;
       }
 
@@ -670,28 +670,28 @@ function sasfRequestFromSeqN(
 export async function satfToSeqn(satf: string, globalVariables?: string[]): Promise<ParsedSeqn> {
   const base = SatfLanguage.parser.parse(satf).topNode;
 
-  const satfNode = base.getChild(SASF_SATF_CONST.SATF);
+  const satfNode = base.getChild(SATF_SASF_NODES.SATF);
 
   if (!satfNode) {
     return { metadata: '', sequences: [] };
   }
 
-  const metadata = parseHeader(satfNode.getChild(SASF_SATF_CONST.HEADER), satf);
-  const sequences = parseBody(satfNode.getChild(SASF_SATF_CONST.BODY), globalVariables, satf);
+  const metadata = parseHeader(satfNode.getChild(SATF_SASF_NODES.HEADER), satf);
+  const sequences = parseBody(satfNode.getChild(SATF_SASF_NODES.BODY), globalVariables, satf);
   return { metadata, sequences };
 }
 
 export async function sasfToSeqn(sasf: string, globalVariables?: string[]): Promise<ParsedSeqn> {
   const base = SatfLanguage.parser.parse(sasf).topNode;
 
-  const sasfNode = base.getChild(SASF_SATF_CONST.SASF);
+  const sasfNode = base.getChild(SATF_SASF_NODES.SASF);
 
   if (!sasfNode) {
     return { metadata: '', sequences: [] };
   }
 
-  const metadata = parseHeader(sasfNode.getChild(SASF_SATF_CONST.HEADER), sasf);
-  const sequences = parseBody(sasfNode.getChild(SASF_SATF_CONST.BODY), globalVariables, sasf);
+  const metadata = parseHeader(sasfNode.getChild(SATF_SASF_NODES.HEADER), sasf);
+  const sequences = parseBody(sasfNode.getChild(SATF_SASF_NODES.BODY), globalVariables, sasf);
   return { metadata, sequences };
 }
 
@@ -701,12 +701,12 @@ function parseHeader(headerNode: SyntaxNode | null, text: string): string {
     return header;
   }
 
-  const sfduHeader = headerNode.getChild(SASF_SATF_CONST.SFDU_HEADER)?.getChild(SASF_SATF_CONST.HEADER_PAIRS)?.getChildren(SASF_SATF_CONST.HEADER_PAIR) ?? [];
+  const sfduHeader = headerNode.getChild(SATF_SASF_NODES.SFDU_HEADER)?.getChild(SATF_SASF_NODES.HEADER_PAIRS)?.getChildren(SATF_SASF_NODES.HEADER_PAIR) ?? [];
 
   return sfduHeader
     .map((pairNode: SyntaxNode) => {
-      const keyNode = pairNode.getChild(SASF_SATF_CONST.KEY);
-      const valueNode = pairNode.getChild(SASF_SATF_CONST.VALUE);
+      const keyNode = pairNode.getChild(SATF_SASF_NODES.KEY);
+      const valueNode = pairNode.getChild(SATF_SASF_NODES.VALUE);
       if (!keyNode || !valueNode) {
         console.error(`Error processing header entry: ${text.slice(pairNode.from, pairNode.to)}`);
         return '';
@@ -727,24 +727,24 @@ function parseBody(bodyNode: SyntaxNode | null, globalVariables: string[] = [], 
   }
 
   //satf
-  if (bodyNode.getChild(SASF_SATF_CONST.ACTIVITY_TYPE_DEFINITIONS)) {
-    const activityTypeNodes = bodyNode.getChild(SASF_SATF_CONST.ACTIVITY_TYPE_DEFINITIONS)?.getChildren(SASF_SATF_CONST.ACTIVITY_TYPE_GROUP) ?? [];
+  if (bodyNode.getChild(SATF_SASF_NODES.ACTIVITY_TYPE_DEFINITIONS)) {
+    const activityTypeNodes = bodyNode.getChild(SATF_SASF_NODES.ACTIVITY_TYPE_DEFINITIONS)?.getChildren(SATF_SASF_NODES.ACTIVITY_TYPE_GROUP) ?? [];
 
     return activityTypeNodes.map((group, i) => {
       let sequenceName = 'sequence-' + i;
-      const sequenceNameNode = group.getChild(SASF_SATF_CONST.ACTIVITY_TYPE_NAME);
-      const seqGenNode = group.getChild(SASF_SATF_CONST.SEQGEN);
-      const vcNode = group.getChild(SASF_SATF_CONST.VIRTUAL_CHANNEL);
-      const onBoardFilenameNode = group.getChild(SASF_SATF_CONST.ON_BOARD_FILENAME);
-      const onBoardFilePathNode = group.getChild(SASF_SATF_CONST.ON_BOARD_PATH);
+      const sequenceNameNode = group.getChild(SATF_SASF_NODES.ACTIVITY_TYPE_NAME);
+      const seqGenNode = group.getChild(SATF_SASF_NODES.SEQGEN);
+      const vcNode = group.getChild(SATF_SASF_NODES.VIRTUAL_CHANNEL);
+      const onBoardFilenameNode = group.getChild(SATF_SASF_NODES.ON_BOARD_FILENAME);
+      const onBoardFilePathNode = group.getChild(SATF_SASF_NODES.ON_BOARD_PATH);
 
       if (sequenceNameNode) {
         const name = text.slice(sequenceNameNode.from, sequenceNameNode.to);
         sequenceName = name.split('/').pop() || 'sequence-' + i;
       }
 
-      const inputParameters = parseParameters(group.getChild(SASF_SATF_CONST.PARAMETERS), 'INPUT_PARAMS', text);
-      const localVariables = parseParameters(group.getChild(SASF_SATF_CONST.VARIABLES), 'LOCALS', text);
+      const inputParameters = parseParameters(group.getChild(SATF_SASF_NODES.PARAMETERS), 'INPUT_PARAMS', text);
+      const localVariables = parseParameters(group.getChild(SATF_SASF_NODES.VARIABLES), 'LOCALS', text);
 
       let metadata = '';
       if (vcNode) {
@@ -763,10 +763,10 @@ function parseBody(bodyNode: SyntaxNode | null, globalVariables: string[] = [], 
       metadata = metadata.trimEnd();
 
       const steps = parseSteps(
-        group.getChild(SASF_SATF_CONST.STEPS),
+        group.getChild(SATF_SASF_NODES.STEPS),
         [
-          ...parseVariableName(group.getChild(SASF_SATF_CONST.PARAMETERS), text),
-          ...parseVariableName(group.getChild(SASF_SATF_CONST.VARIABLES), text),
+          ...parseVariableName(group.getChild(SATF_SASF_NODES.PARAMETERS), text),
+          ...parseVariableName(group.getChild(SATF_SASF_NODES.VARIABLES), text),
           ...globalVariables,
         ],
         text,
@@ -783,20 +783,20 @@ function parseBody(bodyNode: SyntaxNode | null, globalVariables: string[] = [], 
   }
 
   //sasf
-  if (bodyNode.getChild(SASF_SATF_CONST.REQUESTS)) {
-    const requestNodes = bodyNode.getChild(SASF_SATF_CONST.REQUESTS)?.getChildren(SASF_SATF_CONST.REQUEST) ?? [];
+  if (bodyNode.getChild(SATF_SASF_NODES.REQUESTS)) {
+    const requestNodes = bodyNode.getChild(SATF_SASF_NODES.REQUESTS)?.getChildren(SATF_SASF_NODES.REQUEST) ?? [];
 
     return requestNodes.map((group, i) => {
       let requests = '';
-      const requestNameNode = group.getChild(SASF_SATF_CONST.REQUEST_NAME);
-      const requestorNode = group.getChild(SASF_SATF_CONST.REQUESTOR);
-      const processorNode = group.getChild(SASF_SATF_CONST.PROCESSOR);
-      const keyNode = group.getChild(SASF_SATF_CONST.KEY);
-      const startTimeNode = group.getChild(SASF_SATF_CONST.START_TIME)
+      const requestNameNode = group.getChild(SATF_SASF_NODES.REQUEST_NAME);
+      const requestorNode = group.getChild(SATF_SASF_NODES.REQUESTOR);
+      const processorNode = group.getChild(SATF_SASF_NODES.PROCESSOR);
+      const keyNode = group.getChild(SATF_SASF_NODES.KEY);
+      const startTimeNode = group.getChild(SATF_SASF_NODES.START_TIME)
       const sequenceName = requestNameNode ? text.slice(requestNameNode.from, requestNameNode.to) : 'sequence-' + i;
-      requests += parseTimeTagNode(startTimeNode? startTimeNode.getChild(SASF_SATF_CONST.TIME) : null, startTimeNode ? startTimeNode.getChild(SASF_SATF_CONST.TIME_RELATION) : null, text);
+      requests += parseTimeTagNode(startTimeNode? startTimeNode.getChild(SATF_SASF_NODES.TIME) : null, startTimeNode ? startTimeNode.getChild(SATF_SASF_NODES.TIME_RELATION) : null, text);
       requests += `@REQUEST_BEGIN("${sequenceName}")\n`;
-      requests += parseSteps(group.getChild(SASF_SATF_CONST.STEPS), globalVariables, text)
+      requests += parseSteps(group.getChild(SATF_SASF_NODES.STEPS), globalVariables, text)
         .split('\n')
         .map(line => ' '.repeat(2) + line)
         .join('\n');
@@ -822,13 +822,13 @@ function parseVariableName(parameterNode: SyntaxNode | null, text: string): stri
   if (!parameterNode) {
     return [];
   }
-  const entries = parameterNode.getChildren(SASF_SATF_CONST.ENTRY);
+  const entries = parameterNode.getChildren(SATF_SASF_NODES.ENTRY);
   if (!entries || entries.length == 0) {
     return [];
   }
 
   return entries.map(param => {
-    const nameNode = param.getChild(SASF_SATF_CONST.NAME);
+    const nameNode = param.getChild(SATF_SASF_NODES.NAME);
     return nameNode ? `${text.slice(nameNode.from, nameNode.to)}` : '';
   });
 }
@@ -854,35 +854,35 @@ function parseParameters(
   if (!parameterNode) {
     return '';
   }
-  const entries = parameterNode.getChildren(SASF_SATF_CONST.ENTRY);
+  const entries = parameterNode.getChildren(SATF_SASF_NODES.ENTRY);
   if (entries && entries.length > 0) {
     let parameter = `@${variableType}_BEGIN\n`;
     parameter += entries
       .map(param => {
-        const nameNode = param.getChild(SASF_SATF_CONST.NAME);
-        const typeNode = param.getChild(SASF_SATF_CONST.TYPE);
-        const rangesNode = param.getChildren(SASF_SATF_CONST.RANGE);
-        const enumNameNode = param.getChild(SASF_SATF_CONST.ENUM_NAME);
+        const nameNode = param.getChild(SATF_SASF_NODES.NAME);
+        const typeNode = param.getChild(SATF_SASF_NODES.TYPE);
+        const rangesNode = param.getChildren(SATF_SASF_NODES.RANGE);
+        const enumNameNode = param.getChild(SATF_SASF_NODES.ENUM_NAME);
 
         const name = nameNode ? `${text.slice(nameNode.from, nameNode.to)}` : '';
         const enumName = enumNameNode ? ` ${text.slice(enumNameNode.from, enumNameNode.to)}` : '';
         let type = typeNode ? text.slice(typeNode.from, typeNode.to).trim() : '';
         switch (type) {
-          case SASF_SATF_CONST.PARAM_UNSIGNED_DECIMAL:
+          case SATF_SASF_NODES.PARAM_UNSIGNED_DECIMAL:
             type = SEQN_NODES.VAR_UINT;
             break;
-          case SASF_SATF_CONST.PARAM_SIGNED_DECIMAL:
+          case SATF_SASF_NODES.PARAM_SIGNED_DECIMAL:
             type = SEQN_NODES.VAR_INT;
             break;
-          case SASF_SATF_CONST.PARAM_HEXADECIMAL:
-          case SASF_SATF_CONST.PARAM_OCTAL:
-          case SASF_SATF_CONST.PARAM_BINARY:
-          case SASF_SATF_CONST.PARAM_TIME:
-          case SASF_SATF_CONST.PARAM_DURATION:
-          case SASF_SATF_CONST.PARAM_QUOTED_STRING:
+          case SATF_SASF_NODES.PARAM_HEXADECIMAL:
+          case SATF_SASF_NODES.PARAM_OCTAL:
+          case SATF_SASF_NODES.PARAM_BINARY:
+          case SATF_SASF_NODES.PARAM_TIME:
+          case SATF_SASF_NODES.PARAM_DURATION:
+          case SATF_SASF_NODES.PARAM_QUOTED_STRING:
             type = SEQN_NODES.VAR_STRING;
             break;
-          case SASF_SATF_CONST.PARAM_ENGINEERING:
+          case SATF_SASF_NODES.PARAM_ENGINEERING:
             type = SEQN_NODES.VAR_FLOAT;
             break;
           case SEQN_NODES.VAR_STRING:
@@ -931,15 +931,15 @@ function parseSteps(stepNode: SyntaxNode | null, variableNames: string[], text: 
     return step;
   }
 
-  const commandNodes = stepNode.getChildren(SASF_SATF_CONST.COMMAND);
+  const commandNodes = stepNode.getChildren(SATF_SASF_NODES.COMMAND);
 
   return commandNodes
     .map(command => {
-      const time = parseTimeNode(command.getChild(SASF_SATF_CONST.SCHEDULED_TIME), text);
-      const stem = parseStem(command.getChild(SASF_SATF_CONST.STEM), text);
-      const comment = parseComment(command.getChild(SASF_SATF_CONST.COMMENT), text);
-      const args = parseArgsNode(command.getChild(SASF_SATF_CONST.ARGS), variableNames, text);
-      const models = parseModel(command.getChild(SASF_SATF_CONST.ASSUMED_MODEL_VALUES), text);
+      const time = parseTimeNode(command.getChild(SATF_SASF_NODES.SCHEDULED_TIME), text);
+      const stem = parseStem(command.getChild(SATF_SASF_NODES.STEM), text);
+      const comment = parseComment(command.getChild(SATF_SASF_NODES.COMMENT), text);
+      const args = parseArgsNode(command.getChild(SATF_SASF_NODES.ARGS), variableNames, text);
+      const models = parseModel(command.getChild(SATF_SASF_NODES.ASSUMED_MODEL_VALUES), text);
       const metadata = parseSatfCommandMetadata(command, text);
 
       //metadata
@@ -952,8 +952,8 @@ function parseTimeNode(timeNode: SyntaxNode | null, text: string): string {
   if (!timeNode) {
     return 'C ';
   }
-  const timeValueNode = timeNode.getChild(SASF_SATF_CONST.TIME);
-  const timeTagNode = timeNode.getChild(SASF_SATF_CONST.TIME_RELATION);
+  const timeValueNode = timeNode.getChild(SATF_SASF_NODES.TIME);
+  const timeTagNode = timeNode.getChild(SATF_SASF_NODES.TIME_RELATION);
 
   return parseTimeTagNode(timeValueNode, timeTagNode, text);
 }
@@ -1028,14 +1028,14 @@ function parseArgNode(argNode: SyntaxNode, variableNames: string[], text: string
   }
 
   switch (argNode.name) {
-    case SASF_SATF_CONST.STRING:
+    case SATF_SASF_NODES.STRING:
       return `"${argValue}"`;
-    case SASF_SATF_CONST.NUMBER:
-    case SASF_SATF_CONST.BOOLEAN:
-    case SASF_SATF_CONST.ENUM:
-    case SASF_SATF_CONST.GLOBAL:
+    case SATF_SASF_NODES.NUMBER:
+    case SATF_SASF_NODES.BOOLEAN:
+    case SATF_SASF_NODES.ENUM:
+    case SATF_SASF_NODES.GLOBAL:
       return `${argValue}`;
-    case SASF_SATF_CONST.ARITHMETICAL:
+    case SATF_SASF_NODES.ARITHMETICAL:
       return `(${argValue})`;
     default: {
       console.log(`${argNode.name}: ${argValue} is not supported`);
@@ -1089,9 +1089,9 @@ function parseSatfCommandMetadata(commandNode: SyntaxNode | null, text: string) 
     return metadata;
   }
 
-  const inclusionNode = commandNode.getChild(SASF_SATF_CONST.INCLUSION_CONDITION);
-  const drawNode = commandNode.getChild(SASF_SATF_CONST.DRAW);
-  const nTextNode = commandNode.getChild(SASF_SATF_CONST.NTEXT);
+  const inclusionNode = commandNode.getChild(SATF_SASF_NODES.INCLUSION_CONDITION);
+  const drawNode = commandNode.getChild(SATF_SASF_NODES.DRAW);
+  const nTextNode = commandNode.getChild(SATF_SASF_NODES.NTEXT);
 
   if (inclusionNode) {
     metadata += `@METADATA "INCLUSION_CONDITION" "${removeQuote(text.slice(inclusionNode.from, inclusionNode.to))}"\n`;
@@ -1111,11 +1111,11 @@ function parseModel(modelNode: SyntaxNode | null, text: string): string {
   if (!modelNode) {
     return '';
   }
-  const modelsNode = modelNode.getChildren(SASF_SATF_CONST.MODEL);
+  const modelsNode = modelNode.getChildren(SATF_SASF_NODES.MODEL);
   return modelsNode
     .map(model => {
-      const keyNode = model.getChild(SASF_SATF_CONST.KEY);
-      const valueNode = model.getChild(SASF_SATF_CONST.VALUE);
+      const keyNode = model.getChild(SATF_SASF_NODES.KEY);
+      const valueNode = model.getChild(SATF_SASF_NODES.VALUE);
       if (!keyNode || !valueNode) {
         return null;
       }
