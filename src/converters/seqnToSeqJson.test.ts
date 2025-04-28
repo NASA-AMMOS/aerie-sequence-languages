@@ -580,7 +580,7 @@ C ECHO SIZE
 
     R1 ECHO "Can this handle \\"Escaped\\" quotes??" # and this "too"`;
     const id = 'escaped_quotes';
-    const actual = await seqnToSeqJson(SeqnParser.parse(seq), seq, commandBanana, id);
+    const actual = seqnToSeqJson(SeqnParser.parse(seq), seq, commandBanana, id);
     const expected = `{
   "id": "escaped_quotes",
   "metadata": {},
@@ -618,7 +618,7 @@ R00:00:01 ECHO "Can this handle \\"Escaped\\" quotes??" # and this "too"
 @MODEL "Variable" 0 "Offset"
 @MODEL "Variable \\"Escaped\\"" 0 "Offset \\" \\" \\"\\""`;
     const id = 'escaped_metadata';
-    const actual = await seqnToSeqJson(SeqnParser.parse(seq), seq, commandBanana, id);
+    const actual = seqnToSeqJson(SeqnParser.parse(seq), seq, commandBanana, id);
     const expected = `{
   "id": "escaped_metadata",
   "metadata": {},
@@ -1215,9 +1215,9 @@ E-00:06:40.333 BAKE_BREAD`;
   # comment
   C FSW_CMD_1 0.123 -2.34 # inline description`;
 
-      const seqJson1 = await seqnToSeqJson(SeqnParser.parse(input), input, commandDictionary, 'id');
-      const seqN1 = await seqJsonToSeqn(seqJson1);
-      const seqJson2 = await seqnToSeqJson(SeqnParser.parse(seqN1), seqN1, commandDictionary, 'id');
+      const seqJson1 = seqnToSeqJson(SeqnParser.parse(input), input, commandDictionary, 'id');
+      const seqN1 = seqJsonToSeqn(seqJson1);
+      const seqJson2 = seqnToSeqJson(SeqnParser.parse(seqN1), seqN1, commandDictionary, 'id');
       expect(seqJson1).toEqual(seqJson2);
     });
 
@@ -1245,9 +1245,9 @@ G+3 "GroundEpochName" @REQUEST_BEGIN("request2.name")
 @METADATA "foo" "bar"
   `;
 
-      const seqJson1 = await seqnToSeqJson(SeqnParser.parse(input), input, commandDictionary, 'id');
-      const seqN1 = await seqJsonToSeqn(seqJson1);
-      const seqJson2 = await seqnToSeqJson(SeqnParser.parse(seqN1), seqN1, commandDictionary, 'id');
+      const seqJson1 = seqnToSeqJson(SeqnParser.parse(input), input, commandDictionary, 'id');
+      const seqN1 = seqJsonToSeqn(seqJson1);
+      const seqJson2 = seqnToSeqJson(SeqnParser.parse(seqN1), seqN1, commandDictionary, 'id');
       expect(seqJson1).toEqual(seqJson2);
     });
   });
