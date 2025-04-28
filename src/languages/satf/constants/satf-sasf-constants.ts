@@ -69,11 +69,8 @@ export const PARAM_ENGINEERING = 'ENGINEERING';
 export const PARAM_TIME = 'TIME';
 export const PARAM_DURATION = 'DURATION';
 export const PARAM_QUOTED_STRING = 'QUOTED_STRING';
-export const VAR_ENUM = 'ENUM';
-export const VAR_STRING = 'STRING';
-export const VAR_UINT = 'UINT';
-export const VAR_FLOAT = 'FLOAT';
-export const VAR_INT = 'INT';
+export const PARAM_STRING = 'STRING';
+
 
 export const SASF_SATF_CONST = {
     SATF,
@@ -143,9 +140,5 @@ export const SASF_SATF_CONST = {
     PARAM_TIME,
     PARAM_DURATION,
     PARAM_QUOTED_STRING,
-    VAR_ENUM,
-    VAR_STRING,
-    VAR_UINT,
-    VAR_FLOAT,
-    VAR_INT,
+    PARAM_STRING,
   };
