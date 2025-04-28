@@ -19,6 +19,8 @@ export const RULE_TYPE = 'Type';
 export const RULE_OBJECT = 'Object';
 export const RULE_METADATA = 'Metadata';
 export const RULE_METADATA_ENTRY = 'MetaEntry';
+export const RULE_KEY = 'Key';
+export const RULE_VALUE = 'Value';
 export const RULE_ID_DECLARATION = 'IdDeclaration';
 export const RULE_PARAMETER_DECLARATION = 'ParameterDeclaration';
 export const RULE_LOCAL_DECLARATION = 'LocalDeclaration';
@@ -29,6 +31,7 @@ export const RULE_PROPERTY_VALUE = 'PropertyValue';
 export const RULE_PROPERTY_NAME = 'PropertyName';
 export const RULE_NTEXT = 'NTEXT';
 export const TOKEN_STRING = 'String';
+export const TOKEN_BOOLEAN = 'Boolean';
 export const TOKEN_NUMBER = 'Number';
 export const TOKEN_ERROR = '⚠';
 export const TOKEN_LINE_COMMENT = 'LineComment';
@@ -58,6 +61,8 @@ export const SEQN_CONSTANTS = {
     RULE_RANGE,
     RULE_METADATA,
     RULE_METADATA_ENTRY,
+    RULE_KEY,
+    RULE_VALUE,
     RULE_ID_DECLARATION,
     RULE_PARAMETER_DECLARATION,
     RULE_LOCAL_DECLARATION,
@@ -72,6 +77,7 @@ export const SEQN_CONSTANTS = {
     TOKEN_NUMBER,
     TOKEN_ERROR,
     TOKEN_LINE_COMMENT,
+    TOKEN_BOOLEAN,
     VAR_ENUM,
     VAR_STRING,
     VAR_UINT,
