@@ -31,7 +31,8 @@
     "test": "npm run grammar-builder && vitest run",
     "build": "npm run clean; npm run grammar-builder; tsc -p tsconfig.json && tsc -p tsconfig.esm.json",
     "clean": "rimraf ./dist",
-    "reformat": "prettier --write ./src"
+    "format:check": "prettier --check ./src",
+    "format:write": "prettier --write ./src"
   },
   "files": [
     "dist/"
