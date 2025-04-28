@@ -1,7 +1,7 @@
 export * from './converters/seqJsonToSeqn';
 export * from './converters/seqnToSeqJson';
 export * from './languages/seq-n/seq-n';
-export { SEQN_CONSTANTS } from './languages/seq-n/seqn-grammar-constants';
+export { SEQN_NODES } from './languages/seq-n/seqn-grammar-constants';
   
 export * from './languages/satf/types/types'
 export * from './converters/satf-sasf-utils';
