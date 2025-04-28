@@ -15,7 +15,7 @@ import {
 } from '../languages/satf/constants/satf-sasf-constants.js';
 import { ParsedSatf, ParsedSeqn, ParseSasf, Seqn } from '../languages/satf/types/types.js';
 import { SeqnParser } from '../languages/seq-n/seq-n';
-import { SEQN_CONSTANTS } from '../languages/seq-n/seqn-grammar-constants';
+import { SEQN_NODES } from '../languages/seq-n/seqn-grammar-constants';
 
 /**
  * Asynchronously converts a parsed SeqN tree via lezer into a structured SATF representation.
@@ -90,11 +90,11 @@ export async function seqnToSASF(
 function parseHeaderfromSeqn(seqnTree: Tree, sequence: string): Record<string, string> {
   TimeTypes;
   const metadata: Record<string, string> = {};
-  const metadataEntries = seqnTree.topNode.getChild(SEQN_CONSTANTS.RULE_METADATA)?.getChildren(SEQN_CONSTANTS.RULE_METADATA_ENTRY) ?? [];
+  const metadataEntries = seqnTree.topNode.getChild(SEQN_NODES.METADATA)?.getChildren(SEQN_NODES.METADATA_ENTRY) ?? [];
 
   for (const entry of metadataEntries) {
-    const keyNode = entry.getChild(SEQN_CONSTANTS.RULE_KEY);
-    const valueNode = entry.getChild(SEQN_CONSTANTS.RULE_VALUE);
+    const keyNode = entry.getChild(SEQN_NODES.KEY);
+    const valueNode = entry.getChild(SEQN_NODES.VALUE);
 
     if (keyNode === null || valueNode === null) {
       continue;
@@ -106,9 +106,9 @@ function parseHeaderfromSeqn(seqnTree: Tree, sequence: string): Record<string, s
     metadata[key] = value;
   }
 
-  let commentMetadata = seqnTree.topNode.getChildren(SEQN_CONSTANTS.TOKEN_LINE_COMMENT);
+  let commentMetadata = seqnTree.topNode.getChildren(SEQN_NODES.LINE_COMMENT);
   if (commentMetadata.length === 0) {
-    commentMetadata = seqnTree.topNode.getChild(SEQN_CONSTANTS.RULE_COMMANDS)?.getChildren(SEQN_CONSTANTS.TOKEN_LINE_COMMENT) ?? [];
+    commentMetadata = seqnTree.topNode.getChild(SEQN_NODES.COMMANDS)?.getChildren(SEQN_NODES.LINE_COMMENT) ?? [];
   }
 
   for (const comment of commentMetadata) {
@@ -157,9 +157,9 @@ function parseSeqNStep(
   order: number,
 ): string | undefined {
   switch (child?.name) {
-    case SEQN_CONSTANTS.RULE_COMMAND:
+    case SEQN_NODES.COMMAND:
       return parseSeqNCommand(child, text, commandDictionary, variables, order);
-    case SEQN_CONSTANTS.RULE_ACTIVATE:
+    case SEQN_NODES.ACTIVATE:
       return parseSeqNActivate(child, text, commandDictionary, variables, order);
     case 'Load':
     case 'GroundBlock':
@@ -178,13 +178,13 @@ function parseSeqNCommand(
 ): string {
   const time = parseSeqNTime(commandNode, sequence);
 
-  const stemNode = commandNode.getChild(SEQN_CONSTANTS.RULE_STEM);
+  const stemNode = commandNode.getChild(SEQN_NODES.STEM);
   const stem = stemNode ? sequence.slice(stemNode.from, stemNode.to) : 'UNKNOWN';
 
-  const argsNode = commandNode.getChild(SEQN_CONSTANTS.RULE_ARGS);
+  const argsNode = commandNode.getChild(SEQN_NODES.ARGS);
   const args = argsNode ? parseSeqNArgs(argsNode, sequence, commandDictionary, variables, stem) : [];
   const description = parseSeqNDescription(commandNode, sequence);
-  const metadata = parsSeqNMetadata(commandNode, sequence, [SEQN_CONSTANTS.RULE_NTEXT]);
+  const metadata = parsSeqNMetadata(commandNode, sequence, [SEQN_NODES.NTEXT]);
   const models = parseSeqNModel(commandNode, sequence);
   return (
     `${'\t'}command(${order},` +
@@ -204,11 +204,11 @@ function parseSeqNActivate(
   variables: string[],
   order: number,
 ): string {
-  const nameNode = stepNode.getChild(SEQN_CONSTANTS.RULE_SEQUENCE_NAME);
+  const nameNode = stepNode.getChild(SEQN_NODES.SEQUENCE_NAME);
   const sequenceName = nameNode ? unquoteUnescape(sequence.slice(nameNode.from, nameNode.to)) : 'UNKNOWN';
   const time = parseSeqNTime(stepNode, sequence);
 
-  const argsNode = stepNode.getChild(SEQN_CONSTANTS.RULE_ARGS);
+  const argsNode = stepNode.getChild(SEQN_NODES.ARGS);
   const args = argsNode ? parseSeqNArgs(argsNode, sequence, commandDictionary, variables, sequenceName) : [];
 
   const engine = parseSeqNEngine(stepNode, sequence);
@@ -306,7 +306,7 @@ function parseSeqNTime(
 }
 
 function parseSeqNDescription(node: SyntaxNode, text: string): string | undefined {
-  const descriptionNode = node.getChild(SEQN_CONSTANTS.TOKEN_LINE_COMMENT);
+  const descriptionNode = node.getChild(SEQN_NODES.LINE_COMMENT);
   if (!descriptionNode) {
     return undefined;
   }
@@ -369,21 +369,21 @@ function parseSeqNArg(
   }
 
   switch (argNode.name) {
-    case SEQN_CONSTANTS.TOKEN_BOOLEAN: {
+    case SEQN_NODES.BOOLEAN: {
       return {
         name: dictionaryArg ? dictionaryArg.name : undefined,
         type: 'boolean' as const,
         value: nodeValue === 'true' ? 'TRUE' : 'FALSE',
       };
     }
-    case SEQN_CONSTANTS.RULE_ENUM: {
+    case SEQN_NODES.ENUM: {
       return {
         name: dictionaryArg ? dictionaryArg.name : undefined,
         type: 'enum' as const,
         value: nodeValue,
       };
     }
-    case SEQN_CONSTANTS.TOKEN_NUMBER: {
+    case SEQN_NODES.NUMBER: {
       const decimalCount = nodeValue.slice(nodeValue.indexOf('.') + 1).length;
       return {
         name: dictionaryArg ? dictionaryArg.name : undefined,
@@ -391,7 +391,7 @@ function parseSeqNArg(
         value: parseFloat(nodeValue).toFixed(decimalCount),
       };
     }
-    case SEQN_CONSTANTS.TOKEN_STRING: {
+    case SEQN_NODES.STRING: {
       return {
         name: dictionaryArg ? dictionaryArg.name : undefined,
         type: 'string',
@@ -413,19 +413,19 @@ function serializeSeqNArgs(args: any[]): string {
 }
 
 function getSatfVariableNames(seqnTree: Tree, text: string): string[] {
-  let types = [SEQN_CONSTANTS.RULE_PARAMETER_DECLARATION, SEQN_CONSTANTS.RULE_LOCAL_DECLARATION];
+  let types = [SEQN_NODES.PARAMETER_DECLARATION, SEQN_NODES.LOCAL_DECLARATION];
   let names: string[] = [];
   for (let i = 0; i < types.length; i++) {
     let variableContainer = seqnTree.topNode.getChild(types[i]);
     if (!variableContainer) {
       continue;
     }
-    const variables = variableContainer.getChildren(SEQN_CONSTANTS.RULE_VARIABLE);
+    const variables = variableContainer.getChildren(SEQN_NODES.VARIABLE);
     if (!variables || variables.length === 0) {
       continue;
     }
     variables.forEach((variableNode: SyntaxNode) => {
-      const nameNode = variableNode.getChild(SEQN_CONSTANTS.RULE_ENUM);
+      const nameNode = variableNode.getChild(SEQN_NODES.ENUM);
       if (nameNode) {
         names.push(text.slice(nameNode.from, nameNode.to));
       }
@@ -449,19 +449,19 @@ function satfVariablesFromSeqn(
     return undefined;
   }
 
-  const variables = variableContainer.getChildren(SEQN_CONSTANTS.RULE_VARIABLE);
+  const variables = variableContainer.getChildren(SEQN_NODES.VARIABLE);
   if (!variables || variables.length === 0) {
     return undefined;
   }
 
   const serializedVariables = variables
     .map((variableNode: SyntaxNode) => {
-      const nameNode = variableNode.getChild(SEQN_CONSTANTS.RULE_ENUM);
-      const typeNode = variableNode.getChild(SEQN_CONSTANTS.RULE_TYPE);
-      const enumNode = variableNode.getChild(SEQN_CONSTANTS.RULE_ENUM_NAME);
-      const rangeNode = variableNode.getChild(SEQN_CONSTANTS.RULE_RANGE);
-      const allowableValuesNode = variableNode.getChild(SEQN_CONSTANTS.RULE_VALUES);
-      const objects = variableNode.getChildren(SEQN_CONSTANTS.RULE_OBJECT);
+      const nameNode = variableNode.getChild(SEQN_NODES.ENUM);
+      const typeNode = variableNode.getChild(SEQN_NODES.TYPE);
+      const enumNode = variableNode.getChild(SEQN_NODES.ENUM_NAME);
+      const rangeNode = variableNode.getChild(SEQN_NODES.RANGE);
+      const allowableValuesNode = variableNode.getChild(SEQN_NODES.VALUES);
+      const objects = variableNode.getChildren(SEQN_NODES.OBJECT);
 
       const variableText = nameNode ? text.slice(nameNode.from, nameNode.to) : 'UNKNOWN';
       const variable: {
@@ -493,10 +493,10 @@ function satfVariablesFromSeqn(
         // old style for parameters and variables
       } else {
         for (const object of objects) {
-          const properties = object.getChildren(SEQN_CONSTANTS.RULE_PROPERTY);
+          const properties = object.getChildren(SEQN_NODES.PROPERTY);
 
           properties.forEach(property => {
-            const propertyName = property.getChild(SEQN_CONSTANTS.RULE_PROPERTY_NAME);
+            const propertyName = property.getChild(SEQN_NODES.PROPERTY_NAME);
             const propertyValue = propertyName?.nextSibling;
             if (!propertyName || !propertyValue) {
               return;
@@ -542,18 +542,18 @@ function satfVariablesFromSeqn(
 
       //convert seqn type to satf type
       switch (variable.type) {
-        case SEQN_CONSTANTS.VAR_UINT:
+        case SEQN_NODES.VAR_UINT:
           variable.type = SASF_SATF_CONST.PARAM_UNSIGNED_DECIMAL;
           break;
-        case SEQN_CONSTANTS.VAR_INT:
+        case SEQN_NODES.VAR_INT:
           variable.type = SASF_SATF_CONST.PARAM_SIGNED_DECIMAL;
           break;
-        case SEQN_CONSTANTS.VAR_STRING:
+        case SEQN_NODES.VAR_STRING:
           variable.type = SASF_SATF_CONST.PARAM_QUOTED_STRING;
           break;
-        case SEQN_CONSTANTS.VAR_FLOAT:
+        case SEQN_NODES.VAR_FLOAT:
           break;
-        case SEQN_CONSTANTS.VAR_ENUM:
+        case SEQN_NODES.VAR_ENUM:
           variable.type = SASF_SATF_CONST.PARAM_STRING;
           break;
       }
@@ -618,13 +618,13 @@ function sasfRequestFromSeqN(
   variables: string[] = [],
   commandDictionary?: CommandDictionary,
 ): string | undefined {
-  const requests = seqnTree.topNode.getChild(SEQN_CONSTANTS.RULE_COMMANDS)?.getChildren(SEQN_CONSTANTS.RULE_REQUEST);
+  const requests = seqnTree.topNode.getChild(SEQN_NODES.COMMANDS)?.getChildren(SEQN_NODES.REQUEST);
   if (requests == null || requests.length === 0) {
     return undefined;
   }
   return requests
     .map((requestNode: SyntaxNode) => {
-      const nameNode = requestNode.getChild(SEQN_CONSTANTS.RULE_REQUEST_NAME);
+      const nameNode = requestNode.getChild(SEQN_NODES.REQUEST_NAME);
       const name = nameNode ? unquoteUnescape(sequence.slice(nameNode.from, nameNode.to)) : 'UNKNOWN';
       const parsedTime = parseSeqNTime(requestNode, sequence);
       const requester = parsSeqNMetadata(requestNode, sequence, ['REQUESTOR']);
@@ -638,7 +638,7 @@ function sasfRequestFromSeqN(
         `${key ? `\n\t${key.replaceAll('\\', '\"')}` : ''})`;
       `\n\n`;
       let order = 1;
-      let child = requestNode?.getChild(SEQN_CONSTANTS.RULE_STEPS)?.firstChild;
+      let child = requestNode?.getChild(SEQN_NODES.STEPS)?.firstChild;
       const steps = [];
 
       while (child) {
@@ -869,10 +869,10 @@ function parseParameters(
         let type = typeNode ? text.slice(typeNode.from, typeNode.to).trim() : '';
         switch (type) {
           case SASF_SATF_CONST.PARAM_UNSIGNED_DECIMAL:
-            type = SEQN_CONSTANTS.VAR_UINT;
+            type = SEQN_NODES.VAR_UINT;
             break;
           case SASF_SATF_CONST.PARAM_SIGNED_DECIMAL:
-            type = SEQN_CONSTANTS.VAR_INT;
+            type = SEQN_NODES.VAR_INT;
             break;
           case SASF_SATF_CONST.PARAM_HEXADECIMAL:
           case SASF_SATF_CONST.PARAM_OCTAL:
@@ -880,16 +880,16 @@ function parseParameters(
           case SASF_SATF_CONST.PARAM_TIME:
           case SASF_SATF_CONST.PARAM_DURATION:
           case SASF_SATF_CONST.PARAM_QUOTED_STRING:
-            type = SEQN_CONSTANTS.VAR_STRING;
+            type = SEQN_NODES.VAR_STRING;
             break;
           case SASF_SATF_CONST.PARAM_ENGINEERING:
-            type = SEQN_CONSTANTS.VAR_FLOAT;
+            type = SEQN_NODES.VAR_FLOAT;
             break;
-          case SEQN_CONSTANTS.VAR_STRING:
+          case SEQN_NODES.VAR_STRING:
             {
               // Always an enum matches the jpl_sequence tool
               //if (enumNameNode) {
-              type = SEQN_CONSTANTS.VAR_ENUM;
+              type = SEQN_NODES.VAR_ENUM;
               //} else {
               //  type = VAR_STRING;
               //}

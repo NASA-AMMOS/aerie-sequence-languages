@@ -27,7 +27,7 @@ import type {
   Time,
   VariableDeclaration,
 } from '@nasa-jpl/seq-json-schema/types';
-import { RULE_ACTIVATE, RULE_COMMAND, RULE_LOAD, RULE_REPEAT_ARG } from '../languages/seq-n/seqn-grammar-constants';
+import { SEQN_NODES } from '../languages/seq-n/seqn-grammar-constants';
 import { getBalancedDuration, getDurationTimeComponents, parseDurationString, TimeTypes, validateTime } from '@nasa-jpl/aerie-time-utils';
 import { logInfo } from '../logger';
 import { removeEscapedQuotes, unquoteUnescape } from '../utils/string';
@@ -401,7 +401,7 @@ function parseArgs(
 
   while (argNode) {
     const dictArg = dictArguments[i] ?? null;
-    if (argNode.name === RULE_REPEAT_ARG) {
+    if (argNode.name === SEQN_NODES.REPEAT_ARG) {
       const arg = parseRepeatArgs(argNode, text, (dictArg as FswCommandArgumentRepeat) ?? null);
       if (arg) {
         args.push(arg);
@@ -784,9 +784,9 @@ function parseImmediateCommand(
   }
 
   const steps = [
-    ...(immediateCommandNode.getChildren(RULE_COMMAND) || []),
-    ...(immediateCommandNode.getChildren(RULE_LOAD) || []),
-    ...(immediateCommandNode.getChildren(RULE_ACTIVATE) || []),
+    ...(immediateCommandNode.getChildren(SEQN_NODES.COMMAND) || []),
+    ...(immediateCommandNode.getChildren(SEQN_NODES.LOAD) || []),
+    ...(immediateCommandNode.getChildren(SEQN_NODES.ACTIVATE) || []),
   ];
 
   return steps.map((step: SyntaxNode) => {
