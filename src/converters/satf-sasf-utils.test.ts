@@ -423,6 +423,20 @@ describe('seqnToSatf', () => {
     } as ParsedSatf);
   });
 
+  it('should return commented metadata', async () => {
+    const result = await seqnToSATF(
+      `# username=rrgoetz
+# name=test.seq
+
+C ECHO "HI"
+`,
+    );
+    expect(result.header).toEqual({
+      name: 'test.seq',
+      username: 'rrgoetz',
+    });
+  });
+
   it('should return variables', async () => {
     const result = await seqnToSATF(`
     @LOCALS_BEGIN
