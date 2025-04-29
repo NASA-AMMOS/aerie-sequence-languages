@@ -74,7 +74,7 @@ export async function seqnToSASF(
   const seqnTree = SeqnParser.parse(seqn);
   const header = parseHeaderfromSeqn(seqnTree, seqn);
 
-  // I don't think sasf have varaibles or parameters
+  // TODO: I don't think sasf have varaibles or parameters:
   // const parameters = satfVariablesFromSeqn(seqnTree, seqn);
   // const variables = satfVariablesFromSeqn(seqnTree, seqn, 'Variables');
   const requests = sasfRequestFromSeqN(seqnTree, seqn, globalVariables, commandDictionary);
@@ -86,7 +86,6 @@ export async function seqnToSASF(
 }
 
 function parseHeaderfromSeqn(seqnTree: Tree, sequence: string): Record<string, string> {
-  TimeTypes;
   const metadata: Record<string, string> = {};
   const metadataEntries = seqnTree.topNode.getChild(SEQN_NODES.METADATA)?.getChildren(SEQN_NODES.METADATA_ENTRY) ?? [];
 
@@ -114,7 +113,7 @@ function parseHeaderfromSeqn(seqnTree: Tree, sequence: string): Record<string, s
     const [key, value] = text.split('=').map(unquoteUnescape);
 
     if (key && value) {
-      metadata[key] = value;
+      metadata[key.slice(1).trim()] = value;
     }
   }
 
