@@ -2,6 +2,8 @@ import { LRLanguage, foldNodeProp } from '@codemirror/language';
 import { styleTags, tags as t } from '@lezer/highlight';
 import { parser } from './satf-sasf.grammar.js';
 
+export const SatfSasfParser = parser;
+
 export const SatfLanguage = LRLanguage.define({
   languageData: {
     commentTokens: { line: '#' },
