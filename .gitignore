@@ -139,3 +139,6 @@ build/
 
 *.grammar.js
 *.terms.js
+
+# intelliJ project files
+.idea/
