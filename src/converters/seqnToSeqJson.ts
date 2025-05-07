@@ -27,7 +27,7 @@ import type {
   Time,
   VariableDeclaration,
 } from '@nasa-jpl/seq-json-schema/types';
-import { SEQN_NODES } from '../languages/seq-n/seqn-grammar-constants';
+import { SEQN_NODES } from '../languages/seq-n/seqn-grammar-constants.js';
 import {
   getBalancedDuration,
   getDurationTimeComponents,
@@ -35,8 +35,8 @@ import {
   TimeTypes,
   validateTime,
 } from '@nasa-jpl/aerie-time-utils';
-import { logInfo } from '../logger';
-import { removeEscapedQuotes, unquoteUnescape } from '../utils/string';
+import { logInfo } from '../logger.js';
+import { removeEscapedQuotes, unquoteUnescape } from '../utils/string.js';
 
 /**
  * Returns a minimal valid Seq JSON object.

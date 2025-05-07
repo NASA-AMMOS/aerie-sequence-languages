@@ -3,8 +3,8 @@ import { readFileSync, readdirSync } from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { assert, describe, it } from 'vitest';
-import { SeqnParser } from './seq-n';
-import { SEQN_NODES } from './seqn-grammar-constants';
+import { SeqnParser } from './seq-n.js';
+import { SEQN_NODES } from './seqn-grammar-constants.js';
 
 function getMetaType(node: SyntaxNode) {
   return node?.firstChild?.nextSibling?.firstChild?.name;

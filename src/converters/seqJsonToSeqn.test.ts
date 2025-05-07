@@ -1,5 +1,5 @@
 import type { SeqJson } from '@nasa-jpl/seq-json-schema/types';
-import { seqJsonToSeqn } from './seqJsonToSeqn';
+import { seqJsonToSeqn } from './seqJsonToSeqn.js';
 import { describe, expect, it } from 'vitest';
 
 describe('from-seq-json.ts', async () => {
