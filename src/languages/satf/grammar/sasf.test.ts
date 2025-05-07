@@ -1,6 +1,6 @@
 import { testTree } from '@lezer/generator/test';
 import { describe, expect, test } from 'vitest';
-import { SatfLanguage } from './satf-sasf';
+import { SatfLanguage } from './satf-sasf.js';
 
 const tests = [
   [

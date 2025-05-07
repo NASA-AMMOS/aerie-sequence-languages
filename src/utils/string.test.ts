@@ -1,4 +1,4 @@
-import { isQuoted, quoteEscape, removeEscapedQuotes, unquoteUnescape } from './string';
+import { isQuoted, quoteEscape, removeEscapedQuotes, unquoteUnescape } from './string.js';
 import { describe, expect, it } from 'vitest';
 
 describe(`'Escaped quotes' from input`, () => {

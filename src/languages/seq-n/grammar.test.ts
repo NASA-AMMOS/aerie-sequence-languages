@@ -1,5 +1,5 @@
 import { testTree } from '@lezer/generator/dist/test';
-import { SeqnParser } from './seq-n';
+import { SeqnParser } from './seq-n.js';
 import { describe, expect, test } from 'vitest';
 
 /*
