@@ -8,12 +8,12 @@ import {
   validateTime,
   TimeTypes,
 } from '@nasa-jpl/aerie-time-utils';
-import { removeEscapedQuotes, removeQuote, unquoteUnescape } from '../utils/string';
+import { removeEscapedQuotes, removeQuote, unquoteUnescape } from '../utils/string.js';
 import { SatfLanguage } from '../languages/satf/grammar/satf-sasf.js';
 import { SATF_SASF_NODES } from '../languages/satf/constants/satf-sasf-constants.js';
 import { ParsedSatf, ParsedSeqn, ParseSasf, Seqn } from '../languages/satf/types/types.js';
-import { SeqnParser } from '../languages/seq-n/seq-n';
-import { SEQN_NODES } from '../languages/seq-n/seqn-grammar-constants';
+import { SeqnParser } from '../languages/seq-n/seq-n.js';
+import { SEQN_NODES } from '../languages/seq-n/seqn-grammar-constants.js';
 
 /**
  * Asynchronously converts a parsed SeqN tree via lezer into a structured SATF representation.

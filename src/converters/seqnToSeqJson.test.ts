@@ -7,7 +7,7 @@ import {
   type FswCommandArgumentMap,
   type HwCommand,
 } from '@nasa-jpl/aerie-ampcs';
-import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types.js';
+import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
 import { readFileSync } from 'fs';
 import { seqJsonToSeqn } from './seqJsonToSeqn.js';
 import { SeqnParser } from '../languages/seq-n/seq-n.js';
