@@ -254,6 +254,9 @@ describe('satfToSeqn', () => {
           DEFAULT, "abc"
           RANGES,\\"abc", "123"\\
         ),
+        true(
+            TYPE,UNSIGNED_DECIMAL
+        ),
         end,
         STEPS,
           command (
@@ -278,6 +281,7 @@ duration STRING
 enum ENUM STORE_NAME "" "BOB_HARDWARE, SALLY_FARM, TIM_FLOWERS"
 string ENUM
 quoted_string STRING "" "abc, 123"
+true UINT
 @INPUT_PARAMS_END`);
 
     expect(result.sequences[0].steps).toStrictEqual(`B00:01:00 NOOP`);
@@ -446,6 +450,7 @@ C ECHO "HI"
     SIZE INT "-1...20, 40..."
     STORE ENUM STORE_NAME "" "MACY, ROSS, BEST_BUY"
     CHARGE
+    true UINT
     @LOCALS_END
 `);
     expect(result).toEqual({
@@ -475,6 +480,9 @@ C ECHO "HI"
 	),
 	CHARGE(
 		TYPE,SIGNED_DECIMAL
+	),
+	true(
+		TYPE,UNSIGNED_DECIMAL
 	),
 end,
 `,

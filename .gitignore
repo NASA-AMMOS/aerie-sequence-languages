@@ -140,5 +140,6 @@ build/
 *.grammar.js
 *.terms.js
 
-# intelliJ project files
+# IDE files
+.vscode/
 .idea/
