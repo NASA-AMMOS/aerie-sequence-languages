@@ -508,38 +508,6 @@ function satfVariablesFromSeqn(
   return `${type.toUpperCase()},\n ${serializedVariables},\nend,\n`;
 }
 
-// function parseAllowableRanges(text: string, rangeNode: SyntaxNode): { max: number; min: number }[] {
-//   if (!rangeNode) {
-//     return [];
-//   }
-//   return text
-//     .slice(rangeNode.from, rangeNode.to)
-//     .split(',')
-//     .map(range => {
-//       const rangeMatch = /^(?<min>[-+]?\d+(\.\d*)?)?(\.\.\.)(?<max>[-+]?\d+(\.\d*)?)?$/.exec(
-//         range.replaceAll('"', '').trim(),
-//       );
-//       if (rangeMatch && rangeMatch.groups) {
-//         const { min, max } = rangeMatch.groups;
-//         const maxNum = !isNaN(Number(max)) ? Number(max) : Infinity;
-//         const minNum = !isNaN(Number(min)) ? Number(min) : -Infinity;
-
-//         return { max: maxNum, min: minNum };
-//       }
-//       return undefined;
-//     })
-//     .filter(range => range !== undefined) as { max: number; min: number }[];
-// }
-
-// function parseAllowableValues(text: string, allowableValuesNode: any): string[] | undefined {
-//   const allowableValues = text
-//     .slice(allowableValuesNode.from + 1, allowableValuesNode.to - 1)
-//     .split(',')
-//     .map(value => value.trim());
-
-//   return allowableValues.length > 0 ? allowableValues : undefined;
-// }
-
 function sasfRequestFromSeqN(
   seqnTree: Tree,
   sequence: string,
