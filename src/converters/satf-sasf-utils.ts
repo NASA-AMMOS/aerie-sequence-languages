@@ -14,7 +14,7 @@ import { SATF_SASF_NODES } from '../languages/satf/constants/satf-sasf-constants
 import { ParsedSatf, ParsedSeqn, ParseSasf, Seqn } from '../languages/satf/types/types.js';
 import { SeqnParser } from '../languages/seq-n/seq-n.js';
 import { SEQN_NODES } from '../languages/seq-n/seqn-grammar-constants.js';
-
+import { parseVariables } from './seqnToSeqJson.js';
 /**
  * Asynchronously converts a parsed SeqN tree via lezer into a structured SATF representation.
  *
@@ -441,26 +441,8 @@ function satfVariablesFromSeqn(
     nType = 'LocalDeclaration';
   }
 
-  const variableContainer = seqnTree.topNode.getChild(nType);
-  if (!variableContainer) {
-    return undefined;
-  }
-
-  const variables = variableContainer.getChildren(SEQN_NODES.VARIABLE);
-  if (!variables || variables.length === 0) {
-    return undefined;
-  }
-
-  const serializedVariables = variables
-    .map((variableNode: SyntaxNode) => {
-      const nameNode = variableNode.getChild(SEQN_NODES.VARIABLE_NAME);
-      const typeNode = variableNode.getChild(SEQN_NODES.TYPE);
-      const enumNode = variableNode.getChild(SEQN_NODES.ENUM_NAME);
-      const rangeNode = variableNode.getChild(SEQN_NODES.RANGE);
-      const allowableValuesNode = variableNode.getChild(SEQN_NODES.VALUES);
-      const objects = variableNode.getChildren(SEQN_NODES.OBJECT);
-
-      const variableText = nameNode ? text.slice(nameNode.from, nameNode.to) : 'UNKNOWN';
+  const variables = parseVariables(seqnTree.topNode, text, nType as 'LocalDeclaration' | 'ParameterDeclaration')?.map(
+    v => {
       const variable: {
         allowable_ranges?: any[];
         allowable_values?: any[];
@@ -468,77 +450,17 @@ function satfVariablesFromSeqn(
         name: string;
         sc_name?: string;
         type: string;
-      } = { name: variableText, type: 'INT' };
-
-      if (typeNode) {
-        variable.type = text.slice(typeNode.from, typeNode.to);
-        if (enumNode) {
-          variable.enum_name = text.slice(enumNode.from, enumNode.to);
-        }
-        if (rangeNode) {
-          const allowableRanges = parseAllowableRanges(text, rangeNode);
-          if (allowableRanges && allowableRanges.length > 0) {
-            variable.allowable_ranges = allowableRanges;
-          }
-        }
-        if (allowableValuesNode) {
-          const allowableValues = parseAllowableValues(text, allowableValuesNode);
-          if (allowableValues && allowableValues.length > 0) {
-            variable.allowable_values = allowableValues;
-          }
-        }
-        // old style for parameters and variables
-      } else {
-        for (const object of objects) {
-          const properties = object.getChildren(SEQN_NODES.PROPERTY);
-
-          properties.forEach(property => {
-            const propertyName = property.getChild(SEQN_NODES.PROPERTY_NAME);
-            const propertyValue = propertyName?.nextSibling;
-            if (!propertyName || !propertyValue) {
-              return;
-            }
-            const propertyNameString = text.slice(propertyName?.from, propertyName?.to).replaceAll('"', '');
-            const propertyValueString = text.slice(propertyValue?.from, propertyValue?.to).replaceAll('"', '');
-
-            switch (propertyNameString.toLowerCase()) {
-              case 'allowable_ranges': {
-                if (!propertyValue) {
-                  break;
-                }
-                const allowableRanges = parseAllowableRanges(text, propertyValue);
-                if (allowableRanges && allowableRanges.length > 0) {
-                  variable.allowable_ranges = allowableRanges;
-                }
-                break;
-              }
-              case 'allowable_values':
-                {
-                  if (!propertyValue) {
-                    break;
-                  }
-                  const allowableValues = parseAllowableValues(text, propertyValue);
-                  if (allowableValues && allowableValues.length > 0) {
-                    variable.allowable_values = allowableValues;
-                  }
-                }
-                break;
-              case 'enum_name':
-                variable.enum_name = propertyValueString;
-                break;
-              case 'sc_name':
-                variable.sc_name = propertyValueString;
-                break;
-              case 'type':
-                variable.type = propertyValueString;
-                break;
-            }
-          });
-        }
-      }
+      } = {
+        name: v.name,
+        type: v.type,
+        enum_name: v.enum_name,
+        allowable_ranges: v.allowable_ranges,
+        allowable_values: v.allowable_values,
+        sc_name: v.sc_name,
+      };
 
       //convert seqn type to satf type
-      switch (variable.type) {
+      switch (v.type) {
         case SEQN_NODES.VAR_UINT:
           variable.type = SATF_SASF_NODES.PARAM_UNSIGNED_DECIMAL;
           break;
@@ -554,7 +476,16 @@ function satfVariablesFromSeqn(
           variable.type = SATF_SASF_NODES.PARAM_STRING;
           break;
       }
+      return variable;
+    },
+  );
 
+  if (!variables) {
+    return undefined;
+  }
+
+  const serializedVariables = variables
+    ?.map(variable => {
       return (
         `\t${variable.name}` +
         `(\n\t\tTYPE,${variable.type}${variable.enum_name ? `\n\t\t\ENUM_NAME,${variable.enum_name}` : ''}` +
@@ -575,38 +506,6 @@ function satfVariablesFromSeqn(
     .join(',\n');
 
   return `${type.toUpperCase()},\n ${serializedVariables},\nend,\n`;
-}
-
-function parseAllowableRanges(text: string, rangeNode: SyntaxNode): { max: number; min: number }[] {
-  if (!rangeNode) {
-    return [];
-  }
-  return text
-    .slice(rangeNode.from, rangeNode.to)
-    .split(',')
-    .map(range => {
-      const rangeMatch = /^(?<min>[-+]?\d+(\.\d*)?)?(\.\.\.)(?<max>[-+]?\d+(\.\d*)?)?$/.exec(
-        range.replaceAll('"', '').trim(),
-      );
-      if (rangeMatch && rangeMatch.groups) {
-        const { min, max } = rangeMatch.groups;
-        const maxNum = !isNaN(Number(max)) ? Number(max) : Infinity;
-        const minNum = !isNaN(Number(min)) ? Number(min) : -Infinity;
-
-        return { max: maxNum, min: minNum };
-      }
-      return undefined;
-    })
-    .filter(range => range !== undefined) as { max: number; min: number }[];
-}
-
-function parseAllowableValues(text: string, allowableValuesNode: any): string[] | undefined {
-  const allowableValues = text
-    .slice(allowableValuesNode.from + 1, allowableValuesNode.to - 1)
-    .split(',')
-    .map(value => value.trim());
-
-  return allowableValues.length > 0 ? allowableValues : undefined;
 }
 
 function sasfRequestFromSeqN(

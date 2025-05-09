@@ -655,18 +655,21 @@ export function parseVariables(
   }) as VariableDeclarationArray;
 }
 
-function parseAllowableRanges(text: string, rangeNode: any): { max: number; min: number }[] {
+function parseAllowableRanges(text: string, rangeNode: SyntaxNode): { max: number; min: number }[] {
+  if (!rangeNode) {
+    return [];
+  }
   return text
     .slice(rangeNode.from, rangeNode.to)
     .split(',')
     .map(range => {
-      const rangeMatch = /^([-+]?\d+)?(\.\.\.)([-+]?\d+)?$/.exec(range.replaceAll('"', '').trim());
-      if (rangeMatch) {
-        const [, min, , max] = rangeMatch;
-        const parsedMaxNum = Number(max);
-        const parsedMinNum = Number(min);
-        const maxNum = !Number.isNaN(parsedMaxNum) ? parsedMaxNum : Infinity;
-        const minNum = !Number.isNaN(parsedMinNum) ? parsedMinNum : -Infinity;
+      const rangeMatch = /^(?<min>[-+]?\d+(\.\d*)?)?(\.\.\.)(?<max>[-+]?\d+(\.\d*)?)?$/.exec(
+        range.replaceAll('"', '').trim(),
+      );
+      if (rangeMatch && rangeMatch.groups) {
+        const { min, max } = rangeMatch.groups;
+        const maxNum = !isNaN(Number(max)) ? Number(max) : Infinity;
+        const minNum = !isNaN(Number(min)) ? Number(min) : -Infinity;
 
         return { max: maxNum, min: minNum };
       }
