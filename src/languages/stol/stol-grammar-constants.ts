@@ -1,0 +1,18 @@
+export const STOL_NODES = {
+  ARG_NAME: "ArgName",
+  ARG_VALUE: "ArgValue",
+  COMMAND: "Command",
+  COMMAND_ARGS: "CommandArgs",
+  COMMAND_NAME: "CommandName",
+  COMMAND_TIME_EXACT: "CommandTimeExact",
+  COMMAND_TIME_OFFSET: "CommandTimeOffset",
+  DATE_TIME: "DateTime",
+  KEYWORD_ARG: "KeywordArg",
+  LOAD: "Load",
+  NUMBER: "Number",
+  POSITIONAL_ARG: "PositionalArg",
+  REPEAT_ARG: "RepeatArg",
+  TIME_BLOCK: "TimeBlock",
+  WAIT: "Wait",
+  WAIT_UNTIL: "WaitUntil",
+};

@@ -1,0 +1,138 @@
+@top Load {
+    TimeBlock*
+}
+
+TimeBlock {
+    (CommandTimeExact | CommandTimeOffset)
+    (newLine?)
+    Command
+}
+
+Command {
+    CommandName
+    CommandArgs
+}
+
+CommandTimeExact {
+    (WaitUntil)
+    (whiteSpace)?
+    DateTime
+}
+
+CommandTimeOffset {
+    (Wait)
+    (whiteSpace)?
+    Number
+}
+
+CommandName {
+    commandDeclaration
+    identifier
+}
+
+CommandArgs {
+    ((whiteSpace | newLine) (KeywordArg | PositionalArg))* whiteSpace?
+}
+
+ArgName {
+    identifier
+}
+
+ArgValue {
+    arg
+}
+
+KeywordArg {
+    ArgName commandAssignment ArgValue
+}
+
+PositionalArg {
+    ArgValue
+}
+
+RepeatArg {
+    "[" (whiteSpace? arg)* whiteSpace? "]"
+}
+
+arg[@isGroup=Arguments] { Number | String | Boolean }
+
+optSpace {
+    (newLine | whiteSpace)?
+}
+
+
+@tokens {
+    identifier { @asciiLetter (@asciiLetter | @digit | "_" | "-")* }
+    Activity { 'ACTIVITY' }
+    ATSTable { 'ATS_TABLE' }
+    ATSTableLastCommand { 'ATS_TABLE LAST_COMMAND' }
+    ATSTableStartCommand { 'ATS_TABLE START_COMMAND' }
+    RTSTable { 'RTS_TABLE' }
+    RTSTableStartCommand { 'RTS_TABLE START_COMMAND' }
+    RTSTableLastCommand { 'RTS_TABLE LAST_COMMAND' }
+    Cmdn { 'CMDN' }
+    DateTime { @digit@digit@digit@digit"-"@digit@digit@digit"-"@digit@digit":"@digit@digit":"@digit@digit("."@digit@digit@digit)? }
+    commandDeclaration { '/' }
+    commandAssignment { '=' }
+    Event { 'EVENT' }
+    Export { 'EXPORT' }
+    Expression { 'EXPRESSION' }
+    Wait { 'WAIT' }
+    WaitUntil { 'WAIT UNTIL' }
+    FnUTC { 'UTC' }
+    FnINT { 'INT ' }
+    FnFLOAT { 'FLOAT' }
+    FnTIME { 'TIME' }
+    FnABS { 'ABS' }
+    FnSELECT { 'SELECT' }
+    FnYEAR { 'YEAR' }
+    FnDAYOFYEAR { 'DAY_OF_YEAR' }
+    FnHOUR { 'HOUR' }
+    FnMINUTE { 'MINUTE' }
+    FnSECOND { 'SECOND' }
+    FnENV { 'ENV' }
+    FnDATEOF { 'DATE_OF' }
+    FnDAYOFWEEK { 'DAY_OF_WEEK' }
+    FnDAYOFMONTH { 'DAY_OF_MONTH' }
+    FnMONTH { 'MONTH' }
+    Operators {
+
+    }
+    Functions {
+
+    }
+    Constants {
+
+    }
+
+    hex { @digit | $[A-F] }
+
+    TRUE { 'TRUE' | 'true' }
+    FALSE { 'FALSE' | 'false' }
+    Boolean { TRUE | FALSE }
+
+    Enum { identifier }
+
+    Number {
+        ("+" | "-")? (@digit ("_" | @digit)* ("." ("_" | @digit)*)? | "." @digit ("_" | @digit)*)
+        (("e" | "E") ("+" | "-")? ("_" | @digit)+)? |
+        @digit ("_" | @digit)* "n" |
+        "0x" (hex | "_")+ "n"?
+    }
+
+    String { '"' (!["\\] | "\\" _)* '"' }
+    whiteSpace { $[ \t]+ }
+    newLine { ($[ \t]* "\n")+ $[ \t]* |  (whiteSpace? @eof) }
+
+    @precedence { newLine, whiteSpace }
+
+    @precedence { optSpace, newLine }
+
+    @precedence { Boolean, identifier }
+
+    @precedence {
+        WaitUntil
+        Wait
+        identifier
+    }
+}
