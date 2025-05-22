@@ -140,4 +140,4 @@ export const SATF_SASF_NODES = {
   PARAM_DURATION,
   PARAM_QUOTED_STRING,
   PARAM_STRING,
-};
+} as const;

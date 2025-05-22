@@ -20,6 +20,8 @@ export const SEQN_NODES = {
   OBJECT: 'Object',
   METADATA: 'Metadata',
   METADATA_ENTRY: 'MetaEntry',
+  MODELS: 'Models',
+  MODEL_ENTRY: 'Model',
   KEY: 'Key',
   VALUE: 'Value',
   ID_DECLARATION: 'IdDeclaration',
@@ -42,4 +44,4 @@ export const SEQN_NODES = {
   VAR_UINT: 'UINT',
   VAR_FLOAT: 'FLOAT',
   VAR_INT: 'INT',
-};
+} as const;
