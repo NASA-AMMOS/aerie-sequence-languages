@@ -46,4 +46,10 @@ export const SEQN_NODES = {
   VAR_UINT: 'UINT',
   VAR_FLOAT: 'FLOAT',
   VAR_INT: 'INT',
+  TIME_TAG: 'TimeTag',
+  TIME_ABSOLUTE: 'TimeAbsolute',
+  TIME_EPOCH: 'TimeEpoch',
+  TIME_GROUND_EPOCH: 'TimeGroundEpoch',
+  TIME_RELATIVE: 'TimeRelative',
+  TIME_BLOCK_RELATIVE: 'TimeBlockRelative',
 } as const;
