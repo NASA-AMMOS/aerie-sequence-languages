@@ -11,6 +11,8 @@ export const SEQN_NODES = {
   GROUND_BLOCK: 'GroundBlock',
   GROUND_EVENT: 'GroundEvent',
   LOAD: 'Load',
+  EPOCH: 'Epoch',
+  ENGINE: 'Engine',
   REQUEST: 'Request',
   REPEAT_ARG: 'RepeatArg',
   ENUM: 'Enum',
