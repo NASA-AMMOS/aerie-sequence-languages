@@ -187,7 +187,8 @@ describe('variables', () => {
     assertNoErrorNodes(input);
     const parseTree = SeqnParser.parse(input);
     const localNodes = parseTree.topNode.getChild(SEQN_NODES.LOCAL_DECLARATION)?.getChildren(SEQN_NODES.VARIABLE) ?? [];
-    const paramNodes = parseTree.topNode.getChild(SEQN_NODES.PARAMETER_DECLARATION)?.getChildren(SEQN_NODES.VARIABLE) ?? [];
+    const paramNodes =
+      parseTree.topNode.getChild(SEQN_NODES.PARAMETER_DECLARATION)?.getChildren(SEQN_NODES.VARIABLE) ?? [];
     const variableNodes = [...localNodes, ...paramNodes];
     assert.deepEqual(
       variableNodes?.map(node => getNodeText(node.getChild(SEQN_NODES.VARIABLE_NAME)!, input)),
