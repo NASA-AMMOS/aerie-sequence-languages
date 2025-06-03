@@ -47,6 +47,7 @@ export const SEQN_NODES = {
   VAR_FLOAT: 'FLOAT',
   VAR_INT: 'INT',
   TIME_TAG: 'TimeTag',
+  TIME_COMPLETE: 'TimeComplete',
   TIME_ABSOLUTE: 'TimeAbsolute',
   TIME_EPOCH: 'TimeEpoch',
   TIME_GROUND_EPOCH: 'TimeGroundEpoch',
