@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { satfToSeqn, sasfToSeqn, seqnToSATF, seqnToSASF } from './satf-sasf-utils.js';
 import { ParsedSatf, ParsedSeqn } from '../languages/satf/types/types.js';
 
+//-- SATF to Seqn Test---
 describe('satfToSeqn', () => {
   it('should return empty header and sequences for empty SATF string', async () => {
     const satf = '';
@@ -316,8 +317,61 @@ attitude_spec ENUM STORE_NAME "" "BOB_HARDWARE, SALLY_FARM, TIM_FLOWERS"
     expect(result.sequences[0].steps).toStrictEqual(`B00:01:00 ECHO "abc" attitude_spec
 @METADATA "INCLUSION_CONDITION" "param_rate == receive_rate"`);
   });
+
+  it('Verify Time types', async () => {
+    const satf = `
+      $$EOH
+      RT_on_board_block(/start.txt,\\start\\,
+        STEPS,
+          command(1,
+            SCHEDULED_TIME,\\2025-001T10:00:00\\,ABSOLUTE,
+            CMD
+          ),
+          command(2,
+            SCHEDULED_TIME,\\10:00:00\\,FROM_PREVIOUS_START,
+            CMD
+          ),
+          command(3,
+            SCHEDULED_TIME,\\00:08:20\\,FROM_PREVIOUS_START,
+            CMD
+          ),
+          command(4,
+            SCHEDULED_TIME,\\-03:00:00\\,EPOCH,
+            CMD
+          ),
+          command(5,
+            SCHEDULED_TIME,\\00:00:01\\,EPOCH,
+            CMD
+          ),
+          command(6,
+            SCHEDULED_TIME,\\00:08:00\\,BLOCK_RELATIVE,
+            CMD
+          ),
+          command(7,
+            SCHEDULED_TIME,\\00:00:01\\,WAIT_PREVIOUS_END,
+            CMD
+          ),
+        end
+      )
+      $$EOF
+    `;
+    const result = await satfToSeqn(satf);
+    expect(result).toHaveProperty('sequences');
+    expect(result.sequences[0].name).toStrictEqual('start.txt');
+    expect(result.sequences[0].inputParameters).toStrictEqual('');
+
+    expect(result.sequences[0].steps).toStrictEqual(`A2025-001T10:00:00 CMD
+R10:00:00 CMD
+R00:08:20 CMD
+E-03:00:00 CMD
+E00:00:01 CMD
+B00:08:00 CMD
+C CMD`);
+  });
+
 });
 
+//--- SASF To Seqn Test ----
 describe('sasfToSeqn', () => {
   it('should return empty header and sequences for empty SATF string', async () => {
     const sasf = '';
@@ -393,8 +447,59 @@ describe('sasfToSeqn', () => {
 `,
     );
   });
+
+  it('should return valid G time type', async () => {
+    const sasf = `
+      $$EOH
+      $$EOD
+      request(name,
+        START_TIME, \\-00:00:00.100\\,GROUND_EPOCH )
+          command(1,
+            SCHEDULED_TIME,\\2025-001T10:00:00\\,ABSOLUTE,
+            CMD
+          ),
+          command(2,
+            SCHEDULED_TIME,\\10:00:00\\,FROM_PREVIOUS_START,
+            CMD
+          ),
+          command(3,
+            SCHEDULED_TIME,\\00:08:20\\,FROM_PREVIOUS_START,
+            CMD
+          ),
+          command(4,
+            SCHEDULED_TIME,\\-03:00:00\\,EPOCH,
+            CMD
+          ),
+          command(5,
+            SCHEDULED_TIME,\\00:00:01\\,EPOCH,
+            CMD
+          ),
+          command(6,
+            SCHEDULED_TIME,\\00:08:00\\,BLOCK_RELATIVE,
+            CMD
+          ),
+      end;
+      $$EOF
+    `;
+    const result = await sasfToSeqn(sasf);
+    expect(result).toHaveProperty('sequences');
+    expect(result.sequences[0].name).toStrictEqual('name');
+    expect(result.sequences[0].requests).toStrictEqual(
+      `G-00:00:00.100 @REQUEST_BEGIN("name")
+  A2025-001T10:00:00 CMD
+  R10:00:00 CMD
+  R00:08:20 CMD
+  E-03:00:00 CMD
+  E00:00:01 CMD
+  B00:08:00 CMD
+@REQUEST_END
+`,
+    );
+  });
+
 });
 
+//--- Seqn to SATF Test ----
 describe('seqnToSatf', () => {
   it('should return empty header and empty SATF string', async () => {
     const result = await seqnToSATF('');
@@ -540,15 +645,15 @@ end,
     R00:00:01.000 CMD 1.0`);
     expect(result.steps).toEqual(`STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
 		CMD(TRUE, 1.0)
 	),
 	command(2,
-		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
 		CMD("OFF")
 	),
 	command(3,
-		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
 		CMD(1.0)
 	),
 end`);
@@ -559,7 +664,7 @@ end`);
     R00:00:01.000 CMD true 1 #I am a description`);
     expect(result.steps).toEqual(`STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
 		COMMENT,\\I am a description\\,
 		CMD(TRUE, 1.0)
 	),
@@ -599,7 +704,7 @@ end`);
 
     expect(result.steps).toEqual(`STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+		SCHEDULED_TIME,\\00:00:01.000\\,EPOCH,
 		COMMENT,\\I am a description\\,
 		CMD("temperature", "level")
 	),
@@ -693,20 +798,61 @@ end,`,
     expect(result.steps?.trimEnd()).toEqual(
       `STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
 		NTEXT,\\Set package\\,
 		STATUS("EXECUTE", "status")
 	),
 	command(2,
-		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
 		NTEXT,\\Disable volatage\\,
 		VOLTAGE_OFF("OFF")
 	),
 end`,
     );
   });
+  it('should return valid satf times', async () => {
+    const result = await seqnToSATF(`
+    A2025-001T10:00:00 CMD
+    R10:00:00 CMD
+    R500 CMD
+    E-03:00:00 CMD
+    E+1.0 CMD
+    B00:08:00 CMD
+    C CMD`);
+    expect(result.steps).toEqual(`STEPS,
+	command(1,
+		SCHEDULED_TIME,\\2025-001T10:00:00\\,ABSOLUTE,
+		CMD
+	),
+	command(2,
+		SCHEDULED_TIME,\\10:00:00.000\\,FROM_PREVIOUS_START,
+		CMD
+	),
+	command(3,
+		SCHEDULED_TIME,\\00:08:20\\,FROM_PREVIOUS_START,
+		CMD
+	),
+	command(4,
+		SCHEDULED_TIME,\\-03:00:00.000\\,EPOCH,
+		CMD
+	),
+	command(5,
+		SCHEDULED_TIME,\\00:00:01\\,EPOCH,
+		CMD
+	),
+	command(6,
+		SCHEDULED_TIME,\\00:08:00.000\\,BLOCK_RELATIVE,
+		CMD
+	),
+	command(7,
+		SCHEDULED_TIME,\\00:00:01\\,WAIT_PREVIOUS_END,
+		CMD
+	),
+end`);
+  });
 });
 
+//--- Seqn to SASF Test
 describe('seqnToSasf', () => {
   it('Should return a barebone sasf', async () => {
     const result = await seqnToSASF(`
@@ -718,7 +864,7 @@ describe('seqnToSasf', () => {
   `);
     expect(result.requests?.trimEnd()).toEqual(
       `request(request1,
-	START_TIME, 00:00:01,
+	START_TIME, 00:00:01,WAIT_PREVIOUS_END,
 	REQUESTOR,"me",
 	PROCESSOR,"VC2AB",
 	KEY,"No_Key")
@@ -738,7 +884,7 @@ end;`,
       # I am a comment inside a sasf
       
       request(ep_atr_testing_setup,
-          REQUESTOR, "shaheerk",
+          REQUESTOR, "me",
           PROCESSOR, "VC2AB",
           KEY, "NO_KEY",
           START_TIME, 2024-001T00:00:00.000)
@@ -759,23 +905,62 @@ end;`,
     const result = await seqnToSASF(seqN.sequences[0].requests!);
     expect(result.requests?.trimEnd()).toEqual(
       `request(ep_atr_testing_setup,
-	START_TIME, 2024-001T00:00:00.000,
-	REQUESTOR,"shaheerk",
+	START_TIME, 2024-001T00:00:00.000,ABSOLUTE,
+	REQUESTOR,"me",
 	PROCESSOR,"VC2AB",
 	KEY,"NO_KEY")
 		command(1,
-			SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+			SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
 			USER_SEQ_VAR_SEQ_ACTIVATE("NO_EPOCH", -1.00, "/eng/seq/ep_configure.mod", "THRUSTER_TABLE_A", 55.00, 10.00, 35.00)
 		),
 		command(2,
-			SCHEDULED_TIME,\\01:00:00\\,FROM_PREVIOUS_START,
+			SCHEDULED_TIME,\\01:00:00.000\\,FROM_PREVIOUS_START,
 			USER_SEQ_VAR_SEQ_LOAD("NO_EPOCH", -1.00, "/eng/seq/ep_start_mission_thrust.mod", "TRUE", 235.000, 0.218, 2400.0000)
 		),
 		command(3,
-			SCHEDULED_TIME,\\00:01:00\\,FROM_PREVIOUS_START,
+			SCHEDULED_TIME,\\00:01:00.000\\,FROM_PREVIOUS_START,
 			USER_SEQ_EXECUTE("ep_start_mission_thrust.mod")
 		),
 end;`,
     );
+  });
+  it('should return valid satf times', async () => {
+    const result = await seqnToSASF(`
+      G-00:00:00.100 "test" @REQUEST_BEGIN("request.name")
+        A2025-001T10:00:00 CMD
+        R10:00:00 CMD
+        R500 CMD
+        E-03:00:00 CMD
+        E+1.0 CMD
+        B00:08:00 CMD
+      @REQUEST_END`);
+    expect(result.requests).toEqual(`request(request.name,
+	START_TIME, -00:00:00.100,GROUND_EPOCH)
+		command(1,
+			SCHEDULED_TIME,\\2025-001T10:00:00\\,ABSOLUTE,
+			CMD
+		),
+		command(2,
+			SCHEDULED_TIME,\\10:00:00.000\\,FROM_PREVIOUS_START,
+			CMD
+		),
+		command(3,
+			SCHEDULED_TIME,\\00:08:20\\,FROM_PREVIOUS_START,
+			CMD
+		),
+		command(4,
+			SCHEDULED_TIME,\\-03:00:00.000\\,EPOCH,
+			CMD
+		),
+		command(5,
+			SCHEDULED_TIME,\\00:00:01\\,EPOCH,
+			CMD
+		),
+		command(6,
+			SCHEDULED_TIME,\\00:08:00.000\\,BLOCK_RELATIVE,
+			CMD
+		),
+end;
+`);
   });
 });
