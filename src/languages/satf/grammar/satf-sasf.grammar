@@ -327,7 +327,7 @@
     modelValue { $[a-zA-Z0-9] | '"' | '\'' | "-" | "." }
     anyASCII { ($[a-zA-Z0-9_:!$%&()*\+-/;<=>?@[\]^`{|}~"' ])+ }
     singleDigit { @digit }
-    requestTime { @digit@digit@digit@digit"-"@digit@digit@digit"T"@digit@digit":"@digit@digit":"@digit@digit("."@digit+)?}
+    requestTime { ("+" | "-")?(@digit@digit@digit@digit"-"@digit@digit@digit"T")?@digit@digit":"@digit@digit":"@digit@digit("."@digit+)?}
     path { ("/" | identifier | ".")+}
     request { "request"}
     startTime { "START_TIME"}
