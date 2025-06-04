@@ -368,7 +368,6 @@ E00:00:01 CMD
 B00:08:00 CMD
 C CMD`);
   });
-
 });
 
 //--- SASF To Seqn Test ----
@@ -496,7 +495,6 @@ describe('sasfToSeqn', () => {
 `,
     );
   });
-
 });
 
 //--- Seqn to SATF Test ----

@@ -242,7 +242,14 @@ function parseSeqNTime(
   sequence: string,
 ): {
   tag: string;
-  type: 'UNKNOWN' | 'ABSOLUTE' | 'WAIT_PREVIOUS_END' | 'EPOCH' | 'FROM_PREVIOUS_START' | 'GROUND_EPOCH' | 'BLOCK_RELATIVE';
+  type:
+    | 'UNKNOWN'
+    | 'ABSOLUTE'
+    | 'WAIT_PREVIOUS_END'
+    | 'EPOCH'
+    | 'FROM_PREVIOUS_START'
+    | 'GROUND_EPOCH'
+    | 'BLOCK_RELATIVE';
 } {
   const tag = '00:00:01';
   const timeTagNode = commandNode.getChild('TimeTag');
@@ -261,34 +268,39 @@ function parseSeqNTime(
     return { tag, type: 'WAIT_PREVIOUS_END' };
   }
   if (validateTime(timeValue, TimeTypes.ISO_ORDINAL_TIME)) {
-      return { tag: timeValue, type: 'ABSOLUTE' };
+    return { tag: timeValue, type: 'ABSOLUTE' };
   } else {
+    let type:
+      | 'UNKNOWN'
+      | 'ABSOLUTE'
+      | 'WAIT_PREVIOUS_END'
+      | 'EPOCH'
+      | 'FROM_PREVIOUS_START'
+      | 'GROUND_EPOCH'
+      | 'BLOCK_RELATIVE' = 'UNKNOWN';
+    switch (time.name) {
+      case SEQN_NODES.TIME_GROUND_EPOCH:
+        type = 'GROUND_EPOCH';
+        break;
+      case SEQN_NODES.TIME_EPOCH:
+        type = 'EPOCH';
+        break;
+      case SEQN_NODES.TIME_RELATIVE:
+        type = 'FROM_PREVIOUS_START';
+        break;
+      case SEQN_NODES.TIME_BLOCK_RELATIVE:
+        type = 'BLOCK_RELATIVE';
+        break;
+    }
 
-     let type :  'UNKNOWN' | 'ABSOLUTE' | 'WAIT_PREVIOUS_END' | 'EPOCH' | 'FROM_PREVIOUS_START' | 'GROUND_EPOCH' | 'BLOCK_RELATIVE' = 'UNKNOWN';
-      switch (time.name) {
-        case SEQN_NODES.TIME_GROUND_EPOCH:
-          type = 'GROUND_EPOCH';
-          break;
-        case SEQN_NODES.TIME_EPOCH:
-          type = 'EPOCH';
-          break;
-        case SEQN_NODES.TIME_RELATIVE:
-          type = 'FROM_PREVIOUS_START';
-          break;
-        case SEQN_NODES.TIME_BLOCK_RELATIVE:
-          type = 'BLOCK_RELATIVE';
-          break;
-      }
-  
     if (validateTime(timeValue, TimeTypes.DOY_TIME)) {
-       let balancedTime = getBalancedDuration(timeValue);
+      let balancedTime = getBalancedDuration(timeValue);
 
       return {
         tag: balancedTime,
-        type
+        type,
       };
     } else if (validateTime(timeValue, TimeTypes.SECOND_TIME)) {
-
       let balancedTime = getBalancedDuration(timeValue);
       if (parseDurationString(balancedTime, 'seconds').milliseconds === 0) {
         balancedTime = balancedTime.slice(0, -4);
