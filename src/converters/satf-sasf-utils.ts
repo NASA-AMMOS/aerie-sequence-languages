@@ -242,7 +242,14 @@ function parseSeqNTime(
   sequence: string,
 ): {
   tag: string;
-  type: 'UNKNOWN' | 'ABSOLUTE' | 'WAIT_PREVIOUS_END' | 'EPOCH' | 'FROM_PREVIOUS_START' | 'GROUND_EPOCH';
+  type:
+    | 'UNKNOWN'
+    | 'ABSOLUTE'
+    | 'WAIT_PREVIOUS_END'
+    | 'EPOCH'
+    | 'FROM_PREVIOUS_START'
+    | 'GROUND_EPOCH'
+    | 'BLOCK_RELATIVE';
 } {
   const tag = '00:00:01';
   const timeTagNode = commandNode.getChild('TimeTag');
@@ -257,46 +264,49 @@ function parseSeqNTime(
 
   const timeValue = sequence.slice(time.from + 1, time.to).trim();
 
-  if (time.name === 'TimeComplete') {
+  if (time.name === SEQN_NODES.TIME_COMPLETE) {
     return { tag, type: 'WAIT_PREVIOUS_END' };
-  } else if (time.name === 'TimeGroundEpoch') {
-    const parentNode = time.parent;
-
-    if (parentNode) {
-      // ex: G+3:00 "GroundEpochName"
-      const parentNodeText = sequence.slice(parentNode.from, parentNode.to);
-      const splitParentNodeText = parentNodeText.slice(1, parentNodeText.length).split(' ');
-
-      if (splitParentNodeText.length > 0) {
-        const epochTag = splitParentNodeText[0];
-        const epochName = unquoteUnescape(splitParentNodeText[1]);
-
-        return { tag: `${epochName}${epochTag}`, type: 'GROUND_EPOCH' };
-      }
-    }
+  }
+  if (validateTime(timeValue, TimeTypes.ISO_ORDINAL_TIME)) {
+    return { tag: timeValue, type: 'ABSOLUTE' };
   } else {
-    if (validateTime(timeValue, TimeTypes.ISO_ORDINAL_TIME)) {
-      return { tag: timeValue, type: 'ABSOLUTE' };
-    } else if (validateTime(timeValue, TimeTypes.DOY_TIME)) {
-      const { isNegative, days, hours, minutes, seconds, milliseconds } = getDurationTimeComponents(
-        parseDurationString(timeValue, 'seconds'),
-      );
+    let type:
+      | 'UNKNOWN'
+      | 'ABSOLUTE'
+      | 'WAIT_PREVIOUS_END'
+      | 'EPOCH'
+      | 'FROM_PREVIOUS_START'
+      | 'GROUND_EPOCH'
+      | 'BLOCK_RELATIVE' = 'UNKNOWN';
+    switch (time.name) {
+      case SEQN_NODES.TIME_GROUND_EPOCH:
+        type = 'GROUND_EPOCH';
+        break;
+      case SEQN_NODES.TIME_EPOCH:
+        type = 'EPOCH';
+        break;
+      case SEQN_NODES.TIME_RELATIVE:
+        type = 'FROM_PREVIOUS_START';
+        break;
+      case SEQN_NODES.TIME_BLOCK_RELATIVE:
+        type = 'BLOCK_RELATIVE';
+        break;
+    }
 
-      const signed = timeValue.charAt(0) === '-' || timeValue.charAt(0) === '+';
+    if (validateTime(timeValue, TimeTypes.DOY_TIME)) {
+      let balancedTime = getBalancedDuration(timeValue);
 
       return {
-        tag: `${isNegative}${days}${hours}:${minutes}:${seconds}${milliseconds}`,
-        type: signed ? 'EPOCH' : 'FROM_PREVIOUS_START',
+        tag: balancedTime,
+        type,
       };
     } else if (validateTime(timeValue, TimeTypes.SECOND_TIME)) {
-      const signed = timeValue.charAt(0) === '-' || timeValue.charAt(0) === '+';
-
       let balancedTime = getBalancedDuration(timeValue);
       if (parseDurationString(balancedTime, 'seconds').milliseconds === 0) {
         balancedTime = balancedTime.slice(0, -4);
       }
 
-      return { tag: balancedTime, type: signed ? 'EPOCH' : 'FROM_PREVIOUS_START' };
+      return { tag: balancedTime, type };
     }
   }
   return { tag, type: 'UNKNOWN' };
@@ -528,10 +538,10 @@ function sasfRequestFromSeqN(
       const key = parsSeqNMetadata(requestNode, sequence, ['KEY']);
       const request =
         `request(${name},` +
-        `\n\tSTART_TIME, ${parsedTime.tag},` +
-        `${requester ? `\n\t${requester.replaceAll('\\', '\"')}` : ''},` +
-        `${processor ? `\n\t${processor.replaceAll('\\', '\"')}` : ''},` +
-        `${key ? `\n\t${key.replaceAll('\\', '\"')}` : ''})`;
+        `\n\tSTART_TIME, ${parsedTime.tag},${parsedTime.type}` +
+        `${requester ? `,\n\t${requester.replaceAll('\\', '\"')}` : ''}` +
+        `${processor ? `,\n\t${processor.replaceAll('\\', '\"')}` : ''}` +
+        `${key ? `,\n\t${key.replaceAll('\\', '\"')}` : ''})`;
       `\n\n`;
       let order = 1;
       let child = requestNode?.getChild(SEQN_NODES.STEPS)?.firstChild;
@@ -882,9 +892,12 @@ function parseTimeTagNode(timeValueNode: SyntaxNode | null, timeTagNode: SyntaxN
       return `R${time} `;
     case 'FROM_REQUEST_START':
     case 'FROM_ACTIVITY_START':
+    case 'BLOCK_RELATIVE':
       return `B${time} `;
     case 'WAIT_PREVIOUS_END':
       return `C `;
+    case 'GROUND_EPOCH':
+      return `G${time} `;
     default:
       return 'error';
   }
