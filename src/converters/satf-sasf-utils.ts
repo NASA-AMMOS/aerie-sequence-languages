@@ -330,7 +330,7 @@ function parseSeqNArgs(
   stem: string,
 ): {
   name?: string;
-  type: 'boolean' | 'enum' | 'number' | 'string';
+  type: 'boolean' | 'enum' | 'number' | 'string' | 'symbol';
   value: boolean | string;
 }[] {
   const args = [];
@@ -342,9 +342,14 @@ function parseSeqNArgs(
     const dictionaryArg = dictArguments[i] ?? null;
     const arg = parseSeqNArg(argNode, sequence, dictionaryArg, variables);
 
-    if (arg !== undefined) {
-      args.push(arg);
+    if (arg === undefined) {
+      continue;
     }
+    if(stem.toLowerCase().includes("USER_SEQ".toLocaleLowerCase()) && arg.type === "symbol"){
+      arg.type = "string"
+      arg.value = `"${arg.value}"`
+    }
+    args.push(arg);
 
     argNode = argNode?.nextSibling;
     i++;
@@ -361,7 +366,7 @@ function parseSeqNArg(
 ):
   | {
       name?: string | undefined;
-      type: 'boolean' | 'enum' | 'number' | 'string';
+      type: 'boolean' | 'enum' | 'number' | 'string' | 'symbol';
       value: boolean | string;
     }
   | undefined {
@@ -370,8 +375,8 @@ function parseSeqNArg(
   if (variables.includes(nodeValue)) {
     return {
       name: undefined,
-      type: 'string' as const,
-      value: `"${nodeValue}"`,
+      type: 'symbol' as const,
+      value: `${nodeValue}`,
     };
   }
 
@@ -498,18 +503,18 @@ function satfVariablesFromSeqn(
     ?.map(variable => {
       return (
         `\t${variable.name}` +
-        `(\n\t\tTYPE,${variable.type}${variable.enum_name ? `\n\t\t\ENUM_NAME,${variable.enum_name}` : ''}` +
+        `(\n\t\tTYPE,${variable.type}${variable.enum_name ? `,\n\t\t\ENUM_NAME,${variable.enum_name}` : ''}` +
         `${
           variable.allowable_ranges
-            ? variable.allowable_ranges
+            ? `,${variable.allowable_ranges
                 .map(range => {
                   return `\n\t\tRANGES,\\${range.min}...${range.max}\\`;
                 })
-                .join(',')
+                .join(',')}`
             : ''
         }` +
-        `${variable.allowable_values ? `\n\t\t\RANGES,\\${variable.allowable_values}\\` : ''}` +
-        `${variable.sc_name ? `\n\t\tSC_NAME,${variable.sc_name}` : ''}` +
+        `${variable.allowable_values ? `,\n\t\t\RANGES,\\${variable.allowable_values}\\` : ''}` +
+        `${variable.sc_name ? `,\n\t\tSC_NAME,${variable.sc_name}` : ''}` +
         `\n\t)`
       );
     })

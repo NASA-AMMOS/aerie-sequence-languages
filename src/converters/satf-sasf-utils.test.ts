@@ -566,19 +566,19 @@ C ECHO "HI"
 		TYPE,QUOTED_STRING
 	),
 	level(
-		TYPE,FLOAT
+		TYPE,FLOAT,
 		RANGES,\\10.01...99.99\\,
-		RANGES,\\100...199.99\\
+		RANGES,\\100...199.99\\,
 		RANGES,\\1,2,4\\
 	),
 	SIZE(
-		TYPE,SIGNED_DECIMAL
+		TYPE,SIGNED_DECIMAL,
 		RANGES,\\-1...20\\,
 		RANGES,\\40...Infinity\\
 	),
 	STORE(
-		TYPE,STRING
-		ENUM_NAME,STORE_NAME
+		TYPE,STRING,
+		ENUM_NAME,STORE_NAME,
 		RANGES,\\MACY,ROSS,BEST_BUY\\
 	),
 	CHARGE(
@@ -613,19 +613,19 @@ end,
 		TYPE,QUOTED_STRING
 	),
 	level(
-		TYPE,FLOAT
+		TYPE,FLOAT,
 		RANGES,\\10.01...99.99\\,
-		RANGES,\\100...199.99\\
+		RANGES,\\100...199.99\\,
 		RANGES,\\1,2,4\\
 	),
 	SIZE(
-		TYPE,SIGNED_DECIMAL
+		TYPE,SIGNED_DECIMAL,
 		RANGES,\\-1...20\\,
 		RANGES,\\40...Infinity\\
 	),
 	STORE(
-		TYPE,STRING
-		ENUM_NAME,STORE_NAME
+		TYPE,STRING,
+		ENUM_NAME,STORE_NAME,
 		RANGES,\\MACY,ROSS,BEST_BUY\\
 	),
 	CHARGE(
@@ -684,27 +684,33 @@ end`);
 	command(1,
 		SCHEDULED_TIME,\\2025-001T00:00:01.000\\,ABSOLUTE,
 		COMMENT,\\I am a description\\,
-		CMD("temperature", "level")
+		CMD(temperature, level)
 	),
 end`);
   });
 
-  it('should return satf steps with global as args', async () => {
+  it('should return satf steps with global as args and user_seq command', async () => {
     const result = await seqnToSATF(
       `
     @INPUT_PARAMS_BEGIN
       temperature STRING
     @INPUT_PARAMS_END
 
-    E00:00:01.000 CMD temperature level #I am a description`,
+    E00:00:01.000 CMD temperature level #satf should have no quote cause it isn't a user_seq command
+    B-10 USER_SEQ_DIR temperature #satf should quoted variable for user sequence commands`,
       ['level'],
     );
 
     expect(result.steps).toEqual(`STEPS,
 	command(1,
 		SCHEDULED_TIME,\\00:00:01.000\\,EPOCH,
-		COMMENT,\\I am a description\\,
-		CMD("temperature", "level")
+		COMMENT,\\satf should have no quote cause it isn't a user_seq command\\,
+		CMD(temperature, level)
+	),
+	command(2,
+		SCHEDULED_TIME,\\-00:00:10\\,BLOCK_RELATIVE,
+		COMMENT,\\satf should quoted variable for user sequence commands\\,
+		USER_SEQ_DIR("temperature")
 	),
 end`);
   });
@@ -785,7 +791,7 @@ end`);
 		TYPE,UNSIGNED_DECIMAL
 	),
 	id(
-		TYPE,STRING
+		TYPE,STRING,
 		ENUM_NAME,GRNS_ANNEAL_HEATER
 	),
 	temp(
@@ -798,7 +804,7 @@ end,`,
 	command(1,
 		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
 		NTEXT,\\Set package\\,
-		STATUS("EXECUTE", "status")
+		STATUS("EXECUTE", status)
 	),
 	command(2,
 		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
