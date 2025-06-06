@@ -342,7 +342,7 @@ function parseSeqNArgs(
     const dictionaryArg = dictArguments[i] ?? null;
     const arg = parseSeqNArg(argNode, sequence, dictionaryArg, variables);
 
-    if (arg !== undefined) {
+    if(arg){
       args.push(arg);
     }
 
@@ -370,8 +370,8 @@ function parseSeqNArg(
   if (variables.includes(nodeValue)) {
     return {
       name: undefined,
-      type: 'string' as const,
-      value: `"${nodeValue}"`,
+      type: 'enum' as const,
+      value: `${nodeValue}`,
     };
   }
 
@@ -498,18 +498,18 @@ function satfVariablesFromSeqn(
     ?.map(variable => {
       return (
         `\t${variable.name}` +
-        `(\n\t\tTYPE,${variable.type}${variable.enum_name ? `\n\t\t\ENUM_NAME,${variable.enum_name}` : ''}` +
+        `(\n\t\tTYPE,${variable.type}${variable.enum_name ? `,\n\t\t\ENUM_NAME,${variable.enum_name}` : ''}` +
         `${
           variable.allowable_ranges
-            ? variable.allowable_ranges
+            ? `,${variable.allowable_ranges
                 .map(range => {
                   return `\n\t\tRANGES,\\${range.min}...${range.max}\\`;
                 })
-                .join(',')
+                .join(',')}`
             : ''
         }` +
-        `${variable.allowable_values ? `\n\t\t\RANGES,\\${variable.allowable_values}\\` : ''}` +
-        `${variable.sc_name ? `\n\t\tSC_NAME,${variable.sc_name}` : ''}` +
+        `${variable.allowable_values ? `,\n\t\t\RANGES,\\${variable.allowable_values}\\` : ''}` +
+        `${variable.sc_name ? `,\n\t\tSC_NAME,${variable.sc_name}` : ''}` +
         `\n\t)`
       );
     })

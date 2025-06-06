@@ -696,7 +696,8 @@ end`);
       temperature STRING
     @INPUT_PARAMS_END
 
-    E00:00:01.000 CMD temperature level #I am a description`,
+    E00:00:01.000 CMD temperature level #I am a description
+    B-10 USER_SEQ_DIR temperature #I am a description`,
       ['level'],
     );
 
@@ -704,7 +705,12 @@ end`);
 	command(1,
 		SCHEDULED_TIME,\\00:00:01.000\\,EPOCH,
 		COMMENT,\\I am a description\\,
-		CMD("temperature", "level")
+		CMD(temperature, level)
+	),
+	command(2,
+		SCHEDULED_TIME,\\-00:00:10\\,BLOCK_RELATIVE,
+		COMMENT,\\I am a description\\,
+		USER_SEQ_DIR(temperature)
 	),
 end`);
   });
