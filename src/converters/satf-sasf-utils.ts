@@ -342,7 +342,7 @@ function parseSeqNArgs(
     const dictionaryArg = dictArguments[i] ?? null;
     const arg = parseSeqNArg(argNode, sequence, dictionaryArg, variables);
 
-    if(arg){
+    if (arg) {
       args.push(arg);
     }
 
