@@ -503,12 +503,12 @@ function satfVariablesFromSeqn(
           variable.allowable_ranges
             ? `,${variable.allowable_ranges
                 .map(range => {
-                  return `\n\t\tRANGES,\\${range.min}...${range.max}\\`;
+                  return `\n\t\tRANGE,\\${range.min}...${range.max}\\`;
                 })
                 .join(',')}`
             : ''
         }` +
-        `${variable.allowable_values ? `,\n\t\t\RANGES,\\${variable.allowable_values}\\` : ''}` +
+        `${variable.allowable_values ? `,\n\t\tRANGE,\\${variable.allowable_values}\\` : ''}` +
         `${variable.sc_name ? `,\n\t\tSC_NAME,${variable.sc_name}` : ''}` +
         `\n\t)`
       );

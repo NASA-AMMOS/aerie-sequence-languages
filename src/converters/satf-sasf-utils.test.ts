@@ -253,7 +253,7 @@ describe('satfToSeqn', () => {
         quoted_string(
           TYPE,QUOTED_STRING,
           DEFAULT, "abc"
-          RANGES,\\"abc", "123"\\
+          RANGE,\\"abc", "123"\\
         ),
         true(
             TYPE,UNSIGNED_DECIMAL
@@ -567,19 +567,19 @@ C ECHO "HI"
 	),
 	level(
 		TYPE,FLOAT,
-		RANGES,\\10.01...99.99\\,
-		RANGES,\\100...199.99\\,
-		RANGES,\\1,2,4\\
+		RANGE,\\10.01...99.99\\,
+		RANGE,\\100...199.99\\,
+		RANGE,\\1,2,4\\
 	),
 	SIZE(
 		TYPE,SIGNED_DECIMAL,
-		RANGES,\\-1...20\\,
-		RANGES,\\40...Infinity\\
+		RANGE,\\-1...20\\,
+		RANGE,\\40...Infinity\\
 	),
 	STORE(
 		TYPE,STRING,
 		ENUM_NAME,STORE_NAME,
-		RANGES,\\MACY,ROSS,BEST_BUY\\
+		RANGE,\\MACY,ROSS,BEST_BUY\\
 	),
 	CHARGE(
 		TYPE,SIGNED_DECIMAL
@@ -614,19 +614,19 @@ end,
 	),
 	level(
 		TYPE,FLOAT,
-		RANGES,\\10.01...99.99\\,
-		RANGES,\\100...199.99\\,
-		RANGES,\\1,2,4\\
+		RANGE,\\10.01...99.99\\,
+		RANGE,\\100...199.99\\,
+		RANGE,\\1,2,4\\
 	),
 	SIZE(
 		TYPE,SIGNED_DECIMAL,
-		RANGES,\\-1...20\\,
-		RANGES,\\40...Infinity\\
+		RANGE,\\-1...20\\,
+		RANGE,\\40...Infinity\\
 	),
 	STORE(
 		TYPE,STRING,
 		ENUM_NAME,STORE_NAME,
-		RANGES,\\MACY,ROSS,BEST_BUY\\
+		RANGE,\\MACY,ROSS,BEST_BUY\\
 	),
 	CHARGE(
 		TYPE,SIGNED_DECIMAL
