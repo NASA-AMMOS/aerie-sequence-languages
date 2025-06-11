@@ -1,6 +1,6 @@
 {
   "name": "@nasa-jpl/aerie-sequence-languages",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Consolidated parsing for languages with first-party support in Aerie sequencing",
   "type": "module",
   "author": "NASA/JPL",

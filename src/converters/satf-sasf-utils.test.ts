@@ -253,7 +253,7 @@ describe('satfToSeqn', () => {
         quoted_string(
           TYPE,QUOTED_STRING,
           DEFAULT, "abc"
-          RANGES,\\"abc", "123"\\
+          RANGE,\\"abc", "123"\\
         ),
         true(
             TYPE,UNSIGNED_DECIMAL
@@ -344,7 +344,7 @@ attitude_spec ENUM STORE_NAME "" "BOB_HARDWARE, SALLY_FARM, TIM_FLOWERS"
             CMD
           ),
           command(6,
-            SCHEDULED_TIME,\\00:08:00\\,BLOCK_RELATIVE,
+            SCHEDULED_TIME,\\00:08:00\\,FROM_REQUEST_START,
             CMD
           ),
           command(7,
@@ -474,7 +474,7 @@ describe('sasfToSeqn', () => {
             CMD
           ),
           command(6,
-            SCHEDULED_TIME,\\00:08:00\\,BLOCK_RELATIVE,
+            SCHEDULED_TIME,\\00:08:00\\,FROM_REQUEST_START,
             CMD
           ),
       end;
@@ -566,20 +566,20 @@ C ECHO "HI"
 		TYPE,QUOTED_STRING
 	),
 	level(
-		TYPE,FLOAT
-		RANGES,\\10.01...99.99\\,
-		RANGES,\\100...199.99\\
-		RANGES,\\1,2,4\\
+		TYPE,FLOAT,
+		RANGE,\\10.01...99.99\\,
+		RANGE,\\100...199.99\\,
+		RANGE,\\1,2,4\\
 	),
 	SIZE(
-		TYPE,SIGNED_DECIMAL
-		RANGES,\\-1...20\\,
-		RANGES,\\40...Infinity\\
+		TYPE,SIGNED_DECIMAL,
+		RANGE,\\-1...20\\,
+		RANGE,\\40...Infinity\\
 	),
 	STORE(
-		TYPE,STRING
-		ENUM_NAME,STORE_NAME
-		RANGES,\\MACY,ROSS,BEST_BUY\\
+		TYPE,STRING,
+		ENUM_NAME,STORE_NAME,
+		RANGE,\\MACY,ROSS,BEST_BUY\\
 	),
 	CHARGE(
 		TYPE,SIGNED_DECIMAL
@@ -613,20 +613,20 @@ end,
 		TYPE,QUOTED_STRING
 	),
 	level(
-		TYPE,FLOAT
-		RANGES,\\10.01...99.99\\,
-		RANGES,\\100...199.99\\
-		RANGES,\\1,2,4\\
+		TYPE,FLOAT,
+		RANGE,\\10.01...99.99\\,
+		RANGE,\\100...199.99\\,
+		RANGE,\\1,2,4\\
 	),
 	SIZE(
-		TYPE,SIGNED_DECIMAL
-		RANGES,\\-1...20\\,
-		RANGES,\\40...Infinity\\
+		TYPE,SIGNED_DECIMAL,
+		RANGE,\\-1...20\\,
+		RANGE,\\40...Infinity\\
 	),
 	STORE(
-		TYPE,STRING
-		ENUM_NAME,STORE_NAME
-		RANGES,\\MACY,ROSS,BEST_BUY\\
+		TYPE,STRING,
+		ENUM_NAME,STORE_NAME,
+		RANGE,\\MACY,ROSS,BEST_BUY\\
 	),
 	CHARGE(
 		TYPE,SIGNED_DECIMAL
@@ -684,19 +684,20 @@ end`);
 	command(1,
 		SCHEDULED_TIME,\\2025-001T00:00:01.000\\,ABSOLUTE,
 		COMMENT,\\I am a description\\,
-		CMD("temperature", "level")
+		CMD(temperature, level)
 	),
 end`);
   });
 
-  it('should return satf steps with global as args', async () => {
+  it('should return satf steps with global as args and user_seq command', async () => {
     const result = await seqnToSATF(
       `
     @INPUT_PARAMS_BEGIN
       temperature STRING
     @INPUT_PARAMS_END
 
-    E00:00:01.000 CMD temperature level #I am a description`,
+    E00:00:01.000 CMD temperature level #I am a description
+    B-10 USER_SEQ_DIR temperature #I am a description`,
       ['level'],
     );
 
@@ -704,7 +705,12 @@ end`);
 	command(1,
 		SCHEDULED_TIME,\\00:00:01.000\\,EPOCH,
 		COMMENT,\\I am a description\\,
-		CMD("temperature", "level")
+		CMD(temperature, level)
+	),
+	command(2,
+		SCHEDULED_TIME,\\-00:00:10\\,FROM_REQUEST_START,
+		COMMENT,\\I am a description\\,
+		USER_SEQ_DIR(temperature)
 	),
 end`);
   });
@@ -785,7 +791,7 @@ end`);
 		TYPE,UNSIGNED_DECIMAL
 	),
 	id(
-		TYPE,STRING
+		TYPE,STRING,
 		ENUM_NAME,GRNS_ANNEAL_HEATER
 	),
 	temp(
@@ -798,7 +804,7 @@ end,`,
 	command(1,
 		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
 		NTEXT,\\Set package\\,
-		STATUS("EXECUTE", "status")
+		STATUS("EXECUTE", status)
 	),
 	command(2,
 		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
@@ -839,7 +845,7 @@ end`,
 		CMD
 	),
 	command(6,
-		SCHEDULED_TIME,\\00:08:00.000\\,BLOCK_RELATIVE,
+		SCHEDULED_TIME,\\00:08:00.000\\,FROM_REQUEST_START,
 		CMD
 	),
 	command(7,
@@ -955,7 +961,7 @@ end;`,
 			CMD
 		),
 		command(6,
-			SCHEDULED_TIME,\\00:08:00.000\\,BLOCK_RELATIVE,
+			SCHEDULED_TIME,\\00:08:00.000\\,FROM_REQUEST_START,
 			CMD
 		),
 end;

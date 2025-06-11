@@ -249,7 +249,7 @@ function parseSeqNTime(
     | 'EPOCH'
     | 'FROM_PREVIOUS_START'
     | 'GROUND_EPOCH'
-    | 'BLOCK_RELATIVE';
+    | 'FROM_REQUEST_START';
 } {
   const tag = '00:00:01';
   const timeTagNode = commandNode.getChild('TimeTag');
@@ -277,7 +277,7 @@ function parseSeqNTime(
       | 'EPOCH'
       | 'FROM_PREVIOUS_START'
       | 'GROUND_EPOCH'
-      | 'BLOCK_RELATIVE' = 'UNKNOWN';
+      | 'FROM_REQUEST_START' = 'UNKNOWN';
     switch (time.name) {
       case SEQN_NODES.TIME_GROUND_EPOCH:
         type = 'GROUND_EPOCH';
@@ -289,7 +289,7 @@ function parseSeqNTime(
         type = 'FROM_PREVIOUS_START';
         break;
       case SEQN_NODES.TIME_BLOCK_RELATIVE:
-        type = 'BLOCK_RELATIVE';
+        type = 'FROM_REQUEST_START';
         break;
     }
 
@@ -342,7 +342,7 @@ function parseSeqNArgs(
     const dictionaryArg = dictArguments[i] ?? null;
     const arg = parseSeqNArg(argNode, sequence, dictionaryArg, variables);
 
-    if (arg !== undefined) {
+    if (arg) {
       args.push(arg);
     }
 
@@ -370,8 +370,8 @@ function parseSeqNArg(
   if (variables.includes(nodeValue)) {
     return {
       name: undefined,
-      type: 'string' as const,
-      value: `"${nodeValue}"`,
+      type: 'enum' as const,
+      value: `${nodeValue}`,
     };
   }
 
@@ -498,18 +498,18 @@ function satfVariablesFromSeqn(
     ?.map(variable => {
       return (
         `\t${variable.name}` +
-        `(\n\t\tTYPE,${variable.type}${variable.enum_name ? `\n\t\t\ENUM_NAME,${variable.enum_name}` : ''}` +
+        `(\n\t\tTYPE,${variable.type}${variable.enum_name ? `,\n\t\t\ENUM_NAME,${variable.enum_name}` : ''}` +
         `${
           variable.allowable_ranges
-            ? variable.allowable_ranges
+            ? `,${variable.allowable_ranges
                 .map(range => {
-                  return `\n\t\tRANGES,\\${range.min}...${range.max}\\`;
+                  return `\n\t\tRANGE,\\${range.min}...${range.max}\\`;
                 })
-                .join(',')
+                .join(',')}`
             : ''
         }` +
-        `${variable.allowable_values ? `\n\t\t\RANGES,\\${variable.allowable_values}\\` : ''}` +
-        `${variable.sc_name ? `\n\t\tSC_NAME,${variable.sc_name}` : ''}` +
+        `${variable.allowable_values ? `,\n\t\tRANGE,\\${variable.allowable_values}\\` : ''}` +
+        `${variable.sc_name ? `,\n\t\tSC_NAME,${variable.sc_name}` : ''}` +
         `\n\t)`
       );
     })
@@ -892,7 +892,6 @@ function parseTimeTagNode(timeValueNode: SyntaxNode | null, timeTagNode: SyntaxN
       return `R${time} `;
     case 'FROM_REQUEST_START':
     case 'FROM_ACTIVITY_START':
-    case 'BLOCK_RELATIVE':
       return `B${time} `;
     case 'WAIT_PREVIOUS_END':
       return `C `;
