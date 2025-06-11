@@ -249,7 +249,7 @@ function parseSeqNTime(
     | 'EPOCH'
     | 'FROM_PREVIOUS_START'
     | 'GROUND_EPOCH'
-    | 'BLOCK_RELATIVE';
+    | 'FROM_REQUEST_START';
 } {
   const tag = '00:00:01';
   const timeTagNode = commandNode.getChild('TimeTag');
@@ -277,7 +277,7 @@ function parseSeqNTime(
       | 'EPOCH'
       | 'FROM_PREVIOUS_START'
       | 'GROUND_EPOCH'
-      | 'BLOCK_RELATIVE' = 'UNKNOWN';
+      | 'FROM_REQUEST_START' = 'UNKNOWN';
     switch (time.name) {
       case SEQN_NODES.TIME_GROUND_EPOCH:
         type = 'GROUND_EPOCH';
@@ -289,7 +289,7 @@ function parseSeqNTime(
         type = 'FROM_PREVIOUS_START';
         break;
       case SEQN_NODES.TIME_BLOCK_RELATIVE:
-        type = 'BLOCK_RELATIVE';
+        type = 'FROM_REQUEST_START';
         break;
     }
 
@@ -892,7 +892,6 @@ function parseTimeTagNode(timeValueNode: SyntaxNode | null, timeTagNode: SyntaxN
       return `R${time} `;
     case 'FROM_REQUEST_START':
     case 'FROM_ACTIVITY_START':
-    case 'BLOCK_RELATIVE':
       return `B${time} `;
     case 'WAIT_PREVIOUS_END':
       return `C `;

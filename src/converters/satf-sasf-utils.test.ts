@@ -344,7 +344,7 @@ attitude_spec ENUM STORE_NAME "" "BOB_HARDWARE, SALLY_FARM, TIM_FLOWERS"
             CMD
           ),
           command(6,
-            SCHEDULED_TIME,\\00:08:00\\,BLOCK_RELATIVE,
+            SCHEDULED_TIME,\\00:08:00\\,FROM_REQUEST_START,
             CMD
           ),
           command(7,
@@ -474,7 +474,7 @@ describe('sasfToSeqn', () => {
             CMD
           ),
           command(6,
-            SCHEDULED_TIME,\\00:08:00\\,BLOCK_RELATIVE,
+            SCHEDULED_TIME,\\00:08:00\\,FROM_REQUEST_START,
             CMD
           ),
       end;
@@ -708,7 +708,7 @@ end`);
 		CMD(temperature, level)
 	),
 	command(2,
-		SCHEDULED_TIME,\\-00:00:10\\,BLOCK_RELATIVE,
+		SCHEDULED_TIME,\\-00:00:10\\,FROM_REQUEST_START,
 		COMMENT,\\I am a description\\,
 		USER_SEQ_DIR(temperature)
 	),
@@ -845,7 +845,7 @@ end`,
 		CMD
 	),
 	command(6,
-		SCHEDULED_TIME,\\00:08:00.000\\,BLOCK_RELATIVE,
+		SCHEDULED_TIME,\\00:08:00.000\\,FROM_REQUEST_START,
 		CMD
 	),
 	command(7,
@@ -961,7 +961,7 @@ end;`,
 			CMD
 		),
 		command(6,
-			SCHEDULED_TIME,\\00:08:00.000\\,BLOCK_RELATIVE,
+			SCHEDULED_TIME,\\00:08:00.000\\,FROM_REQUEST_START,
 			CMD
 		),
 end;
