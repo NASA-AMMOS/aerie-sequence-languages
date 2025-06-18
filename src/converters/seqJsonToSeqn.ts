@@ -210,6 +210,7 @@ export function seqJsonToSeqn(seqJson: SeqJson): string {
     sequence.push(`@IMMEDIATE\n`);
     for (const realTimeCommand of seqJson.immediate_commands) {
       switch (realTimeCommand.type) {
+        case undefined:
         case 'immediate_command': {
           // FSW Commands
           sequence.push(commandToString(realTimeCommand));
@@ -221,7 +222,7 @@ export function seqJsonToSeqn(seqJson: SeqJson): string {
           break;
         }
         default: {
-          throw new Error(`Invalid immediate command type ${realTimeCommand.type}`);
+          throw new Error(`Invalid immediate command type`);
         }
       }
     }
