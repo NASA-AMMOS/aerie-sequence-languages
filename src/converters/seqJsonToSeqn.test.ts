@@ -473,7 +473,6 @@ C FSW_CMD_2 10 "ENUM" # fsw cmd 2 description
           description: 'noop command, no arguments',
           metadata: { processor: 'VC1A' },
           stem: 'NOOP',
-          type: 'immediate_command',
         },
         {
           args: [
