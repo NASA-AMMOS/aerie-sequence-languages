@@ -80,7 +80,7 @@ RepeatArg {
   "[" (whiteSpace? arg)* whiteSpace? "]"
 }
 
-arg[@isGroup=Arguments] { Number | String | Boolean | Enum | RepeatArg }
+arg[@isGroup=Arguments] { Number | String | Boolean | Enum | Global | RepeatArg }
 
 Command {
   TimeTag?
@@ -169,6 +169,8 @@ Models {
     newLine
   }+
 }
+
+Global { identifier "::" identifier }
 
 Enum { identifier }
 

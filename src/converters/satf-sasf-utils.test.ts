@@ -559,7 +559,7 @@ C ECHO "HI"
     expect(result).toEqual({
       header: {},
       variables: `VARIABLES,
- 	time(
+	time(
 		TYPE,UNSIGNED_DECIMAL
 	),
 	alpha(
@@ -578,7 +578,7 @@ C ECHO "HI"
 	),
 	STORE(
 		TYPE,STRING,
-		ENUM_NAME,STORE_NAME,
+		ENUM_NAME,\\STORE_NAME\\,
 		RANGE,\\MACY,ROSS,BEST_BUY\\
 	),
 	CHARGE(
@@ -587,8 +587,7 @@ C ECHO "HI"
 	true(
 		TYPE,UNSIGNED_DECIMAL
 	),
-end,
-`,
+end`,
     } as ParsedSatf);
   });
 
@@ -606,7 +605,7 @@ end,
     expect(result).toEqual({
       header: {},
       parameters: `PARAMETERS,
- 	time(
+	time(
 		TYPE,UNSIGNED_DECIMAL
 	),
 	alpha(
@@ -625,14 +624,13 @@ end,
 	),
 	STORE(
 		TYPE,STRING,
-		ENUM_NAME,STORE_NAME,
+		ENUM_NAME,\\STORE_NAME\\,
 		RANGE,\\MACY,ROSS,BEST_BUY\\
 	),
 	CHARGE(
 		TYPE,SIGNED_DECIMAL
 	),
-end,
-`,
+end`,
     } as ParsedSatf);
   });
 
@@ -725,7 +723,7 @@ end`);
 		SCHEDULED_TIME,\\00:00:01\\,WAIT_PREVIOUS_END,
 		NTEXT,\\this is a place for notes\\,
 		COMMENT,\\NTEXT is supported "metadata"\\,
-		NO_OP
+		NO_OP()
 	),
 end`);
   });
@@ -745,7 +743,7 @@ end`);
 		NTEXT,\\this is a place for notes\\,
 		COMMENT,\\NTEXT is supported "metadata"\\,
 		ASSUMED_MODEL_VALUES,\\x=1,y="abc",z=true\\,
-		NO_OP
+		NO_OP()
 	),
 end`);
   });
@@ -787,17 +785,17 @@ end`);
     const result = await seqnToSATF(`${seqn.sequences[0].inputParameters}\n${seqn.sequences[0].steps}`);
     expect(result.parameters?.trimEnd()).toEqual(
       `PARAMETERS,
- 	status(
+	status(
 		TYPE,UNSIGNED_DECIMAL
 	),
 	id(
 		TYPE,STRING,
-		ENUM_NAME,GRNS_ANNEAL_HEATER
+		ENUM_NAME,\\GRNS_ANNEAL_HEATER\\
 	),
 	temp(
 		TYPE,UNSIGNED_DECIMAL
 	),
-end,`,
+end`,
     );
     expect(result.steps?.trimEnd()).toEqual(
       `STEPS,
@@ -826,31 +824,31 @@ end`,
     expect(result.steps).toEqual(`STEPS,
 	command(1,
 		SCHEDULED_TIME,\\2025-001T10:00:00\\,ABSOLUTE,
-		CMD
+		CMD()
 	),
 	command(2,
 		SCHEDULED_TIME,\\10:00:00.000\\,FROM_PREVIOUS_START,
-		CMD
+		CMD()
 	),
 	command(3,
 		SCHEDULED_TIME,\\00:08:20\\,FROM_PREVIOUS_START,
-		CMD
+		CMD()
 	),
 	command(4,
 		SCHEDULED_TIME,\\-03:00:00.000\\,EPOCH,
-		CMD
+		CMD()
 	),
 	command(5,
 		SCHEDULED_TIME,\\00:00:01\\,EPOCH,
-		CMD
+		CMD()
 	),
 	command(6,
 		SCHEDULED_TIME,\\00:08:00.000\\,FROM_REQUEST_START,
-		CMD
+		CMD()
 	),
 	command(7,
 		SCHEDULED_TIME,\\00:00:01\\,WAIT_PREVIOUS_END,
-		CMD
+		CMD()
 	),
 end`);
   });
@@ -942,27 +940,27 @@ end;`,
 	START_TIME, -00:00:00.100,GROUND_EPOCH)
 		command(1,
 			SCHEDULED_TIME,\\2025-001T10:00:00\\,ABSOLUTE,
-			CMD
+			CMD()
 		),
 		command(2,
 			SCHEDULED_TIME,\\10:00:00.000\\,FROM_PREVIOUS_START,
-			CMD
+			CMD()
 		),
 		command(3,
 			SCHEDULED_TIME,\\00:08:20\\,FROM_PREVIOUS_START,
-			CMD
+			CMD()
 		),
 		command(4,
 			SCHEDULED_TIME,\\-03:00:00.000\\,EPOCH,
-			CMD
+			CMD()
 		),
 		command(5,
 			SCHEDULED_TIME,\\00:00:01\\,EPOCH,
-			CMD
+			CMD()
 		),
 		command(6,
 			SCHEDULED_TIME,\\00:08:00.000\\,FROM_REQUEST_START,
-			CMD
+			CMD()
 		),
 end;
 `);

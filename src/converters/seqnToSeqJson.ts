@@ -323,7 +323,7 @@ function parseArg(
       booleanArg.name = dictionaryArg.name;
     }
     return booleanArg;
-  } else if (node.name === 'Enum') {
+  } else if (node.name === 'Enum' || node.name === 'Global') {
     const value = nodeValue;
     const enumArg: SymbolArgument = { type: 'symbol', value };
     if (dictionaryArg) {

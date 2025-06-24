@@ -16,6 +16,7 @@ export const SEQN_NODES = {
   REQUEST: 'Request',
   REPEAT_ARG: 'RepeatArg',
   ENUM: 'Enum',
+  GLOBAL: 'Global',
   ENUM_NAME: 'EnumName',
   RANGE: 'Range',
   TYPE: 'Type',

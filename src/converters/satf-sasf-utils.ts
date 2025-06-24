@@ -189,7 +189,7 @@ function parseSeqNCommand(
     `${metadata ? `\n${'\t'.repeat(2)}${metadata},` : ''}` +
     `${description ? `\n${'\t'.repeat(2)}COMMENT,\\${description}\\,` : ''}` +
     `${models ? `\n${'\t'.repeat(2)}ASSUMED_MODEL_VALUES,\\${models}\\,` : ''}` +
-    `\n${'\t'.repeat(2)}${stem}${args.length !== 0 ? `(${serializeSeqNArgs(args)})` : ''}` +
+    `\n${'\t'.repeat(2)}${stem}${args.length !== 0 ? `(${serializeSeqNArgs(args)})` : '()'}` +
     `\n${'\t'}),`
   );
 }
@@ -330,7 +330,7 @@ function parseSeqNArgs(
   stem: string,
 ): {
   name?: string;
-  type: 'boolean' | 'enum' | 'number' | 'string';
+  type: 'boolean' | 'enum' | 'number' | 'string' | 'global';
   value: boolean | string;
 }[] {
   const args = [];
@@ -361,7 +361,7 @@ function parseSeqNArg(
 ):
   | {
       name?: string | undefined;
-      type: 'boolean' | 'enum' | 'number' | 'string';
+      type: 'boolean' | 'enum' | 'number' | 'string' | 'global';
       value: boolean | string;
     }
   | undefined {
@@ -387,6 +387,13 @@ function parseSeqNArg(
       return {
         name: dictionaryArg ? dictionaryArg.name : undefined,
         type: 'enum' as const,
+        value: nodeValue,
+      };
+    }
+    case SEQN_NODES.GLOBAL: {
+      return {
+        name: dictionaryArg ? dictionaryArg.name : undefined,
+        type: 'global' as const,
         value: nodeValue,
       };
     }
@@ -496,26 +503,19 @@ function satfVariablesFromSeqn(
 
   const serializedVariables = variables
     ?.map(variable => {
-      return (
-        `\t${variable.name}` +
-        `(\n\t\tTYPE,${variable.type}${variable.enum_name ? `,\n\t\t\ENUM_NAME,${variable.enum_name}` : ''}` +
-        `${
-          variable.allowable_ranges
-            ? `,${variable.allowable_ranges
-                .map(range => {
-                  return `\n\t\tRANGE,\\${range.min}...${range.max}\\`;
-                })
-                .join(',')}`
-            : ''
-        }` +
-        `${variable.allowable_values ? `,\n\t\tRANGE,\\${variable.allowable_values}\\` : ''}` +
-        `${variable.sc_name ? `,\n\t\tSC_NAME,${variable.sc_name}` : ''}` +
-        `\n\t)`
-      );
-    })
-    .join(',\n');
 
-  return `${type.toUpperCase()},\n ${serializedVariables},\nend,\n`;
+      const tags = [];
+      tags.push(`\tTYPE,${variable.type}`);
+      if (variable.enum_name) tags.push(`\tENUM_NAME,\\${variable.enum_name}\\`);
+      variable.allowable_ranges && variable.allowable_ranges.forEach(range => {
+        tags.push(`\tRANGE,\\${range.min}...${range.max}\\`);
+      });
+      if (variable.allowable_values) tags.push(`\tRANGE,\\${variable.allowable_values}\\`);
+      if (variable.sc_name) tags.push(`\tSC_NAME,${variable.sc_name}`);
+      return `${variable.name}(\n` + tags.join(',\n') + `\n)`;
+    });
+
+  return `${type.toUpperCase()},\n\t` + serializedVariables.join(',\n').replaceAll('\n','\n\t') + `,\nend`;
 }
 
 function sasfRequestFromSeqN(
@@ -798,6 +798,7 @@ function parseParameters(
           case SATF_SASF_NODES.PARAM_QUOTED_STRING:
             type = SEQN_NODES.VAR_STRING;
             break;
+          case SATF_SASF_NODES.PARAM_FLOAT:
           case SATF_SASF_NODES.PARAM_ENGINEERING:
             type = SEQN_NODES.VAR_FLOAT;
             break;
