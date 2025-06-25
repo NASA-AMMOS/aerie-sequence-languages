@@ -189,16 +189,16 @@ describe('satfToSeqn', () => {
           STEPS,
           command (
             1, SCHEDULED_TIME, \\00:01:00\\, FROM_PREVIOUS_START, INCLUSION_CONDITION,
-            ECHO ("GlobalG", 10, "NOGLOBAL")
+            ECHO ("GLOBAL::GlobalG", 10, "NOGLOBAL")
             ),
           end
         )
       $$EOF
     `;
-    const result = await satfToSeqn(sasf, ['GlobalG']);
+    const result = await satfToSeqn(sasf);
     expect(result).toHaveProperty('sequences');
     expect(result.sequences[0].name).toStrictEqual('test');
-    expect(result.sequences[0].steps).toStrictEqual(`R00:01:00 ECHO GlobalG 10 "NOGLOBAL"`);
+    expect(result.sequences[0].steps).toStrictEqual(`R00:01:00 ECHO "GLOBAL::GlobalG" 10 "NOGLOBAL"`);
   });
 
   it('Parameters', async () => {
@@ -314,7 +314,7 @@ true UINT
 attitude_spec ENUM STORE_NAME "" "BOB_HARDWARE, SALLY_FARM, TIM_FLOWERS"
 @INPUT_PARAMS_END`);
 
-    expect(result.sequences[0].steps).toStrictEqual(`B00:01:00 ECHO "abc" attitude_spec
+    expect(result.sequences[0].steps).toStrictEqual(`B00:01:00 ECHO "abc" "attitude_spec"
 @METADATA "INCLUSION_CONDITION" "param_rate == receive_rate"`);
   });
 
@@ -802,7 +802,7 @@ end`,
 	command(1,
 		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
 		NTEXT,\\Set package\\,
-		STATUS("EXECUTE", status)
+		STATUS("EXECUTE", "status")
 	),
 	command(2,
 		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,

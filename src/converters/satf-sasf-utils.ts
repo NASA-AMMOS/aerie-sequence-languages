@@ -565,15 +565,13 @@ function sasfRequestFromSeqN(
  *
  * @async
  * @function satfToSeqn
- * @param {string} satf - The SATF or SASF formatted string content to parse.
- * @param {string[]} [globalVariables] - Optional. A list of predefined global variable names to be used
- * during the parsing of steps
+ * @param {string} satf - The SATF formatted string content to parse.
  * @returns {Promise<ParsedSequence>} A Promise that resolves to an object containing the parsed header
  * and an array of sequence objects.
  * If the input string does not contain a top-level SATF structure recognized by the parser,
  * it resolves with a default empty ParsedSequence object (e.g., { header: "", sequences: [] }).
  */
-export async function satfToSeqn(satf: string, globalVariables?: string[]): Promise<ParsedSeqn> {
+export async function satfToSeqn(satf: string): Promise<ParsedSeqn> {
   const base = SatfLanguage.parser.parse(satf).topNode;
 
   const satfNode = base.getChild(SATF_SASF_NODES.SATF);
@@ -583,11 +581,23 @@ export async function satfToSeqn(satf: string, globalVariables?: string[]): Prom
   }
 
   const metadata = parseHeader(satfNode.getChild(SATF_SASF_NODES.HEADER), satf);
-  const sequences = parseBody(satfNode.getChild(SATF_SASF_NODES.BODY), globalVariables, satf);
+  const sequences = parseBody(satfNode.getChild(SATF_SASF_NODES.BODY), satf);
   return { metadata, sequences };
 }
 
-export async function sasfToSeqn(sasf: string, globalVariables?: string[]): Promise<ParsedSeqn> {
+/**
+ * Parses a SASF formatted string asynchronously to extract header information and sequence data.
+ * It utilizes the SatfLanguage parser to generate SeqN parts.
+ *
+ * @async
+ * @function satfToSeqn
+ * @param {string} satf - The SASF formatted string content to parse.
+ * @returns {Promise<ParsedSequence>} A Promise that resolves to an object containing the parsed header
+ * and an array of sequence objects.
+ * If the input string does not contain a top-level SASF structure recognized by the parser,
+ * it resolves with a default empty ParsedSequence object (e.g., { header: "", sequences: [] }).
+ */
+export async function sasfToSeqn(sasf: string): Promise<ParsedSeqn> {
   const base = SatfLanguage.parser.parse(sasf).topNode;
 
   const sasfNode = base.getChild(SATF_SASF_NODES.SASF);
@@ -597,7 +607,7 @@ export async function sasfToSeqn(sasf: string, globalVariables?: string[]): Prom
   }
 
   const metadata = parseHeader(sasfNode.getChild(SATF_SASF_NODES.HEADER), sasf);
-  const sequences = parseBody(sasfNode.getChild(SATF_SASF_NODES.BODY), globalVariables, sasf);
+  const sequences = parseBody(sasfNode.getChild(SATF_SASF_NODES.BODY), sasf);
   return { metadata, sequences };
 }
 
@@ -631,7 +641,7 @@ function parseHeader(headerNode: SyntaxNode | null, text: string): string {
     })
     .join('\n');
 }
-function parseBody(bodyNode: SyntaxNode | null, globalVariables: string[] = [], text: string): Seqn[] {
+function parseBody(bodyNode: SyntaxNode | null, text: string): Seqn[] {
   if (!bodyNode) {
     return [];
   }
@@ -676,11 +686,6 @@ function parseBody(bodyNode: SyntaxNode | null, globalVariables: string[] = [], 
 
       const steps = parseSteps(
         group.getChild(SATF_SASF_NODES.STEPS),
-        [
-          ...parseVariableName(group.getChild(SATF_SASF_NODES.PARAMETERS), text),
-          ...parseVariableName(group.getChild(SATF_SASF_NODES.VARIABLES), text),
-          ...globalVariables,
-        ],
         text,
       );
 
@@ -712,7 +717,7 @@ function parseBody(bodyNode: SyntaxNode | null, globalVariables: string[] = [], 
         text,
       );
       requests += `@REQUEST_BEGIN("${sequenceName}")\n`;
-      requests += parseSteps(group.getChild(SATF_SASF_NODES.STEPS), globalVariables, text)
+      requests += parseSteps(group.getChild(SATF_SASF_NODES.STEPS), text)
         .split('\n')
         .map(line => ' '.repeat(2) + line)
         .join('\n');
@@ -842,7 +847,7 @@ function parseParameters(
   return '';
 }
 
-function parseSteps(stepNode: SyntaxNode | null, variableNames: string[], text: string): string {
+function parseSteps(stepNode: SyntaxNode | null, text: string): string {
   const step = '';
   if (!stepNode) {
     return step;
@@ -855,7 +860,7 @@ function parseSteps(stepNode: SyntaxNode | null, variableNames: string[], text: 
       const time = parseTimeNode(command.getChild(SATF_SASF_NODES.SCHEDULED_TIME), text);
       const stem = parseStem(command.getChild(SATF_SASF_NODES.STEM), text);
       const comment = parseComment(command.getChild(SATF_SASF_NODES.COMMENT), text);
-      const args = parseArgsNode(command.getChild(SATF_SASF_NODES.ARGS), variableNames, text);
+      const args = parseArgsNode(command.getChild(SATF_SASF_NODES.ARGS), text);
       const models = parseModel(command.getChild(SATF_SASF_NODES.ASSUMED_MODEL_VALUES), text);
       const metadata = parseSatfCommandMetadata(command, text);
 
@@ -923,28 +928,24 @@ function parseStem(stemNode: SyntaxNode | null, text: string): string {
   return stemNode ? text.slice(stemNode.from, stemNode.to) : '';
 }
 
-function parseArgsNode(argsNode: SyntaxNode | null, variableNames: string[], text: string): string {
+function parseArgsNode(argsNode: SyntaxNode | null, text: string): string {
   if (!argsNode) {
     return '';
   }
   let argNode = argsNode.firstChild;
   const args = [];
   while (argNode) {
-    args.push(`${parseArgNode(argNode, variableNames, text)}`);
+    args.push(`${parseArgNode(argNode, text)}`);
     argNode = argNode?.nextSibling;
   }
   return args.join(' ');
 }
 
-function parseArgNode(argNode: SyntaxNode, variableNames: string[], text: string): string {
+function parseArgNode(argNode: SyntaxNode, text: string): string {
   if (!argNode) {
     return '';
   }
   const argValue = removeQuote(text.slice(argNode.from, argNode.to));
-
-  if (variableNames.includes(argValue)) {
-    return argValue;
-  }
 
   switch (argNode.name) {
     case SATF_SASF_NODES.STRING:
