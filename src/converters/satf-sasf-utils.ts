@@ -921,7 +921,7 @@ function parseComment(commentNode: SyntaxNode | null, text: string): string {
   if (comment.length === 0) {
     return comment;
   }
-  return `# ${removeQuote(comment)}`;
+  return `# ${comment}`;
 }
 
 function parseStem(stemNode: SyntaxNode | null, text: string): string {

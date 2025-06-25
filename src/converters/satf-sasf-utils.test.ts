@@ -120,7 +120,7 @@ describe('satfToSeqn', () => {
     expect(result).toHaveProperty('sequences');
     expect(result.sequences[0].name).toStrictEqual('test');
     expect(result.sequences[0].steps).toStrictEqual(
-      `R00:01:00 echo # hi  : bye", "A   : pickup shoe", "B: put on shoe", "C: tie shoe", "cumulative_time is     1 sec (2024-00T01:00:00)`,
+      `R00:01:00 echo # "hi  : bye", "A   : pickup shoe", "B: put on shoe", "C: tie shoe", "cumulative_time is     1 sec (2024-00T01:00:00)"`,
     );
   });
 
@@ -437,7 +437,7 @@ describe('sasfToSeqn', () => {
     expect(result.sequences[0].name).toStrictEqual('VFT2_REQUEST_01');
     expect(result.sequences[0].requests).toStrictEqual(
       `A2024-266T19:59:57 @REQUEST_BEGIN("VFT2_REQUEST_01")
-  R00:00:01 FILE_REMOVE "/eng/seq/awesome.abs" TRUE # this "is a" comment
+  R00:00:01 FILE_REMOVE "/eng/seq/awesome.abs" TRUE # "this "is a" comment"
   R00:00:01 USER_SEQ_ECHO "SEQ awesome COMPLETION IN 2 MINS" # cumulative_time is "2 sec"
 @REQUEST_END
 @METADATA "REQUESTOR" "me"
