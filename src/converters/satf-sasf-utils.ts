@@ -8,7 +8,7 @@ import {
   validateTime,
   TimeTypes,
 } from '@nasa-jpl/aerie-time-utils';
-import { removeEscapedQuotes, removeQuote, unquoteUnescape } from '../utils/string.js';
+import { quoteEscape, removeEscapedQuotes, removeQuote, unquoteUnescape } from '../utils/string.js';
 import { SatfLanguage } from '../languages/satf/grammar/satf-sasf.js';
 import { SATF_SASF_NODES } from '../languages/satf/constants/satf-sasf-constants.js';
 import { ParsedSatf, ParsedSeqn, ParseSasf, Seqn } from '../languages/satf/types/types.js';
@@ -251,7 +251,7 @@ function parseSeqNTime(
     | 'GROUND_EPOCH'
     | 'FROM_REQUEST_START';
 } {
-  const tag = '00:00:01';
+  const tag = '00:00:00';
   const timeTagNode = commandNode.getChild('TimeTag');
   if (timeTagNode === null) {
     return { tag: '00:00:00', type: 'UNKNOWN' };
@@ -295,7 +295,9 @@ function parseSeqNTime(
 
     if (validateTime(timeValue, TimeTypes.DOY_TIME)) {
       let balancedTime = getBalancedDuration(timeValue);
-
+      if (parseDurationString(balancedTime, 'seconds').milliseconds === 0) {
+        balancedTime = balancedTime.slice(0, -4);
+      }
       return {
         tag: balancedTime,
         type,
@@ -398,11 +400,10 @@ function parseSeqNArg(
       };
     }
     case SEQN_NODES.NUMBER: {
-      const decimalCount = nodeValue.slice(nodeValue.indexOf('.') + 1).length;
       return {
         name: dictionaryArg ? dictionaryArg.name : undefined,
         type: 'number',
-        value: parseFloat(nodeValue).toFixed(decimalCount),
+        value: nodeValue,
       };
     }
     case SEQN_NODES.STRING: {
@@ -501,21 +502,20 @@ function satfVariablesFromSeqn(
     return undefined;
   }
 
-  const serializedVariables = variables
-    ?.map(variable => {
-
-      const tags = [];
-      tags.push(`\tTYPE,${variable.type}`);
-      if (variable.enum_name) tags.push(`\tENUM_NAME,\\${variable.enum_name}\\`);
-      variable.allowable_ranges && variable.allowable_ranges.forEach(range => {
+  const serializedVariables = variables?.map(variable => {
+    const tags = [];
+    tags.push(`\tTYPE,${variable.type}`);
+    if (variable.enum_name) tags.push(`\tENUM_NAME,\\${variable.enum_name}\\`);
+    variable.allowable_ranges &&
+      variable.allowable_ranges.forEach(range => {
         tags.push(`\tRANGE,\\${range.min}...${range.max}\\`);
       });
-      if (variable.allowable_values) tags.push(`\tRANGE,\\${variable.allowable_values}\\`);
-      if (variable.sc_name) tags.push(`\tSC_NAME,${variable.sc_name}`);
-      return `${variable.name}(\n` + tags.join(',\n') + `\n)`;
-    });
+    if (variable.allowable_values) tags.push(`\tRANGE,\\${variable.allowable_values}\\`);
+    if (variable.sc_name) tags.push(`\tSC_NAME,${variable.sc_name}`);
+    return `${variable.name}(\n` + tags.join(',\n') + `\n)`;
+  });
 
-  return `${type.toUpperCase()},\n\t` + serializedVariables.join(',\n').replaceAll('\n','\n\t') + `,\nend`;
+  return `${type.toUpperCase()},\n\t` + serializedVariables.join(',\n').replaceAll('\n', '\n\t') + `,\nend`;
 }
 
 function sasfRequestFromSeqN(
@@ -684,10 +684,7 @@ function parseBody(bodyNode: SyntaxNode | null, text: string): Seqn[] {
       }
       metadata = metadata.trimEnd();
 
-      const steps = parseSteps(
-        group.getChild(SATF_SASF_NODES.STEPS),
-        text,
-      );
+      const steps = parseSteps(group.getChild(SATF_SASF_NODES.STEPS), text);
 
       return {
         name: sequenceName,
@@ -1014,15 +1011,15 @@ function parseSatfCommandMetadata(commandNode: SyntaxNode | null, text: string) 
   const nTextNode = commandNode.getChild(SATF_SASF_NODES.NTEXT);
 
   if (inclusionNode) {
-    metadata += `@METADATA "INCLUSION_CONDITION" "${removeQuote(text.slice(inclusionNode.from, inclusionNode.to))}"\n`;
+    metadata += `@METADATA "INCLUSION_CONDITION" ${quoteEscape(text.slice(inclusionNode.from, inclusionNode.to))}\n`;
   }
 
   if (drawNode) {
-    metadata += `@METADATA "DRAW" "${removeQuote(text.slice(drawNode.from, drawNode.to))}"\n`;
+    metadata += `@METADATA "DRAW" ${quoteEscape(text.slice(drawNode.from, drawNode.to))}\n`;
   }
 
   if (nTextNode) {
-    metadata += `@METADATA "NTEXT" "${removeQuote(text.slice(nTextNode.from, nTextNode.to))}"\n`;
+    metadata += `@METADATA "NTEXT" ${quoteEscape(text.slice(nTextNode.from, nTextNode.to))}\n`;
   }
   return metadata.slice(0, -1);
 }

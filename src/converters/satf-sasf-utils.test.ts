@@ -132,7 +132,7 @@ describe('satfToSeqn', () => {
           command (
             3472, SCHEDULED_TIME, \\00:01:00\\, FROM_ACTIVITY_START, INCLUSION_CONDITION, \\param_rate == receive_rate\\,
             DRAW, \\VERTICAL\\,
-            NTEXT, \\"this is a ntext"\\,
+            NTEXT, \\"this is a ntext with quotes"\\,
             COMMENT, \\This command turns, to correct position.\\, ASSUMED_MODEL_VALUES, \\x=1,z=1.1,y="abc"\\,
             01VV (param6, 10, false, "abc"),
             PROCESSORS, "PRI", end),
@@ -149,7 +149,7 @@ describe('satfToSeqn', () => {
           STEPS,
           command (
             3472, SCHEDULED_TIME, \\00:01:00\\, FROM_ACTIVITY_START,
-            NTEXT, \\this is a ntext\\,
+            NTEXT, \\this is a ntext without quotes\\,
             COMMENT, \\This command turns, to correct position.\\, ASSUMED_MODEL_VALUES, \\x=1,z=1.1,y="abc"\\,
             01VV (param6, 10, false, "abc"),
             PROCESSORS, "PRI", end),
@@ -165,7 +165,7 @@ describe('satfToSeqn', () => {
       .toStrictEqual(`B00:01:00 01VV param6 10 false "abc" # This command turns, to correct position.
 @METADATA "INCLUSION_CONDITION" "param_rate == receive_rate"
 @METADATA "DRAW" "VERTICAL"
-@METADATA "NTEXT" "this is a ntext"
+@METADATA "NTEXT" "\\"this is a ntext with quotes\\""
 @MODEL "x" 1 "00:00:00"
 @MODEL "z" 1.1 "00:00:00"
 @MODEL "y" "abc" "00:00:00"`);
@@ -176,7 +176,7 @@ describe('satfToSeqn', () => {
 @METADATA "SEQGEN" "S$BEGIN"`);
     expect(result.sequences[1].steps)
       .toStrictEqual(`B00:01:00 01VV param6 10 false "abc" # This command turns, to correct position.
-@METADATA "NTEXT" "this is a ntext"
+@METADATA "NTEXT" "this is a ntext without quotes"
 @MODEL "x" 1 "00:00:00"
 @MODEL "z" 1.1 "00:00:00"
 @MODEL "y" "abc" "00:00:00"`);
@@ -636,21 +636,21 @@ end`,
 
   it('should return satf steps', async () => {
     const result = await seqnToSATF(`
-    R00:00:01.000 CMD true 1
+    R00:00:01.000 CMD true 1.45
     R00:00:01.000 CMD "OFF"
-    R00:00:01.000 CMD 1.0`);
+    R00:00:01.000 CMD .01`);
     expect(result.steps).toEqual(`STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
-		CMD(TRUE, 1.0)
+		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+		CMD(TRUE, 1.45)
 	),
 	command(2,
-		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
+		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
 		CMD("OFF")
 	),
 	command(3,
-		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
-		CMD(1.0)
+		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+		CMD(.01)
 	),
 end`);
   });
@@ -660,9 +660,9 @@ end`);
     R00:00:01.000 CMD true 1 #I am a description`);
     expect(result.steps).toEqual(`STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
+		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
 		COMMENT,\\I am a description\\,
-		CMD(TRUE, 1.0)
+		CMD(TRUE, 1)
 	),
 end`);
   });
@@ -694,14 +694,14 @@ end`);
       temperature STRING
     @INPUT_PARAMS_END
 
-    E00:00:01.000 CMD temperature level #I am a description
+    E00:00:01.010 CMD temperature level #I am a description
     B-10 USER_SEQ_DIR temperature #I am a description`,
       ['level'],
     );
 
     expect(result.steps).toEqual(`STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01.000\\,EPOCH,
+		SCHEDULED_TIME,\\00:00:01.010\\,EPOCH,
 		COMMENT,\\I am a description\\,
 		CMD(temperature, level)
 	),
@@ -720,7 +720,7 @@ end`);
 
     expect(result.steps).toEqual(`STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01\\,WAIT_PREVIOUS_END,
+		SCHEDULED_TIME,\\00:00:00\\,WAIT_PREVIOUS_END,
 		NTEXT,\\this is a place for notes\\,
 		COMMENT,\\NTEXT is supported "metadata"\\,
 		NO_OP()
@@ -739,7 +739,7 @@ end`);
 
     expect(result.steps).toEqual(`STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01\\,WAIT_PREVIOUS_END,
+		SCHEDULED_TIME,\\00:00:00\\,WAIT_PREVIOUS_END,
 		NTEXT,\\this is a place for notes\\,
 		COMMENT,\\NTEXT is supported "metadata"\\,
 		ASSUMED_MODEL_VALUES,\\x=1,y="abc",z=true\\,
@@ -769,12 +769,12 @@ end`);
       end,
       STEPS,
           command(1,
-              SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
+              SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
               NTEXT,\\"Set package"\\,
               STATUS("EXECUTE","status")
           ),
           command(2,
-              SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
+              SCHEDULED_TIME,\\00:00:01.123\\,FROM_PREVIOUS_START,
               NTEXT,\\"Disable volatage"\\,
               VOLTAGE_OFF("OFF")
           )
@@ -800,13 +800,13 @@ end`,
     expect(result.steps?.trimEnd()).toEqual(
       `STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
-		NTEXT,\\Set package\\,
+		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+		NTEXT,\\"Set package"\\,
 		STATUS("EXECUTE", "status")
 	),
 	command(2,
-		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
-		NTEXT,\\Disable volatage\\,
+		SCHEDULED_TIME,\\00:00:01.123\\,FROM_PREVIOUS_START,
+		NTEXT,\\"Disable volatage"\\,
 		VOLTAGE_OFF("OFF")
 	),
 end`,
@@ -817,7 +817,7 @@ end`,
     A2025-001T10:00:00 CMD
     R10:00:00 CMD
     R500 CMD
-    E-03:00:00 CMD
+    E-03:00:00.1 CMD
     E+1.0 CMD
     B00:08:00 CMD
     C CMD`);
@@ -827,7 +827,7 @@ end`,
 		CMD()
 	),
 	command(2,
-		SCHEDULED_TIME,\\10:00:00.000\\,FROM_PREVIOUS_START,
+		SCHEDULED_TIME,\\10:00:00\\,FROM_PREVIOUS_START,
 		CMD()
 	),
 	command(3,
@@ -835,7 +835,7 @@ end`,
 		CMD()
 	),
 	command(4,
-		SCHEDULED_TIME,\\-03:00:00.000\\,EPOCH,
+		SCHEDULED_TIME,\\-03:00:00.100\\,EPOCH,
 		CMD()
 	),
 	command(5,
@@ -843,11 +843,11 @@ end`,
 		CMD()
 	),
 	command(6,
-		SCHEDULED_TIME,\\00:08:00.000\\,FROM_REQUEST_START,
+		SCHEDULED_TIME,\\00:08:00\\,FROM_REQUEST_START,
 		CMD()
 	),
 	command(7,
-		SCHEDULED_TIME,\\00:00:01\\,WAIT_PREVIOUS_END,
+		SCHEDULED_TIME,\\00:00:00\\,WAIT_PREVIOUS_END,
 		CMD()
 	),
 end`);
@@ -866,7 +866,7 @@ describe('seqnToSasf', () => {
   `);
     expect(result.requests?.trimEnd()).toEqual(
       `request(request1,
-	START_TIME, 00:00:01,WAIT_PREVIOUS_END,
+	START_TIME, 00:00:00,WAIT_PREVIOUS_END,
 	REQUESTOR,"me",
 	PROCESSOR,"VC2AB",
 	KEY,"No_Key")
@@ -912,15 +912,15 @@ end;`,
 	PROCESSOR,"VC2AB",
 	KEY,"NO_KEY")
 		command(1,
-			SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
-			USER_SEQ_VAR_SEQ_ACTIVATE("NO_EPOCH", -1.00, "/eng/seq/ep_configure.mod", "THRUSTER_TABLE_A", 55.00, 10.00, 35.00)
+			SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+			USER_SEQ_VAR_SEQ_ACTIVATE("NO_EPOCH", -1, "/eng/seq/ep_configure.mod", "THRUSTER_TABLE_A", 55, 10, 35)
 		),
 		command(2,
-			SCHEDULED_TIME,\\01:00:00.000\\,FROM_PREVIOUS_START,
-			USER_SEQ_VAR_SEQ_LOAD("NO_EPOCH", -1.00, "/eng/seq/ep_start_mission_thrust.mod", "TRUE", 235.000, 0.218, 2400.0000)
+			SCHEDULED_TIME,\\01:00:00\\,FROM_PREVIOUS_START,
+			USER_SEQ_VAR_SEQ_LOAD("NO_EPOCH", -1, "/eng/seq/ep_start_mission_thrust.mod", "TRUE", 235, 0.218, 2400)
 		),
 		command(3,
-			SCHEDULED_TIME,\\00:01:00.000\\,FROM_PREVIOUS_START,
+			SCHEDULED_TIME,\\00:01:00\\,FROM_PREVIOUS_START,
 			USER_SEQ_EXECUTE("ep_start_mission_thrust.mod")
 		),
 end;`,
@@ -943,7 +943,7 @@ end;`,
 			CMD()
 		),
 		command(2,
-			SCHEDULED_TIME,\\10:00:00.000\\,FROM_PREVIOUS_START,
+			SCHEDULED_TIME,\\10:00:00\\,FROM_PREVIOUS_START,
 			CMD()
 		),
 		command(3,
@@ -951,7 +951,7 @@ end;`,
 			CMD()
 		),
 		command(4,
-			SCHEDULED_TIME,\\-03:00:00.000\\,EPOCH,
+			SCHEDULED_TIME,\\-03:00:00\\,EPOCH,
 			CMD()
 		),
 		command(5,
@@ -959,7 +959,7 @@ end;`,
 			CMD()
 		),
 		command(6,
-			SCHEDULED_TIME,\\00:08:00.000\\,FROM_REQUEST_START,
+			SCHEDULED_TIME,\\00:08:00\\,FROM_REQUEST_START,
 			CMD()
 		),
 end;
