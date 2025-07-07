@@ -303,8 +303,8 @@
     )
   }
 
-  @skip { whiteSpace | SatfComment }
-  SatfComment { satfComment }
+  @skip { whiteSpace | satfComment }
+  // SatfComment { satfComment }
   @tokens {
 
     headerMarker { (@asciiLetter|@digit)*"$$MARK$$"(@asciiLetter|@digit)*";"}
@@ -379,9 +379,10 @@
     eof { "$$EOF" }
     eod { "$$EOD" }
     whiteSpace { @whitespace+}
-    satfComment { "#"![\n]* }
+    satfComment { "#"(anyASCII | ".")* newLine }
 
     @precedence {
+      satfComment,
       newLine,
       whiteSpace,
       headerMarker,
