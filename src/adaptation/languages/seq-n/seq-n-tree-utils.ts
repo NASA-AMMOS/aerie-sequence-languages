@@ -1,18 +1,18 @@
 import type { SyntaxNode, Tree } from '@lezer/common';
 import type { ChannelDictionary, CommandDictionary, EnumMap, FswCommand, FswCommandArgument, FswCommandArgumentRepeat, ParameterDictionary } from '@nasa-jpl/aerie-ampcs';
-import { parseVariables, SEQN_NODES } from '@nasa-jpl/aerie-sequence-languages';
+import { SEQN_NODES } from '../../../languages/seq-n/seqn-grammar-constants.js';
+import { parseVariables } from '../../../converters/seqnToSeqJson.js';
 import type { EditorView } from 'codemirror';
-import { SequenceTypes } from '../../../enums/sequencing';
-import { type ArgTextDef, type TimeTagInfo, type UserSequence } from '../../../types/sequencing';
-import { fswCommandArgDefault } from '../../../utilities/sequence-editor/command-dictionary';
-import { isFswCommandArgumentRepeat } from '../../../utilities/sequence-editor/sequence-utils';
-import { getFromAndTo, getNearestAncestorNodeOfType } from '../../../utilities/sequence-editor/tree-utils';
-import type { CommandInfoMapper } from '../../interfaces/command-info-mapper';
-import type { LibrarySequence, LibrarySequenceMap } from '../../interfaces/new-adaptation-interface';
-import { globals } from './global-types';
-import { SeqLanguage } from './seq-n';
-import { TOKEN_ERROR } from './seq-n-constants';
-import { validateVariables } from './sequence-linter';
+import { SequenceTypes, type UserSequence } from '../../interfaces/new-adaptation-interface.js';
+import type { ArgTextDef, TimeTagInfo } from '../../interfaces/command-info-mapper.js';
+import { fswCommandArgDefault, isFswCommandArgumentRepeat } from '../../../utils/sequence-utils.js';
+import { getFromAndTo, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
+import type { CommandInfoMapper } from '../../interfaces/command-info-mapper.js';
+import type { LibrarySequence, LibrarySequenceMap } from '../../interfaces/new-adaptation-interface.js';
+import { globals } from './global-types.js';
+import { SeqLanguage } from './seq-n.js';
+import { TOKEN_ERROR } from './seq-n-constants.js';
+import { validateVariables } from './sequence-linter.js';
 
 export function getNameNode(stepNode: SyntaxNode | null) {
   if (stepNode) {

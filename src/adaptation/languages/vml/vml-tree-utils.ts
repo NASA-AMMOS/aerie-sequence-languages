@@ -1,18 +1,18 @@
 import type { SyntaxNode, Tree } from '@lezer/common';
 import type { ChannelDictionary, CommandDictionary, EnumMap, FswCommand, FswCommandArgument, FswCommandArgumentRepeat, ParameterDictionary } from '@nasa-jpl/aerie-ampcs';
 import type { EditorView } from 'codemirror';
-import type { ArgTextDef, TimeTagInfo } from '../../../types/sequencing';
-import { filterEmpty } from '../../../utilities/generic';
-import { isFswCommandArgumentRepeat } from '../../../utilities/sequence-editor/sequence-utils';
+import type { ArgTextDef, TimeTagInfo } from '../../interfaces/command-info-mapper.js';
+import { filterEmpty } from '../../../utils/generic.js';
+import { isFswCommandArgumentRepeat } from '../../../utils/sequence-utils.js';
 import {
   filterNodesToArray,
   getChildrenNode,
   getNearestAncestorNodeOfType,
-} from '../../../utilities/sequence-editor/tree-utils';
-import type { CommandInfoMapper } from '../../interfaces/command-info-mapper';
-import type { LibrarySequenceMap } from '../../interfaces/new-adaptation-interface';
-import { getDefaultArgumentValue } from './vml-adaptation';
-import { librarySequenceToFswCommand } from './vml-block-library';
+} from '../../../utils/tree-utils.js';
+import type { CommandInfoMapper } from '../../interfaces/command-info-mapper.js';
+import type { LibrarySequenceMap } from '../../interfaces/new-adaptation-interface.js';
+import { getDefaultArgumentValue } from './vml-adaptation.js';
+import { librarySequenceToFswCommand } from './vml-block-library.js';
 import {
   GROUP_STATEMENT_SUB,
   RULE_BYTE_ARRAY,
@@ -39,7 +39,7 @@ import {
   TOKEN_HEX_CONST,
   TOKEN_INT_CONST,
   TOKEN_STRING_CONST,
-} from './vml-constants';
+} from './vml-constants.js';
 
 export class VmlCommandInfoMapper implements CommandInfoMapper {
   formatArgumentArray(values: string[], commandNode: SyntaxNode | null): string {

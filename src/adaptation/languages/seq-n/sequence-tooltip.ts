@@ -9,10 +9,10 @@ import type {
   HwCommand,
   ParameterDictionary,
 } from '@nasa-jpl/aerie-ampcs';
-import { SEQN_NODES } from '@nasa-jpl/aerie-sequence-languages';
-import ArgumentTooltip from '../../../components/sequencing/ArgumentTooltip.svelte';
-import CommandTooltip from '../../../components/sequencing/CommandTooltip.svelte';
-import { isFswCommandArgumentRepeat } from '../../../utilities/sequence-editor/sequence-utils';
+import { SEQN_NODES } from '../../../languages/seq-n/seqn-grammar-constants.js';
+import ArgumentTooltip from '../../../components/sequencing/ArgumentTooltip.svelte'; // TODO implement interface for tooltips...
+import CommandTooltip from '../../../components/sequencing/CommandTooltip.svelte'; // TODO implement interface for tooltips...
+import { isFswCommandArgumentRepeat } from '../../../utils/sequence-utils.js';
 
 /**
  * Searches up through a node's ancestors to find a node by the given name.

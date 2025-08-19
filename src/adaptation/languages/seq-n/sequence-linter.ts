@@ -13,24 +13,33 @@ import type {
 } from '@nasa-jpl/aerie-ampcs';
 import { closest, distance } from 'fastest-levenshtein';
 
-import { SEQN_NODES } from '@nasa-jpl/aerie-sequence-languages';
+import { SEQN_NODES } from '../../../languages/seq-n/seqn-grammar-constants.js';
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
 import type { EditorView } from 'codemirror';
-import { TimeTypes } from '../../../enums/time';
-import { TOKEN_ERROR } from '../../../utilities/sequence-editor/sequence-constants';
-import { addDefaultArgs, addDefaultVariableArgs, isHexValue, parseNumericArg, quoteEscape } from '../../../utilities/sequence-editor/sequence-utils';
-import { getChildrenNode, getDeepestNode, getFromAndTo } from '../../../utilities/sequence-editor/tree-utils';
-import { pluralize } from '../../../utilities/text';
 import {
-  getBalancedDuration,
-  getDoyTime,
-  getUnixEpochTime,
+  convertIsoToUnixEpoch,
   isTimeBalanced,
   isTimeMax,
   parseDurationString,
+  TimeTypes,
   validateTime,
-} from '../../../utilities/time';
-import { CustomErrorCodes } from '../../../workers/customCodes';
+} from '@nasa-jpl/aerie-time-utils';
+import { TOKEN_ERROR } from './seq-n-constants.js';
+import { addDefaultArgs, addDefaultVariableArgs, isHexValue, parseNumericArg } from '../../../utils/sequence-utils.js';
+import { quoteEscape } from '../../../utils/string.js';
+import { getChildrenNode, getDeepestNode, getFromAndTo } from '../../../utils/tree-utils.js';
+import { pluralize } from '../../../utils/text.js';
+// import {
+//   getBalancedDuration,
+//   getDoyTime,
+//   getUnixEpochTime,
+//   isTimeBalanced,
+//   isTimeMax,
+//   parseDurationString,
+//   validateTime,
+// } from '../../../utilities/time';
+import { getBalancedDuration } from '@nasa-jpl/aerie-time-utils';
+import { getDoyTime } from '../../../utils/time.js';
 import type { LibrarySequence } from '../../interfaces/new-adaptation-interface';
 import { closeSuggestion, computeBlocks, openSuggestion } from './custom-folder';
 import type { GlobalType } from './global-types';
@@ -48,6 +57,26 @@ const KNOWN_DIRECTIVES = [
   'MODEL',
   'METADATA',
 ].map(name => `@${name}`);
+
+/**
+ * These error messages are ported from helpers in `customCodes.ts` from aerie-ui
+ */
+const ERROR_MESSAGES = {
+  INVALID_ABSOLUTE_TIME: `Time Error: Incorrectly formatted absolute time string.
+Received : Malformed Absolute time.
+Expected: YYYY-DOYThh:mm:ss[.sss]`,
+  MAX_ABSOLUTE_TIME: `Time Error: Maximum time greater than 9999-365T23:59:59.999`,
+  UNBALANCED_TIME: `Time Warning: Unbalanced time used.
+Suggestion: `,
+  INVALID_EPOCH_TIME: `Time Error: Incorrectly formatted duration string.
+Received: A malformed duration.
+Expected: [+/-]hh:mm:ss[.sss] or [+/-]DDDThh:mm:ss[.sss]`,
+  MAX_EPOCH_TIME: `Time Error: Maximum time greater than [+/-]365T23:59:59.999`, // Modified this message from implementation in `customCodes.ts`,
+  INVALID_RELATIVE_TIME: `Time Error: Incorrectly formatted duration string.
+Received: A malformed duration.
+Expected: hh:mm:ss[.sss]`,
+  MAX_RELATIVE_TIME: `Time Error: Maximum time greater than 365T23:59:59.999`,
+};
 
 const MAX_ENUMS_TO_SHOW = 20;
 
@@ -778,30 +807,30 @@ function validateTimeTags(command: SyntaxNode, text: string): Diagnostic[] {
     if (timeTagAbsoluteNode) {
       const absoluteText = text.slice(timeTagAbsoluteNode.from + 1, timeTagAbsoluteNode.to).trim();
 
-      const isValid = validateTime(absoluteText, TimeTypes.ABSOLUTE);
+      const isValid = validateTime(absoluteText, TimeTypes.ISO_ORDINAL_TIME);
       if (!isValid) {
         diagnostics.push({
           actions: [],
           from: timeTagAbsoluteNode.from,
-          message: CustomErrorCodes.InvalidAbsoluteTime().message,
+          message: ERROR_MESSAGES.INVALID_ABSOLUTE_TIME,
           severity: 'error',
           to: timeTagAbsoluteNode.to,
         });
       } else {
-        if (isTimeMax(absoluteText, TimeTypes.ABSOLUTE)) {
+        if (isTimeMax(absoluteText, TimeTypes.ISO_ORDINAL_TIME)) {
           diagnostics.push({
             actions: [],
             from: timeTagAbsoluteNode.from,
-            message: CustomErrorCodes.MaxAbsoluteTime().message,
+            message: ERROR_MESSAGES.MAX_ABSOLUTE_TIME,
             severity: 'error',
             to: timeTagAbsoluteNode.to,
           });
         } else {
-          if (!isTimeBalanced(absoluteText, TimeTypes.ABSOLUTE)) {
+          if (!isTimeBalanced(absoluteText, TimeTypes.ISO_ORDINAL_TIME)) {
             diagnostics.push({
               actions: [],
               from: timeTagAbsoluteNode.from,
-              message: CustomErrorCodes.UnbalancedTime(getDoyTime(new Date(getUnixEpochTime(absoluteText)))).message,
+              message: ERROR_MESSAGES.UNBALANCED_TIME + getDoyTime(new Date(convertIsoToUnixEpoch(absoluteText))),
               severity: 'warning',
               to: timeTagAbsoluteNode.to,
             });
@@ -810,31 +839,31 @@ function validateTimeTags(command: SyntaxNode, text: string): Diagnostic[] {
       }
     } else if (timeTagEpochNode) {
       const epochText = text.slice(timeTagEpochNode.from + 1, timeTagEpochNode.to).trim();
-      const isValid = validateTime(epochText, TimeTypes.EPOCH) || validateTime(epochText, TimeTypes.EPOCH_SIMPLE);
+      const isValid = validateTime(epochText, TimeTypes.DOY_TIME) || validateTime(epochText, TimeTypes.SECOND_TIME);
       if (!isValid) {
         diagnostics.push({
           actions: [],
           from: timeTagEpochNode.from,
-          message: CustomErrorCodes.InvalidEpochTime().message,
+          message: ERROR_MESSAGES.INVALID_EPOCH_TIME,
           severity: 'error',
           to: timeTagEpochNode.to,
         });
       } else {
-        if (validateTime(epochText, TimeTypes.EPOCH)) {
-          if (isTimeMax(epochText, TimeTypes.EPOCH)) {
+        if (validateTime(epochText, TimeTypes.DOY_TIME)) {
+          if (isTimeMax(epochText, TimeTypes.DOY_TIME)) {
             diagnostics.push({
               actions: [],
               from: timeTagEpochNode.from,
-              message: CustomErrorCodes.MaxEpochTime(parseDurationString(epochText, 'seconds').isNegative).message,
+              message: ERROR_MESSAGES.MAX_EPOCH_TIME,
               severity: 'error',
               to: timeTagEpochNode.to,
             });
           } else {
-            if (!isTimeBalanced(epochText, TimeTypes.EPOCH)) {
+            if (!isTimeBalanced(epochText, TimeTypes.DOY_TIME)) {
               diagnostics.push({
                 actions: [],
                 from: timeTagEpochNode.from,
-                message: CustomErrorCodes.UnbalancedTime(getBalancedDuration(epochText)).message,
+                message: ERROR_MESSAGES.UNBALANCED_TIME + getBalancedDuration(epochText),
                 severity: 'warning',
                 to: timeTagEpochNode.to,
               });
@@ -858,32 +887,32 @@ function validateTimeTags(command: SyntaxNode, text: string): Diagnostic[] {
       }
 
       const isValid =
-        validateTime(relativeText, TimeTypes.RELATIVE) ||
-        (validateTime(relativeText, TimeTypes.RELATIVE_SIMPLE) && !timeTagBlockRelativeNode);
+        validateTime(relativeText, TimeTypes.DOY_TIME) ||
+        (validateTime(relativeText, TimeTypes.SECOND_TIME) && !timeTagBlockRelativeNode);
       if (!isValid) {
         diagnostics.push({
           actions: [],
           from,
-          message: CustomErrorCodes.InvalidRelativeTime().message,
+          message: ERROR_MESSAGES.INVALID_RELATIVE_TIME,
           severity: 'error',
           to,
         });
       } else {
-        if (validateTime(relativeText, TimeTypes.RELATIVE)) {
-          if (isTimeMax(relativeText, TimeTypes.RELATIVE)) {
+        if (validateTime(relativeText, TimeTypes.DOY_TIME)) {
+          if (isTimeMax(relativeText, TimeTypes.SECOND_TIME)) {
             diagnostics.push({
               actions: [],
               from,
-              message: CustomErrorCodes.MaxRelativeTime().message,
+              message: ERROR_MESSAGES.MAX_RELATIVE_TIME,
               severity: 'error',
               to,
             });
           } else {
-            if (!isTimeBalanced(relativeText, TimeTypes.EPOCH)) {
+            if (!isTimeBalanced(relativeText, TimeTypes.DOY_TIME)) {
               diagnostics.push({
                 actions: [],
                 from,
-                message: CustomErrorCodes.UnbalancedTime(getBalancedDuration(relativeText)).message,
+                message: ERROR_MESSAGES.UNBALANCED_TIME + getBalancedDuration(relativeText),
                 severity: 'error',
                 to,
               });
@@ -1009,15 +1038,7 @@ function hardwareCommandLinter(
 
     // Validate the command and push the generated diagnostics to the array
     diagnostics.push(
-      ...validateCommand(
-        command,
-        text,
-        'hardware',
-        {},
-        commandDictionary,
-        channelDictionary,
-        parameterDictionaries,
-      ),
+      ...validateCommand(command, text, 'hardware', {}, commandDictionary, channelDictionary, parameterDictionaries),
     );
 
     // Lint the metadata

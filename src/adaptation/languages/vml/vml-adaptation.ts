@@ -15,12 +15,13 @@ import type {
   HwCommand,
 } from '@nasa-jpl/aerie-ampcs';
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
-import { SequenceTypes } from '../../../enums/sequencing';
-import { isFswCommand, unquoteUnescape } from '../../../utilities/sequence-editor/sequence-utils';
-import { getNearestAncestorNodeOfType } from '../../../utilities/sequence-editor/tree-utils';
-import type { LibrarySequence, LibrarySequenceMap } from '../../interfaces/new-adaptation-interface';
-import type { GlobalType } from '../seq-n/global-types';
-import { librarySequenceToFswCommand, vmlBlockLibraryToCommandDictionary } from './vml-block-library';
+import { SequenceTypes } from '../../interfaces/new-adaptation-interface.js';
+import { unquoteUnescape } from '../../../utils/string.js';
+import { isFswCommand } from 'utils/sequence-utils.js';
+import { getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
+import type { LibrarySequence, LibrarySequenceMap } from '../../interfaces/new-adaptation-interface.js';
+import type { GlobalType } from '../seq-n/global-types.js';
+import { librarySequenceToFswCommand, vmlBlockLibraryToCommandDictionary } from './vml-block-library.js';
 import {
   RULE_BODY,
   RULE_CALL_PARAMETER,
@@ -40,9 +41,9 @@ import {
   TOKEN_END_MODULE,
   TOKEN_MODULE,
   TOKEN_SYMBOL_CONST,
-} from './vml-constants';
-import { emptyFileOptions, SEQUENCE_SNIPPETS, structureSnippets } from './vml-snippets';
-import { getArgumentPosition, getVmlVariables } from './vml-tree-utils';
+} from './vml-constants.js';
+import { emptyFileOptions, SEQUENCE_SNIPPETS, structureSnippets } from './vml-snippets.js';
+import { getArgumentPosition, getVmlVariables } from './vml-tree-utils.js';
 
 const SECTION_LOCAL_VARIABLES: CompletionSection = {
   name: 'Local Variables',

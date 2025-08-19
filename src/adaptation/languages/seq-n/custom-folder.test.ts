@@ -1,7 +1,7 @@
 import { EditorState } from '@codemirror/state';
-import { SeqnParser } from '@nasa-jpl/aerie-sequence-languages';
+import { SeqnParser } from '../../../languages/seq-n/seq-n.js';
 import { describe, expect, test } from 'vitest';
-import { foldRequest, foldSteps, foldVariables } from './custom-folder';
+import { foldRequest, foldSteps, foldVariables } from './custom-folder.js';
 
 const COMMANDS = [
   'Command',

@@ -2,9 +2,17 @@ import type { Extension } from '@codemirror/state';
 import type { ChannelDictionary, CommandDictionary, ParameterDictionary } from '@nasa-jpl/aerie-ampcs';
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
 import type { EditorView } from 'codemirror';
-import type { SequenceTypes } from '../../enums/sequencing';
-import type { UserSequence } from '../../types/sequencing';
 import type { CommandInfoMapper } from './command-info-mapper';
+
+export enum SequenceTypes {
+  LIBRARY = 'library',
+  USER = 'user',
+}
+
+export type UserSequence = {
+  definition: string;
+  name: string;
+};
 
 export type LibrarySequence = {
   name: string;

@@ -1,15 +1,15 @@
 import { indentService } from "@codemirror/language";
 import { EditorView } from "codemirror";
 import { debounce } from "lodash-es";
-import type { LanguageAdaptation, NewAdaptationInterface } from "../../interfaces/new-adaptation-interface";
-import { globals } from "../seq-n/global-types";
-import { seqNBlockHighlighter, seqNHighlightBlock } from "../seq-n/seq-n-highlighter";
-import { SeqNCommandInfoMapper, userSequenceToLibrarySequence } from "../seq-n/seq-n-tree-utils";
-import { seqNFormat, sequenceAutoIndent } from "../seq-n/sequence-autoindent";
-import { sequenceCompletion } from "../seq-n/sequence-completion";
-import { seqnLinter } from "../seq-n/sequence-linter";
-import { sequenceTooltip } from "../seq-n/sequence-tooltip";
-import { setupLanguageSupport } from "./seq-n-handlebars";
+import type { LanguageAdaptation, NewAdaptationInterface } from "../../interfaces/new-adaptation-interface.js";
+import { globals } from "../seq-n/global-types.js";
+import { seqNBlockHighlighter, seqNHighlightBlock } from "../seq-n/seq-n-highlighter.js";
+import { SeqNCommandInfoMapper, userSequenceToLibrarySequence } from "../seq-n/seq-n-tree-utils.js";
+import { seqNFormat, sequenceAutoIndent } from "../seq-n/sequence-autoindent.js";
+import { sequenceCompletion } from "../seq-n/sequence-completion.js";
+import { seqnLinter } from "../seq-n/sequence-linter.js";
+import { sequenceTooltip } from "../seq-n/sequence-tooltip.js";
+import { setupLanguageSupport } from "./seq-n-handlebars.js";
 
 const debouncedSeqNHighlightBlock = debounce(seqNHighlightBlock, 250);
 

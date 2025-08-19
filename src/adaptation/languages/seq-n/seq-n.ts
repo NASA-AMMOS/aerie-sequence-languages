@@ -1,8 +1,8 @@
 import { CompletionContext, type CompletionResult } from '@codemirror/autocomplete';
 import { LRLanguage, LanguageSupport, delimitedIndent, foldNodeProp, indentNodeProp } from '@codemirror/language';
 import { styleTags, tags as t } from '@lezer/highlight';
-import { SeqnParser } from '@nasa-jpl/aerie-sequence-languages';
-import { customFoldInside } from './custom-folder';
+import { SeqnParser } from '../../../languages/seq-n/seq-n.js';
+import { customFoldInside } from './custom-folder.js';
 
 export const SeqLanguage = LRLanguage.define({
   languageData: {

@@ -14,9 +14,9 @@ import type {
   NumericRange,
 } from '@nasa-jpl/aerie-ampcs';
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
-import { filterEmpty } from '../../../utilities/generic';
-import type { LibrarySequence } from '../../interfaces/new-adaptation-interface';
-import { VmlLanguage } from './vml';
+import { filterEmpty } from '../../../utils/generic.js';
+import type { LibrarySequence } from '../../interfaces/new-adaptation-interface.js';
+import { VmlLanguage } from './vml.js';
 import {
   RULE_BLOCK,
   RULE_COMMENT,
@@ -46,7 +46,7 @@ import {
   TOKEN_TIME,
   TOKEN_UINT,
   TOKEN_UINT_CONST,
-} from './vml-constants';
+} from './vml-constants.js';
 
 export function vmlBlockLibraryToCommandDictionary(vml: string, id?: string, path?: string): CommandDictionary {
   const parsed = VmlLanguage.parser.parse(vml);

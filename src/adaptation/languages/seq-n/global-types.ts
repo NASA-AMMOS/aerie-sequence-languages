@@ -1,3 +1,6 @@
+/**
+ * TODO move this file to somewhere non-SeqN-specific (at least the types)
+ */
 export type GlobalType = {
   name: string;
   type: GlobalTypes;

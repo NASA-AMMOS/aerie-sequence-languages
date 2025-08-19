@@ -5,7 +5,7 @@ import {
 } from '@nasa-jpl/aerie-ampcs';
 import { readFileSync } from 'fs';
 import { describe, expect, test } from 'vitest';
-import { parseCdlDictionary, toAmpcsXml } from './cdl-dictionary';
+import { parseCdlDictionary, toAmpcsXml } from './cdl-dictionary.js';
 
 const cdlString = `!
 ! Example dictionary

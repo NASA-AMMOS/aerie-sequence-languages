@@ -1,10 +1,31 @@
 import type { SyntaxNode, Tree } from '@lezer/common';
-import type { ChannelDictionary, CommandDictionary, EnumMap, FswCommand, FswCommandArgument, FswCommandArgumentRepeat, ParameterDictionary } from '@nasa-jpl/aerie-ampcs';
+import type {
+  ChannelDictionary,
+  CommandDictionary,
+  EnumMap,
+  FswCommand,
+  FswCommandArgument,
+  FswCommandArgumentRepeat,
+  FswCommandArgumentVarString,
+  FswCommandArgumentFixedString,
+  ParameterDictionary,
+} from '@nasa-jpl/aerie-ampcs';
 import type { EditorView } from 'codemirror';
-import type { ArgTextDef, TimeTagInfo } from '../../types/sequencing';
 import type { LibrarySequenceMap } from './new-adaptation-interface';
 
-export interface CommandInfoMapper { // TODO is there a way we can generalize what's in the command panel?
+export type TimeTagInfo = { node: SyntaxNode; text: string } | null | undefined;
+
+export type StringArg = FswCommandArgumentVarString | FswCommandArgumentFixedString;
+
+export type ArgTextDef = {
+  argDef?: FswCommandArgument;
+  children?: ArgTextDef[];
+  node?: SyntaxNode;
+  parentArgDef?: FswCommandArgumentRepeat;
+  text?: string;
+};
+export interface CommandInfoMapper {
+  // TODO is there a way we can generalize what's in the command panel?
   /** format string of multiple arguments */
   formatArgumentArray(values: string[], commandNode: SyntaxNode | null): string;
 
@@ -69,9 +90,5 @@ export interface CommandInfoMapper { // TODO is there a way we can generalize wh
     stemName: string,
   ): FswCommand | null;
 
-  getVariablesInScope(
-    seqEditorView: EditorView,
-    tree: Tree | null,
-    cursorPosition?: number,
-  ): string[];
+  getVariablesInScope(seqEditorView: EditorView, tree: Tree | null, cursorPosition?: number): string[];
 }

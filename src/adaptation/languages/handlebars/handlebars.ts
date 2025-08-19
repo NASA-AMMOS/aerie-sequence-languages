@@ -1,5 +1,5 @@
 import { foldInside, foldNodeProp, indentNodeProp, LRLanguage } from '@codemirror/language';
-import { parser } from './handlebars.grammar';
+import { parser } from './handlebars.grammar.js';
 
 const mixedParser = parser.configure({
   props: [

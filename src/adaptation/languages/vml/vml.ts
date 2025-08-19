@@ -3,8 +3,8 @@ import { LRLanguage, LanguageSupport, foldInside, foldNodeProp, syntaxTree } fro
 import { Decoration, ViewPlugin, type DecorationSet, type ViewUpdate } from '@codemirror/view';
 import type { SyntaxNode } from '@lezer/common';
 import { styleTags, tags as t } from '@lezer/highlight';
-import { blockMark } from '../../../utilities/codemirror/themes/block';
-import { getNearestAncestorNodeOfType } from '../../../utilities/sequence-editor/tree-utils';
+import { blockMark } from '../../../themes/block.js';
+import { getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
 import {
   RULE_TIME_TAGGED_STATEMENT,
   TOKEN_CALL,
@@ -23,9 +23,9 @@ import {
   TOKEN_THEN,
   TOKEN_TO,
   TOKEN_WHILE,
-} from './vml-constants';
-import { computeBlocks, isBlockCommand, vmlBlockFolder } from './vml-folder';
-import { parser } from './vml.grammar';
+} from './vml-constants.js';
+import { computeBlocks, isBlockCommand, vmlBlockFolder } from './vml-folder.js';
+import { parser } from './vml.grammar.js';
 
 const VML_LANGUAGE_NAME = 'vml';
 

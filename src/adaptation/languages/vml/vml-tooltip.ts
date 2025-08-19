@@ -9,14 +9,15 @@ import type {
   FswCommandArgumentInteger,
 } from '@nasa-jpl/aerie-ampcs';
 import type { EditorView } from 'codemirror';
-import ArgumentTooltip from '../../../components/sequencing/ArgumentTooltip.svelte';
-import CommandTooltip from '../../../components/sequencing/CommandTooltip.svelte';
-import StringTooltip from '../../../components/sequencing/StringTooltip.svelte';
-import { decodeInt32Array, unquoteUnescape } from '../../../utilities/sequence-editor/sequence-utils';
-import { checkContainment, getNearestAncestorNodeOfType } from '../../../utilities/sequence-editor/tree-utils';
-import type { LibrarySequence } from '../../interfaces/new-adaptation-interface';
-import { getTokenPositionInLine } from '../seq-n/sequence-tooltip';
-import { librarySequenceToFswCommand } from './vml-block-library';
+import ArgumentTooltip from '../../../components/sequencing/ArgumentTooltip.svelte'; // TODO get via dependency injection?
+import CommandTooltip from '../../../components/sequencing/CommandTooltip.svelte'; // TODO get via dependency injection?
+import StringTooltip from '../../../components/sequencing/StringTooltip.svelte'; // TODO get via dependency injection?
+import { decodeInt32Array } from '../../../utils/sequence-utils.js';
+import { unquoteUnescape } from '../../../utils/string.js';
+import { checkContainment, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
+import type { LibrarySequence } from '../../interfaces/new-adaptation-interface.js';
+import { getTokenPositionInLine } from '../seq-n/sequence-tooltip.js';
+import { librarySequenceToFswCommand } from './vml-block-library.js';
 import {
   RULE_BYTE_ARRAY,
   RULE_CALL_PARAMETER,
@@ -32,8 +33,8 @@ import {
   RULE_VM_MANAGEMENT,
   TOKEN_HEX_CONST,
   TOKEN_INT_CONST,
-} from './vml-constants';
-import { getVmlNameNode } from './vml-tree-utils';
+} from './vml-constants.js';
+import { getVmlNameNode } from './vml-tree-utils.js';
 
 const sequenceEngineArgument: FswCommandArgumentInteger = {
   arg_type: 'integer',

@@ -1,17 +1,18 @@
 import { indentService } from "@codemirror/language";
-import { seqJsonToSeqn, seqnToSeqJson } from "@nasa-jpl/aerie-sequence-languages";
+import { seqnToSeqJson } from "../../../converters/seqnToSeqJson.js";
+import { seqJsonToSeqn } from "../../../converters/seqJsonToSeqn.js";
 import { EditorView } from "codemirror";
 import { debounce } from "lodash-es";
-import type { LanguageAdaptation, NewAdaptationInterface, OutputLanguageAdaptation } from "../../interfaces/new-adaptation-interface";
-import { globals } from "./global-types";
-import { outputLinter } from "./output-linter";
-import { SeqLanguage, setupLanguageSupport } from "./seq-n";
-import { seqNBlockHighlighter, seqNHighlightBlock } from "./seq-n-highlighter";
-import { SeqNCommandInfoMapper, userSequenceToLibrarySequence } from "./seq-n-tree-utils";
-import { seqNFormat, sequenceAutoIndent } from "./sequence-autoindent";
-import { sequenceCompletion } from "./sequence-completion";
-import { seqnLinter } from "./sequence-linter";
-import { sequenceTooltip } from "./sequence-tooltip";
+import type { LanguageAdaptation, NewAdaptationInterface, OutputLanguageAdaptation } from "../../interfaces/new-adaptation-interface.js";
+import { globals } from "./global-types.js";
+import { outputLinter } from "./output-linter.js";
+import { SeqLanguage, setupLanguageSupport } from "./seq-n.js";
+import { seqNBlockHighlighter, seqNHighlightBlock } from "./seq-n-highlighter.js";
+import { SeqNCommandInfoMapper, userSequenceToLibrarySequence } from "./seq-n-tree-utils.js";
+import { seqNFormat, sequenceAutoIndent } from "./sequence-autoindent.js";
+import { sequenceCompletion } from "./sequence-completion.js";
+import { seqnLinter } from "./sequence-linter.js";
+import { sequenceTooltip } from "./sequence-tooltip.js";
 
 const debouncedSeqNHighlightBlock = debounce(seqNHighlightBlock, 250);
 

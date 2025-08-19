@@ -5,11 +5,11 @@ import type { SyntaxNode, Tree } from '@lezer/common';
 import type { CommandDictionary, FswCommand, FswCommandArgument } from '@nasa-jpl/aerie-ampcs';
 import type { EditorView } from 'codemirror';
 import { closest } from 'fastest-levenshtein';
-import { quoteEscape, unquoteUnescape } from '../../../utilities/sequence-editor/sequence-utils';
-import { filterNodes, getNearestAncestorNodeOfType } from '../../../utilities/sequence-editor/tree-utils';
-import type { LibrarySequenceMap } from '../../interfaces/new-adaptation-interface';
-import type { GlobalType } from '../seq-n/global-types';
-import { VmlLanguage } from './vml';
+import { quoteEscape, unquoteUnescape } from '../../../utils/string.js';
+import { filterNodes, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
+import type { LibrarySequenceMap } from '../../interfaces/new-adaptation-interface.js';
+import type { GlobalType } from '../seq-n/global-types.js';
+import { VmlLanguage } from './vml.js';
 import {
   RULE_CALL_PARAMETER,
   RULE_CALL_PARAMETERS,
@@ -27,8 +27,8 @@ import {
   TOKEN_INT_CONST,
   TOKEN_STRING_CONST,
   TOKEN_UINT_CONST,
-} from './vml-constants';
-import { getVmlVariables } from './vml-tree-utils';
+} from './vml-constants.js';
+import { getVmlVariables } from './vml-tree-utils.js';
 
 /**
  * Limitations

@@ -2,7 +2,7 @@ import { syntaxTree } from '@codemirror/language';
 import type { ChangeSpec, EditorState } from '@codemirror/state';
 import type { SyntaxNode } from '@lezer/common';
 import { EditorView } from 'codemirror';
-import { filterEmpty } from '../../../utilities/generic';
+import { filterEmpty } from '../../../utils/generic.js';
 import {
   RULE_ASSIGNMENT,
   RULE_CALL_PARAMETERS,
@@ -26,8 +26,8 @@ import {
   RULE_WHILE,
   TOKEN_ERROR,
   TOKEN_TIME_CONST,
-} from './vml-constants';
-import { computeBlocks } from './vml-folder';
+} from './vml-constants.js';
+import { computeBlocks } from './vml-folder.js';
 
 type LineOfNodes = (SyntaxNode | undefined)[];
 

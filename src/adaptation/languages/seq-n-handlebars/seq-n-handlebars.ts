@@ -2,7 +2,7 @@ import { CompletionContext, completeFromList, type CompletionResult } from '@cod
 import { LRLanguage, LanguageSupport } from '@codemirror/language';
 import { parseMixed } from '@lezer/common';
 import { handlebarsLanguage } from '../handlebars/handlebars';
-import { SeqLanguage } from '../seq-n/seq-n';
+import { SeqLanguage } from '../seq-n/seq-n.js';
 
 export const HandlebarsOverSeqLanguage = LRLanguage.define({
   languageData: {

@@ -1,15 +1,14 @@
 import type { Completion, CompletionContext, CompletionResult } from '@codemirror/autocomplete';
 import { syntaxTree } from '@codemirror/language';
 import type { ChannelDictionary, CommandDictionary, ParameterDictionary } from '@nasa-jpl/aerie-ampcs';
-import { SEQN_NODES } from '@nasa-jpl/aerie-sequence-languages';
-import { fswCommandArgDefault } from '../../../utilities/sequence-editor/command-dictionary';
-import { getDefaultVariableArgs } from '../../../utilities/sequence-editor/sequence-utils';
-import { getFromAndTo, getNearestAncestorNodeOfType } from '../../../utilities/sequence-editor/tree-utils';
-import { getDoyTime } from '../../../utilities/time';
+import { SEQN_NODES } from '../../../languages/seq-n/seqn-grammar-constants.js';
+import { fswCommandArgDefault } from '../../../utils/sequence-utils.js';
+import { getDefaultVariableArgs } from '../../../utils/sequence-utils.js';
+import { getFromAndTo, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
+import { getDoyTime } from '../../../utils/time.js';
 import type { LibrarySequence } from '../../interfaces/new-adaptation-interface';
 import type { GlobalType } from './global-types';
 import { SeqLanguage } from './seq-n';
-import { parse as jsonSourceMapParse } from 'json-source-map';
 
 type CursorInfo = {
   isAfterActivateOrLoad: boolean;
@@ -246,12 +245,7 @@ export function sequenceCompletion(
       // If TimeTag has been entered show the completion list when 1 character has been entered
       if (word.text.length > (cursor.isAfterTimeTag || cursor.isBeforeImmedOrHDWCommands === false ? 0 : 1)) {
         fswCommandsCompletions.push(
-          ...generateCommandCompletions(
-            channelDictionary,
-            commandDictionary,
-            cursor,
-            parameterDictionaries,
-          ),
+          ...generateCommandCompletions(channelDictionary, commandDictionary, cursor, parameterDictionaries),
         );
 
         //add load, activate, ground_block, and ground_event commands
@@ -275,7 +269,7 @@ export function sequenceCompletion(
       //   }
       // }
 
-      const globals: GlobalType[] = []
+      const globals: GlobalType[] = [];
       // TODO: Define the static list of globals
 
       if (globals) {
@@ -362,12 +356,7 @@ function generateCommandCompletions(
     if (args.length) {
       const argDefaults: string[] = [];
       args.forEach(arg => {
-        argDefaults.push(
-          fswCommandArgDefault(
-            arg,
-            commandDictionary.enumMap,
-          ),
-        );
+        argDefaults.push(fswCommandArgDefault(arg, commandDictionary.enumMap));
       });
       const argsStr = argDefaults.join(' ');
       apply = `${stem} ${argsStr} `;
