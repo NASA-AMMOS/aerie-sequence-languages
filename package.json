@@ -33,7 +33,8 @@
   "scripts": {
     "satf": "rimraf ./src/languages/satf/grammar/satf-sasf.grammar.js; lezer-generator ./src/languages/satf/grammar/satf-sasf.grammar -o ./src/languages/satf/grammar/satf-sasf.grammar.js",
     "seqn": "rimraf ./src/languages/seq-n/seq-n.grammar.js; lezer-generator ./src/languages/seq-n/seq-n.grammar -o ./src/languages/seq-n/seq-n.grammar.js",
-    "grammar-builder": "npm run satf; npm run seqn",
+    "vml": "rimraf ./src/languages/vml/vml.grammar.js; lezer-generator ./src/languages/vml/vml.grammar -o ./src/languages/vml/vml.grammar.js",
+    "grammar-builder": "npm run satf; npm run seqn && npm run vml",
     "test": "npm run grammar-builder && vitest run",
     "build": "npm run clean; npm run grammar-builder; tsc -p tsconfig.json && tsc -p tsconfig.esm.json",
     "clean": "rimraf ./dist",

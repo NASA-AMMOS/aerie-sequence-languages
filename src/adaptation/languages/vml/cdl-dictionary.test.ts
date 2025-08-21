@@ -170,7 +170,7 @@ describe('cdl parse tests', async () => {
   });
 
   test('load from file', () => {
-    const path = 'src/tests/mocks/sequencing/dictionaries/CDL_1.0.0_REV_M00';
+    const path = 'tests/dictionary/CDL_1.0.0_REV_M00';
 
     const contents = readFileSync(path, 'utf-8');
 
