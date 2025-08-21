@@ -25,7 +25,7 @@ import {
   validateTime,
 } from '@nasa-jpl/aerie-time-utils';
 import { TOKEN_ERROR } from './seq-n-constants.js';
-import { addDefaultArgs, addDefaultVariableArgs, isHexValue, parseNumericArg } from '../../../utils/sequence-utils.js';
+import { addDefaultArgs, addDefaultVariableArgs, getAllEnumSymbols, isHexValue, parseNumericArg } from '../../../utils/sequence-utils.js';
 import { quoteEscape } from '../../../utils/string.js';
 import { getChildrenNode, getDeepestNode, getFromAndTo } from '../../../utils/tree-utils.js';
 import { pluralize } from '../../../utils/text.js';
@@ -79,10 +79,6 @@ Expected: hh:mm:ss[.sss]`,
 };
 
 const MAX_ENUMS_TO_SHOW = 20;
-
-export function getAllEnumSymbols(enumMap: EnumMap, enumName: string): undefined | string[] {
-  return enumMap[enumName]?.values.map(({ symbol }) => symbol);
-}
 
 function closestStrings(value: string, potentialMatches: string[], n: number) {
   const distances = potentialMatches.map(s => ({ distance: distance(s, value), s }));
