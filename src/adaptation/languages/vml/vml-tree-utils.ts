@@ -39,7 +39,7 @@ import {
   TOKEN_HEX_CONST,
   TOKEN_INT_CONST,
   TOKEN_STRING_CONST,
-} from './vml-constants.js';
+} from '../../../languages/vml/vml-constants.js';
 
 export class VmlCommandInfoMapper implements CommandInfoMapper {
   formatArgumentArray(values: string[], commandNode: SyntaxNode | null): string {

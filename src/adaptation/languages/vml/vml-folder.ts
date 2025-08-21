@@ -11,7 +11,7 @@ import {
   RULE_IF,
   RULE_TIME_TAGGED_STATEMENT,
   RULE_WHILE,
-} from './vml-constants.js';
+} from '../../../languages/vml/vml-constants.js';
 
 type BlockStackNode = Readonly<{
   node: SyntaxNode;

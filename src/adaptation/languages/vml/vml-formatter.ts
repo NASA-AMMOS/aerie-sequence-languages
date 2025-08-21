@@ -26,7 +26,7 @@ import {
   RULE_WHILE,
   TOKEN_ERROR,
   TOKEN_TIME_CONST,
-} from './vml-constants.js';
+} from '../../../languages/vml/vml-constants.js';
 import { computeBlocks } from './vml-folder.js';
 
 type LineOfNodes = (SyntaxNode | undefined)[];

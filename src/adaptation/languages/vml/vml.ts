@@ -23,9 +23,9 @@ import {
   TOKEN_THEN,
   TOKEN_TO,
   TOKEN_WHILE,
-} from './vml-constants.js';
+} from '../../../languages/vml/vml-constants.js';
 import { computeBlocks, isBlockCommand, vmlBlockFolder } from './vml-folder.js';
-import { parser } from './vml.grammar.js';
+import { parser } from '../../../languages/vml/vml.grammar.js';
 
 const VML_LANGUAGE_NAME = 'vml';
 

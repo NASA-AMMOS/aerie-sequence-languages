@@ -33,7 +33,7 @@ import {
   RULE_VM_MANAGEMENT,
   TOKEN_HEX_CONST,
   TOKEN_INT_CONST,
-} from './vml-constants.js';
+} from '../../../languages/vml/vml-constants.js';
 import { getVmlNameNode } from './vml-tree-utils.js';
 
 const sequenceEngineArgument: FswCommandArgumentInteger = {

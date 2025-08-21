@@ -29,7 +29,7 @@ import {
   TOKEN_MODULE,
   TOKEN_SYMBOL_CONST,
   TOKEN_TIME_CONST,
-} from './vml-constants.js';
+} from '../../../languages/vml/vml-constants.js';
 
 // In versions of VML prior to 2.1, explicit time tags were required on every statement
 // confirm what version we're using
