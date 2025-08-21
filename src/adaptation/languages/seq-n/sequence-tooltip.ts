@@ -10,8 +10,8 @@ import type {
   ParameterDictionary,
 } from '@nasa-jpl/aerie-ampcs';
 import { SEQN_NODES } from '../../../languages/seq-n/seqn-grammar-constants.js';
-import ArgumentTooltip from '../../../components/sequencing/ArgumentTooltip.svelte'; // TODO implement interface for tooltips...
-import CommandTooltip from '../../../components/sequencing/CommandTooltip.svelte'; // TODO implement interface for tooltips...
+// import ArgumentTooltip from '../../../components/sequencing/ArgumentTooltip.svelte'; // TODO implement interface for tooltips...
+// import CommandTooltip from '../../../components/sequencing/CommandTooltip.svelte'; // TODO implement interface for tooltips...
 import { isFswCommandArgumentRepeat } from '../../../utils/sequence-utils.js';
 
 /**
@@ -79,7 +79,7 @@ export function sequenceTooltip(
           above: true,
           create() {
             const dom = document.createElement('div');
-            new CommandTooltip({ props: { command }, target: dom });
+            // new CommandTooltip({ props: { command }, target: dom }); // TODO re-enable
             return { dom };
           },
           end: to,
@@ -130,7 +130,7 @@ export function sequenceTooltip(
                       above: true,
                       create() {
                         const dom = document.createElement('div');
-                        new ArgumentTooltip({ props: { arg, commandDictionary }, target: dom });
+                        // new ArgumentTooltip({ props: { arg, commandDictionary }, target: dom }); // TODO re-enable
                         return { dom };
                       },
                       end: to,
@@ -151,7 +151,7 @@ export function sequenceTooltip(
                   above: true,
                   create() {
                     const dom = document.createElement('div');
-                    new ArgumentTooltip({ props: { arg, commandDictionary }, target: dom });
+                    // new ArgumentTooltip({ props: { arg, commandDictionary }, target: dom }); // TODO re-enable
                     return { dom };
                   },
                   end: to,

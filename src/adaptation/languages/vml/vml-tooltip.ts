@@ -9,9 +9,9 @@ import type {
   FswCommandArgumentInteger,
 } from '@nasa-jpl/aerie-ampcs';
 import type { EditorView } from 'codemirror';
-import ArgumentTooltip from '../../../components/sequencing/ArgumentTooltip.svelte'; // TODO get via dependency injection?
-import CommandTooltip from '../../../components/sequencing/CommandTooltip.svelte'; // TODO get via dependency injection?
-import StringTooltip from '../../../components/sequencing/StringTooltip.svelte'; // TODO get via dependency injection?
+// import ArgumentTooltip from '../../../components/sequencing/ArgumentTooltip.svelte'; // TODO get via dependency injection
+// import CommandTooltip from '../../../components/sequencing/CommandTooltip.svelte'; // TODO get via dependency injection
+// import StringTooltip from '../../../components/sequencing/StringTooltip.svelte'; // TODO get via dependency injection
 import { decodeInt32Array } from '../../../utils/sequence-utils.js';
 import { unquoteUnescape } from '../../../utils/string.js';
 import { checkContainment, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
@@ -151,10 +151,10 @@ function strTooltip(message: string, from: number, to: number) {
     create() {
       const dom = document.createElement('div');
       // SonarQube flags as useless, but Svelte component constructor has side-effects and instantiation is canonical
-      new StringTooltip({
-        props: { message },
-        target: dom,
-      });
+      // new StringTooltip({
+      //   props: { message },
+      //   target: dom,
+      // }); // TODO re-enable
       return { dom };
     },
     end: to,
@@ -172,10 +172,10 @@ function argTooltip(
     above: true,
     create() {
       const dom = document.createElement('div');
-      new ArgumentTooltip({
-        props: { arg, commandDictionary },
-        target: dom,
-      });
+      // new ArgumentTooltip({
+      //   props: { arg, commandDictionary },
+      //   target: dom,
+      // }); // TODO re-enable
       return { dom };
     },
     end: to,
@@ -188,7 +188,7 @@ function cmdTooltip(command: FswCommand, from: number, to: number): Tooltip {
     above: true,
     create() {
       const dom = document.createElement('div');
-      new CommandTooltip({ props: { command }, target: dom });
+      // new CommandTooltip({ props: { command }, target: dom }); // TODO re-enable
       return { dom };
     },
     end: to,
