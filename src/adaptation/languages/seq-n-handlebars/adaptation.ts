@@ -43,7 +43,7 @@ const seqnAdaptation: LanguageAdaptation = {
     ],
     commandInfoMapper: new SeqNCommandInfoMapper(),
     format: seqNFormat,
-    getLibrarySequences: (sequence, workspaceId) => [userSequenceToLibrarySequence(sequence, workspaceId)]
+    getLibrarySequences: sequence => [userSequenceToLibrarySequence(sequence)]
 }
 
 export const defaultAdaptation: NewAdaptationInterface = {

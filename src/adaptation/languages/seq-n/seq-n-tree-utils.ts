@@ -3,12 +3,12 @@ import type { ChannelDictionary, CommandDictionary, EnumMap, FswCommand, FswComm
 import { SEQN_NODES } from '../../../languages/seq-n/seqn-grammar-constants.js';
 import { parseVariables } from '../../../converters/seqnToSeqJson.js';
 import type { EditorView } from 'codemirror';
-import { SequenceTypes, type UserSequence } from '../../interfaces/new-adaptation-interface.js';
+import { type UserSequence } from '../../interfaces/new-adaptation-interface.js';
 import type { ArgTextDef, TimeTagInfo } from '../../interfaces/command-info-mapper.js';
 import { fswCommandArgDefault, isFswCommandArgumentRepeat } from '../../../utils/sequence-utils.js';
 import { getFromAndTo, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
 import type { CommandInfoMapper } from '../../interfaces/command-info-mapper.js';
-import type { LibrarySequence, LibrarySequenceMap } from '../../interfaces/new-adaptation-interface.js';
+import type { LibrarySequenceSignature, LibrarySequenceMap } from '../../interfaces/new-adaptation-interface.js';
 import { globals } from './global-types.js';
 import { SeqLanguage } from './seq-n.js';
 import { TOKEN_ERROR } from './seq-n-constants.js';
@@ -44,13 +44,11 @@ export function getAncestorStepOrRequest(node: SyntaxNode | null) {
   ]);
 }
 
-export function userSequenceToLibrarySequence(sequence: UserSequence, workspaceId: number): LibrarySequence {
+export function userSequenceToLibrarySequence(sequence: UserSequence): LibrarySequenceSignature {
   const tree = SeqLanguage.parser.parse(sequence.definition);
   return {
     name: sequence.name,
     parameters: parseVariables(tree.topNode, sequence.definition, SEQN_NODES.PARAMETER_DECLARATION) ?? [],
-    type: SequenceTypes.LIBRARY,
-    workspace_id: workspaceId,
   };
 }
 

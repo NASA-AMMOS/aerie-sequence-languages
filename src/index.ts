@@ -9,15 +9,14 @@ export { seqnToSATF, seqnToSASF, satfToSeqn, sasfToSeqn } from './converters/sat
 export { SatfSasfParser, SatfLanguage } from './languages/satf/grammar/satf-sasf.js';
 export { SATF_SASF_NODES } from './languages/satf/constants/satf-sasf-constants.js';
 
-export {
-  type UserSequence,
-  type LibrarySequence,
-  type LibrarySequenceMap,
-  type PhoenixContext,
-  type LanguageAdaptation,
-  type OutputLanguageAdaptation,
-  type NewAdaptationInterface,
-  SequenceTypes,
+export type {
+  UserSequence,
+  LibrarySequenceSignature,
+  LibrarySequenceMap,
+  PhoenixContext,
+  LanguageAdaptation,
+  OutputLanguageAdaptation,
+  NewAdaptationInterface,
 } from './adaptation/interfaces/new-adaptation-interface.js';
 
 export type {

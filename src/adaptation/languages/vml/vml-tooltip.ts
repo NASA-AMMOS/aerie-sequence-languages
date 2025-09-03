@@ -15,7 +15,7 @@ import type { EditorView } from 'codemirror';
 import { decodeInt32Array } from '../../../utils/sequence-utils.js';
 import { unquoteUnescape } from '../../../utils/string.js';
 import { checkContainment, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
-import type { LibrarySequence } from '../../interfaces/new-adaptation-interface.js';
+import type { LibrarySequenceSignature } from '../../interfaces/new-adaptation-interface.js';
 import { getTokenPositionInLine } from '../seq-n/sequence-tooltip.js';
 import { librarySequenceToFswCommand } from './vml-block-library.js';
 import {
@@ -48,7 +48,7 @@ const sequenceEngineArgument: FswCommandArgumentInteger = {
 
 export function vmlTooltip(
   commandDictionary: CommandDictionary | null,
-  librarySequenceMap: { [sequenceName: string]: LibrarySequence },
+  librarySequenceMap: { [sequenceName: string]: LibrarySequenceSignature },
 ): Extension {
   return hoverTooltip((view: EditorView, pos: number, side: number): Tooltip | null => {
     const { from, to } = getTokenPositionInLine(view, pos);

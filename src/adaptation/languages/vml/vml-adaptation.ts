@@ -15,11 +15,10 @@ import type {
   HwCommand,
 } from '@nasa-jpl/aerie-ampcs';
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
-import { SequenceTypes } from '../../interfaces/new-adaptation-interface.js';
 import { unquoteUnescape } from '../../../utils/string.js';
 import { isFswCommand } from '../../../utils/sequence-utils.js';
 import { getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
-import type { LibrarySequence, LibrarySequenceMap } from '../../interfaces/new-adaptation-interface.js';
+import type { LibrarySequenceSignature, LibrarySequenceMap } from '../../interfaces/new-adaptation-interface.js';
 import type { GlobalType } from '../seq-n/global-types.js';
 import { librarySequenceToFswCommand, vmlBlockLibraryToCommandDictionary } from './vml-block-library.js';
 import {
@@ -391,9 +390,9 @@ export function getDefaultArgumentValue(argDef: FswCommandArgument, enumMap: Enu
   return '""';
 }
 
-export function parseFunctionSignatures(contents: string, workspaceId: number): LibrarySequence[] {
+export function parseFunctionSignatures(contents: string): LibrarySequenceSignature[] {
   return vmlBlockLibraryToCommandDictionary(contents).fswCommands.map(
-    (fswCommand): LibrarySequence => ({
+    (fswCommand): LibrarySequenceSignature => ({
       name: fswCommand.stem,
       parameters: fswCommand.arguments.map((arg: FswCommandArgument) => {
         return {
@@ -401,8 +400,6 @@ export function parseFunctionSignatures(contents: string, workspaceId: number): 
           type: argTypToVariableType(arg.arg_type),
         };
       }),
-      type: SequenceTypes.LIBRARY,
-      workspace_id: workspaceId,
     }),
   );
 }

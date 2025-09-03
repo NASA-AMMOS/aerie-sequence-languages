@@ -6,7 +6,7 @@ import { fswCommandArgDefault } from '../../../utils/sequence-utils.js';
 import { getDefaultVariableArgs } from '../../../utils/sequence-utils.js';
 import { getFromAndTo, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
 import { getDoyTime } from '../../../utils/time.js';
-import type { LibrarySequence } from '../../interfaces/new-adaptation-interface';
+import type { LibrarySequenceSignature } from '../../interfaces/new-adaptation-interface';
 import type { GlobalType } from './global-types';
 import { SeqLanguage } from './seq-n';
 
@@ -29,7 +29,7 @@ export function sequenceCompletion(
   channelDictionary: ChannelDictionary | null = null,
   commandDictionary: CommandDictionary | null = null,
   parameterDictionaries: ParameterDictionary[],
-  librarySequences: LibrarySequence[],
+  librarySequences: LibrarySequenceSignature[],
 ) {
   return (context: CompletionContext): CompletionResult | null => {
     const nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1);

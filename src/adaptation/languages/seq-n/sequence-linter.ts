@@ -40,7 +40,7 @@ import { pluralize } from '../../../utils/text.js';
 // } from '../../../utilities/time';
 import { getBalancedDuration } from '@nasa-jpl/aerie-time-utils';
 import { getDoyTime } from '../../../utils/time.js';
-import type { LibrarySequence } from '../../interfaces/new-adaptation-interface';
+import type { LibrarySequenceSignature } from '../../interfaces/new-adaptation-interface';
 import { closeSuggestion, computeBlocks, openSuggestion } from './custom-folder';
 import type { GlobalType } from './global-types';
 import { SeqNCommandInfoMapper } from './seq-n-tree-utils';
@@ -95,7 +95,7 @@ export function seqnLinter(
   channelDictionary: ChannelDictionary | null = null,
   commandDictionary: CommandDictionary | null = null,
   parameterDictionaries: ParameterDictionary[] = [],
-  librarySequences: LibrarySequence[] = [],
+  librarySequences: LibrarySequenceSignature[] = [],
 ): Extension {
   return linter(view => {
     let diagnostics: Diagnostic[];
@@ -122,7 +122,7 @@ export function sequenceLinter(
   channelDictionary: ChannelDictionary | null = null,
   commandDictionary: CommandDictionary | null = null,
   parameterDictionaries: ParameterDictionary[] = [],
-  librarySequences: LibrarySequence[] = [],
+  librarySequences: LibrarySequenceSignature[] = [],
   globalVariables: GlobalType[],
 ): Diagnostic[] {
   const tree = syntaxTree(view.state);
@@ -539,7 +539,7 @@ function getVariableInfo(
   };
 }
 
-function validateActivateLoad(node: SyntaxNode[], text: string, librarySequences: LibrarySequence[]): Diagnostic[] {
+function validateActivateLoad(node: SyntaxNode[], text: string, librarySequences: LibrarySequenceSignature[]): Diagnostic[] {
   if (node.length === 0) {
     return [];
   }

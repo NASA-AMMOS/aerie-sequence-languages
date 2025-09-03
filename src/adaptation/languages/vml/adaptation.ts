@@ -36,7 +36,7 @@ const vmlAdaptation: LanguageAdaptation = {
     ],
     commandInfoMapper: new VmlCommandInfoMapper(),
     format: vmlFormat,
-    getLibrarySequences: (sequence, workspaceId) => parseFunctionSignatures(sequence.definition, workspaceId)
+    getLibrarySequences: sequence => parseFunctionSignatures(sequence.definition)
 }
 
 export const defaultAdaptation: NewAdaptationInterface = {
