@@ -26,6 +26,7 @@
   HeaderPairs { HeaderPair* }
   HeaderPair {Key"="Value ";" newLine}
   Key { (identifier | ":")* }
+    // Key { (identifier)* ("::"(identifier)+)?   }
   Value { (headerValue | "/")+ }
   SfduHeader { headerMarker newLine HeaderPairs headerMarker}
 
@@ -252,8 +253,8 @@
   StartTime { definition<startTime> definition<Time{requestTime}> definition<TimeRelation{identifier}>?}
   ScheduledTime { definition<"SCHEDULED_TIME"> (definitionValue<Time{anyASCII+}> | definition<Time{test}>) TimeRelation{identifier} newLine? ","? newLine? }
   InclusionCondition {anyASCII+}
-  AssumedModelValues{  Model (","Model)* }
-  Model { Key"="Value{modelValue+} }
+  AssumedModelValues{  Model (","Model)* (","Duration{modelDuration})* }
+  Model { (Key | Global)"="Value{modelValue+} }
   Draw { "VERTICAL" | "HORIZONTAL" | "HATCHED" | "STANDARD" | "DIAGONAL" }
   Comment { (anyASCII | newLine)+ }
   Ntext { (anyASCII | newLine)+ }
@@ -328,6 +329,7 @@
     anyASCII { ($[a-zA-Z0-9_:!$%&()*\+-/;<=>?@[\]^`{|}~"' ])+ }
     singleDigit { @digit }
     requestTime { ("+" | "-")?(@digit@digit@digit@digit"-"@digit@digit@digit"T")?@digit@digit":"@digit@digit":"@digit@digit("."@digit+)?}
+    modelDuration { @digit@digit":"@digit@digit":"@digit@digit("."@digit+)? }
     path { ("/" | identifier | ".")+}
     request { "request"}
     startTime { "START_TIME"}
@@ -409,6 +411,7 @@
       window,
       seqTranDirective,
       assumeModel,
+      modelDuration,
       Global,
       count,
       processors,

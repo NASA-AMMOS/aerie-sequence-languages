@@ -59,6 +59,7 @@ export const EXPRESSION = 'Expression';
 export const ARITHMETICAL = 'Arithmetical';
 export const MODEL = 'Model';
 export const ASSUMED_MODEL_VALUES = 'AssumedModelValues';
+export const MODEL_DURATION = 'Duration';
 
 export const PARAM_UNSIGNED_DECIMAL = 'UNSIGNED_DECIMAL';
 export const PARAM_SIGNED_DECIMAL = 'SIGNED_DECIMAL';
@@ -131,6 +132,7 @@ export const SATF_SASF_NODES = {
   ARITHMETICAL,
   MODEL,
   ASSUMED_MODEL_VALUES,
+  MODEL_DURATION,
   PARAM_UNSIGNED_DECIMAL,
   PARAM_SIGNED_DECIMAL,
   PARAM_HEXADECIMAL,

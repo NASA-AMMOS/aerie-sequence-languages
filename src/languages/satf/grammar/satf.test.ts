@@ -472,6 +472,7 @@ const tests = [
             command(
               1,
               SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+              ASSUMED_MODEL_VALUES,\\Tel::power=1,GLOBAL::tmp=1\\
               STR_FILES_RM("/eng/seq/ENG_EXEC_b2024288_e2024294.seq")
             ),
             command(
@@ -483,7 +484,7 @@ const tests = [
             command (
               3472, SCHEDULED_TIME, \\param4\\, FROM_ACTIVITY_START, INCLUSION_CONDITION, \\param_rate == receive_rate\\,
               DRAW, \\VERTICAL\\,
-              COMMENT, \\This command turns the NIMS, to correct position.\\, ASSUMED_MODEL_VALUES, \\x=1,y="abc",z=0.2, Tel::power=1\\,
+              COMMENT, \\This command turns the NIMS, to correct position.\\, ASSUMED_MODEL_VALUES, \\x=1,y="abc",z=0.2, Tel::power=1,00:00:00,00:00:01, 00:00:02,00:03:00\\,
               01VV (param6, param7, param8 + param9),
               PROCESSORS, "PRI", end),
             command(
@@ -509,6 +510,9 @@ const tests = [
                   Time,
                   TimeRelation
                 ),
+                AssumedModelValues(
+                  Model(Key,Value),
+                  Model(Global,Value)),
                 Stem,
                 Args(
                   String
@@ -537,7 +541,11 @@ const tests = [
                   Model(Key,Value),
                   Model(Key,Value),
                   Model(Key,Value),
-                  Model(Key,Value))
+                  Model(Key,Value),
+                  Duration,
+                  Duration,
+                  Duration,
+                  Duration)
                 Stem,
                 Args(
                   Enum,

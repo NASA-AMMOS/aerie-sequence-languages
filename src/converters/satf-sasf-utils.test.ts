@@ -99,6 +99,33 @@ describe('satfToSeqn', () => {
 @MODEL "y" "abc" "00:00:00"`);
   });
 
+  it('should return valid sequence with models times', async () => {
+    const satf = `
+      $$EOH
+      ABSOLUTE_SEQUENCE(test,\\testv01\\,
+          STEPS,
+          command (
+            3472, SCHEDULED_TIME, \\00:01:00\\, EPOCH, INCLUSION_CONDITION, \\param_rate == receive_rate\\,
+            DRAW, \\VERTICAL\\,
+            COMMENT, \\This command turns, to correct position.\\, ASSUMED_MODEL_VALUES,\\a=1,GLOBAL::b=1.1,c="abc",00:00:01,00:00:02\\,
+            01VV (param6, 10, false, "abc"),
+            PROCESSORS, "PRI", end),
+          end
+        )
+      $$EOF
+    `;
+    const result = await satfToSeqn(satf);
+    expect(result).toHaveProperty('sequences');
+    expect(result.sequences[0].name).toStrictEqual('test');
+    expect(result.sequences[0].steps)
+      .toStrictEqual(`E00:01:00 01VV param6 10 false "abc" # This command turns, to correct position.
+@METADATA "INCLUSION_CONDITION" "param_rate == receive_rate"
+@METADATA "DRAW" "VERTICAL"
+@MODEL "a" 1 "00:00:01"
+@MODEL "GLOBAL::b" 1.1 "00:00:02"
+@MODEL "c" "abc" "00:00:00"`);
+  });
+
   it('should handle multiline comments', async () => {
     const satf = `
     $$EOH
@@ -420,7 +447,7 @@ describe('sasfToSeqn', () => {
         KEY, "No_Key")
 
         command(1,
-          SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+          SCHEDULED_TIME,\\00:00:01.123456\\,FROM_PREVIOUS_START,
           COMMENT,\\"this "is a" comment"\\,
           FILE_REMOVE("/eng/seq/awesome.abs", TRUE)
         ),
@@ -437,7 +464,7 @@ describe('sasfToSeqn', () => {
     expect(result.sequences[0].name).toStrictEqual('VFT2_REQUEST_01');
     expect(result.sequences[0].requests).toStrictEqual(
       `A2024-266T19:59:57 @REQUEST_BEGIN("VFT2_REQUEST_01")
-  R00:00:01 FILE_REMOVE "/eng/seq/awesome.abs" TRUE # "this "is a" comment"
+  R00:00:01.123456 FILE_REMOVE "/eng/seq/awesome.abs" TRUE # "this "is a" comment"
   R00:00:01 USER_SEQ_ECHO "SEQ awesome COMPLETION IN 2 MINS" # cumulative_time is "2 sec"
 @REQUEST_END
 @METADATA "REQUESTOR" "me"
@@ -742,7 +769,7 @@ end`);
 		SCHEDULED_TIME,\\00:00:00\\,WAIT_PREVIOUS_END,
 		NTEXT,\\this is a place for notes\\,
 		COMMENT,\\NTEXT is supported "metadata"\\,
-		ASSUMED_MODEL_VALUES,\\x=1,y="abc",z=true\\,
+		ASSUMED_MODEL_VALUES,\\x=1,y="abc",z=true,00:00:00,00:00:01,00:00:02\\,
 		NO_OP()
 	),
 end`);
@@ -774,7 +801,7 @@ end`);
               STATUS("EXECUTE","status")
           ),
           command(2,
-              SCHEDULED_TIME,\\00:00:01.123\\,FROM_PREVIOUS_START,
+              SCHEDULED_TIME,\\00:00:01.123456\\,FROM_PREVIOUS_START,
               NTEXT,\\"Disable volatage"\\,
               VOLTAGE_OFF("OFF")
           )
@@ -805,7 +832,7 @@ end`,
 		STATUS("EXECUTE", "status")
 	),
 	command(2,
-		SCHEDULED_TIME,\\00:00:01.123\\,FROM_PREVIOUS_START,
+		SCHEDULED_TIME,\\00:00:01.123456\\,FROM_PREVIOUS_START,
 		NTEXT,\\"Disable volatage"\\,
 		VOLTAGE_OFF("OFF")
 	),

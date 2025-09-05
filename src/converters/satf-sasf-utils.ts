@@ -1029,34 +1029,38 @@ function parseModel(modelNode: SyntaxNode | null, text: string): string {
     return '';
   }
   const modelsNode = modelNode.getChildren(SATF_SASF_NODES.MODEL);
+  const durationNodes = modelNode.getChildren(SATF_SASF_NODES.MODEL_DURATION);
   return modelsNode
-    .map(model => {
-      const keyNode = model.getChild(SATF_SASF_NODES.KEY);
+    .map((model, index) => {
+      const keyNode = model.getChild(SATF_SASF_NODES.KEY) || model.getChild(SATF_SASF_NODES.GLOBAL);
       const valueNode = model.getChild(SATF_SASF_NODES.VALUE);
+      const durationNode = index < durationNodes.length ? durationNodes[index] : null;
       if (!keyNode || !valueNode) {
         return null;
       }
-      return `@MODEL "${text.slice(keyNode.from, keyNode.to)}" ${text.slice(valueNode.from, valueNode.to)} "00:00:00"`;
+      return `@MODEL "${text.slice(keyNode.from, keyNode.to)}" ${text.slice(valueNode.from, valueNode.to)} ${durationNode ? `"${text.slice(durationNode.from, durationNode.to)}"` : '"00:00:00"'}`;
     })
     .filter(model => model !== null)
     .join('\n');
 }
 
 function parseSeqNModel(node: SyntaxNode, text: string): string | undefined {
-  const modelContainer = node.getChild('Models');
+  const modelContainer = node.getChild(SEQN_NODES.MODELS);
   if (!modelContainer) {
     return undefined;
   }
 
-  const modelNodes = modelContainer.getChildren('Model');
+  const modelNodes = modelContainer.getChildren(SEQN_NODES.MODEL_ENTRY);
   if (!modelNodes || modelNodes.length === 0) {
     return undefined;
   }
 
   const models = [];
+  const duration = [];
   for (const modelNode of modelNodes) {
-    const variableNode = modelNode.getChild('Variable');
-    const valueNode = modelNode.getChild('Value');
+    const variableNode = modelNode.getChild(SEQN_NODES.VARIABLE);
+    const valueNode = modelNode.getChild(SEQN_NODES.VALUE);
+    const offsetNode = modelNode.getChild('Offset');
 
     const variable = variableNode ? unquoteUnescape(text.slice(variableNode.from, variableNode.to)) : 'UNKNOWN';
 
@@ -1074,7 +1078,8 @@ function parseSeqNModel(node: SyntaxNode, text: string): string | undefined {
       }
     }
     models.push(`${variable}=${value}`);
+    duration.push(offsetNode ? unquoteUnescape(text.slice(offsetNode.from, offsetNode.to)) : '');
   }
 
-  return models.join(',');
+  return [...models, ...duration].join(',');
 }
