@@ -10,7 +10,7 @@ import {
   getNearestAncestorNodeOfType,
 } from '../../../utils/tree-utils.js';
 import type { CommandInfoMapper } from '../../interfaces/command-info-mapper.js';
-import type { LibrarySequenceSignature } from '../../interfaces/new-adaptation-interface.js';
+import type { LibrarySequenceSignature } from '../../interfaces/phoenix.js';
 import { getDefaultArgumentValue } from './vml-adaptation.js';
 import { librarySequenceToFswCommand } from './vml-block-library.js';
 import {

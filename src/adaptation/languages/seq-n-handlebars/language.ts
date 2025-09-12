@@ -1,11 +1,9 @@
 import { indentService } from '@codemirror/language';
 import { EditorView } from 'codemirror';
 import { debounce } from 'lodash-es';
-import type {
-  InputLanguage,
-  PhoenixResources,
-} from '../../interfaces/new-adaptation-interface.js';
+import type { PhoenixResources } from '../../interfaces/phoenix.js';
 import { globals } from '../seq-n/global-types.js';
+import type { InputLanguage } from '../../interfaces/language.js';
 import { seqNBlockHighlighter, seqNHighlightBlock } from '../seq-n/seq-n-highlighter.js';
 import { SeqNCommandInfoMapper, userSequenceToLibrarySequence } from '../seq-n/seq-n-tree-utils.js';
 import { seqNFormat, sequenceAutoIndent } from '../seq-n/sequence-autoindent.js';
@@ -18,30 +16,30 @@ const debouncedSeqNHighlightBlock = debounce(seqNHighlightBlock, 250);
 
 export function getSeqnHandlebarsLanguage(resources: PhoenixResources): InputLanguage {
   return {
-  name: 'SeqN (Template)',
-  fileExtension: '.template.seqN.txt',
-  editorExtension: context => [
-    setupLanguageSupport(
-      sequenceCompletion(
+    name: 'SeqN (Template)',
+    fileExtension: '.template.seqN.txt',
+    editorExtension: context => [
+      setupLanguageSupport(
+        sequenceCompletion(
+          context.channelDictionary,
+          context.commandDictionary,
+          context.parameterDictionaries,
+          Object.values(context.librarySequences),
+        ),
+      ),
+      seqnLinter(
+        globals,
         context.channelDictionary,
         context.commandDictionary,
         context.parameterDictionaries,
         Object.values(context.librarySequences),
       ),
-    ),
-    seqnLinter(
-      globals,
-      context.channelDictionary,
-      context.commandDictionary,
-      context.parameterDictionaries,
-      Object.values(context.librarySequences),
-    ),
-    sequenceTooltip(context.commandDictionary, resources),
-    indentService.of(sequenceAutoIndent()),
-    [EditorView.updateListener.of(debouncedSeqNHighlightBlock), seqNBlockHighlighter],
-  ],
-  commandInfoMapper: new SeqNCommandInfoMapper(),
-  format: seqNFormat,
-  getLibrarySequences: sequence => [userSequenceToLibrarySequence(sequence)],
-};
+      sequenceTooltip(context.commandDictionary, resources),
+      indentService.of(sequenceAutoIndent()),
+      [EditorView.updateListener.of(debouncedSeqNHighlightBlock), seqNBlockHighlighter],
+    ],
+    commandInfoMapper: new SeqNCommandInfoMapper(),
+    format: seqNFormat,
+    getLibrarySequences: sequence => [userSequenceToLibrarySequence(sequence)],
+  };
 }

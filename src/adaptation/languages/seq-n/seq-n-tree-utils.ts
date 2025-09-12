@@ -1,14 +1,21 @@
 import type { SyntaxNode, Tree } from '@lezer/common';
-import type { ChannelDictionary, CommandDictionary, EnumMap, FswCommand, FswCommandArgument, FswCommandArgumentRepeat, ParameterDictionary } from '@nasa-jpl/aerie-ampcs';
+import type {
+  ChannelDictionary,
+  CommandDictionary,
+  EnumMap,
+  FswCommand,
+  FswCommandArgument,
+  FswCommandArgumentRepeat,
+  ParameterDictionary,
+} from '@nasa-jpl/aerie-ampcs';
 import { SEQN_NODES } from '../../../languages/seq-n/seqn-grammar-constants.js';
 import { parseVariables } from '../../../converters/seqnToSeqJson.js';
 import type { EditorView } from 'codemirror';
-import { type UserSequence } from '../../interfaces/new-adaptation-interface.js';
+import type { UserSequence, LibrarySequenceSignature } from '../../interfaces/phoenix.js';
 import type { ArgTextDef, TimeTagInfo } from '../../interfaces/command-info-mapper.js';
 import { fswCommandArgDefault, isFswCommandArgumentRepeat } from '../../../utils/sequence-utils.js';
 import { getFromAndTo, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
 import type { CommandInfoMapper } from '../../interfaces/command-info-mapper.js';
-import type { LibrarySequenceSignature, PhoenixContext } from '../../interfaces/new-adaptation-interface.js';
 import { globals } from './global-types.js';
 import { SeqLanguage } from './seq-n.js';
 import { TOKEN_ERROR } from './seq-n-constants.js';
@@ -53,7 +60,6 @@ export function userSequenceToLibrarySequence(sequence: UserSequence): LibrarySe
 }
 
 export class SeqNCommandInfoMapper implements CommandInfoMapper {
-
   getArgumentAppendPosition(commandOrRepeatArgNode: SyntaxNode | null): number | undefined {
     if (
       commandOrRepeatArgNode?.name === SEQN_NODES.COMMAND ||
@@ -136,7 +142,15 @@ export class SeqNCommandInfoMapper implements CommandInfoMapper {
     );
   }
 
-  getArgumentInfo(commandDef: FswCommand | null, channelDictionary: ChannelDictionary | null, seqEditorView: EditorView, args: SyntaxNode | null, argumentDefs: FswCommandArgument[] | undefined, parentArgDef: FswCommandArgumentRepeat | undefined, parameterDictionaries: ParameterDictionary[]): ArgTextDef[] {
+  getArgumentInfo(
+    commandDef: FswCommand | null,
+    channelDictionary: ChannelDictionary | null,
+    seqEditorView: EditorView,
+    args: SyntaxNode | null,
+    argumentDefs: FswCommandArgument[] | undefined,
+    parentArgDef: FswCommandArgumentRepeat | undefined,
+    parameterDictionaries: ParameterDictionary[],
+  ): ArgTextDef[] {
     const argArray: ArgTextDef[] = [];
     const precedingArgValues: string[] = [];
     const parentRepeatLength = parentArgDef?.repeat?.arguments.length;
@@ -197,7 +211,11 @@ export class SeqNCommandInfoMapper implements CommandInfoMapper {
     return argArray;
   }
 
-  getCommandDef(commandDictionary: CommandDictionary | null, librarySequences: LibrarySequenceSignature[], stemName: string): FswCommand | null {
+  getCommandDef(
+    commandDictionary: CommandDictionary | null,
+    librarySequences: LibrarySequenceSignature[],
+    stemName: string,
+  ): FswCommand | null {
     const commandDefFromCommandDictionary = commandDictionary?.fswCommandMap[stemName];
     if (commandDefFromCommandDictionary) {
       return commandDefFromCommandDictionary;

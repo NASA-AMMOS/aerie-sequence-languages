@@ -11,7 +11,7 @@ import type {
   ParameterDictionary,
 } from '@nasa-jpl/aerie-ampcs';
 import type { EditorView } from 'codemirror';
-import type { LibrarySequenceSignature } from './new-adaptation-interface';
+import type { LibrarySequenceSignature } from './phoenix.js';
 
 export type TimeTagInfo = { node: SyntaxNode; text: string } | null | undefined;
 

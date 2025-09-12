@@ -1,3 +1,3 @@
-import { LibrarySequenceSignature } from "adaptation/interfaces/new-adaptation-interface";
+import { LibrarySequenceSignature } from "adaptation/interfaces/phoenix.js";
 
 export type LibrarySequenceMap = { [sequenceName: string]: LibrarySequenceSignature };

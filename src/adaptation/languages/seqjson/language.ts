@@ -1,4 +1,4 @@
-import { BaseLanguage, OutputLanguage } from 'adaptation/interfaces/new-adaptation-interface.js';
+import { BaseLanguage, OutputLanguage } from 'adaptation/interfaces/language.js';
 import { outputLinter } from './output-linter.js';
 import { seqnToSeqJson } from '../../../converters/seqnToSeqJson.js';
 import { SeqLanguage } from '../seq-n/seq-n.js';

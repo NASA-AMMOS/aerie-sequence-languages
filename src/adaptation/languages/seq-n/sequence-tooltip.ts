@@ -9,7 +9,7 @@ import type {
 } from '@nasa-jpl/aerie-ampcs';
 import { SEQN_NODES } from '../../../languages/seq-n/seqn-grammar-constants.js';
 import { isFswCommandArgumentRepeat } from '../../../utils/sequence-utils.js';
-import { PhoenixResources } from 'adaptation/interfaces/new-adaptation-interface.js';
+import { PhoenixResources } from 'adaptation/interfaces/phoenix.js';
 import { buildAmpcsArgumentTooltip, buildAmpcsCommandTooltip } from '../../../utils/editor-utils.js';
 
 /**

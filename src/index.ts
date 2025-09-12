@@ -13,14 +13,13 @@ export type {
   UserSequence,
   LibrarySequenceSignature,
   PhoenixContext,
-  BaseLanguage,
-  InputLanguage,
-  OutputLanguage,
-  PhoenixAdaptation,
   PhoenixResources,
-  PhoenixLanguages,
   CreateTooltip,
-} from './adaptation/interfaces/new-adaptation-interface.js';
+} from './adaptation/interfaces/phoenix.js';
+
+export type { BaseLanguage, InputLanguage, OutputLanguage } from './adaptation/interfaces/language.js';
+
+export type { PhoenixAdaptation, PhoenixLanguages } from './adaptation/interfaces/adaptation.js';
 
 export type {
   TimeTagInfo,
@@ -52,7 +51,5 @@ export {
 } from './utils/sequence-utils.js';
 
 export { getSeqnLanguage } from './adaptation/languages/seq-n/language.js';
-
-export { seqJsonOutputLanguage } from './adaptation/languages/seqjson/language.js';
 
 export { parseCdlDictionary, toAmpcsXml } from './adaptation/languages/vml/cdl-dictionary.js';

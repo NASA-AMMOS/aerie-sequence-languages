@@ -19,7 +19,7 @@ import type {
   CreateTooltip,
   LibrarySequenceSignature,
   PhoenixResources,
-} from '../../interfaces/new-adaptation-interface.js';
+} from '../../interfaces/phoenix.js';
 import { getTokenPositionInLine } from '../seq-n/sequence-tooltip.js';
 import { librarySequenceToFswCommand } from './vml-block-library.js';
 import {

@@ -6,9 +6,9 @@ import { fswCommandArgDefault } from '../../../utils/sequence-utils.js';
 import { getDefaultVariableArgs } from '../../../utils/sequence-utils.js';
 import { getFromAndTo, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
 import { getDoyTime } from '../../../utils/time.js';
-import type { LibrarySequenceSignature } from '../../interfaces/new-adaptation-interface';
+import type { LibrarySequenceSignature } from '../../interfaces/phoenix.js';
 import type { GlobalType } from './global-types';
-import { SeqLanguage } from './seq-n';
+import { SeqLanguage } from './seq-n.js';
 
 type CursorInfo = {
   isAfterActivateOrLoad: boolean;

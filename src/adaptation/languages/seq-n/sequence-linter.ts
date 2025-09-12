@@ -29,18 +29,9 @@ import { addDefaultArgs, addDefaultVariableArgs, getAllEnumSymbols, isHexValue, 
 import { quoteEscape } from '../../../utils/string.js';
 import { getChildrenNode, getDeepestNode, getFromAndTo } from '../../../utils/tree-utils.js';
 import { pluralize } from '../../../utils/text.js';
-// import {
-//   getBalancedDuration,
-//   getDoyTime,
-//   getUnixEpochTime,
-//   isTimeBalanced,
-//   isTimeMax,
-//   parseDurationString,
-//   validateTime,
-// } from '../../../utilities/time';
 import { getBalancedDuration } from '@nasa-jpl/aerie-time-utils';
 import { getDoyTime } from '../../../utils/time.js';
-import type { LibrarySequenceSignature } from '../../interfaces/new-adaptation-interface';
+import type { LibrarySequenceSignature } from '../../interfaces/phoenix.js';
 import { closeSuggestion, computeBlocks, openSuggestion } from './custom-folder';
 import type { GlobalType } from './global-types';
 import { SeqNCommandInfoMapper } from './seq-n-tree-utils';

@@ -15,7 +15,7 @@ import type {
 } from '@nasa-jpl/aerie-ampcs';
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
 import { filterEmpty } from '../../../utils/generic.js';
-import type { LibrarySequenceSignature } from '../../interfaces/new-adaptation-interface.js';
+import type { LibrarySequenceSignature } from '../../interfaces/phoenix.js';
 import { VmlLanguage } from './vml.js';
 import {
   RULE_BLOCK,

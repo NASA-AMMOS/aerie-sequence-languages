@@ -1,7 +1,8 @@
 import { indentService } from '@codemirror/language';
 import { EditorView } from 'codemirror';
 import { debounce } from 'lodash-es';
-import type { InputLanguage, PhoenixResources } from '../../interfaces/new-adaptation-interface.js';
+import type { PhoenixResources } from '../../interfaces/phoenix.js';
+import type { InputLanguage } from '../../interfaces/language.js';
 import { globals } from './global-types.js';
 import { setupLanguageSupport } from './seq-n.js';
 import { seqNBlockHighlighter, seqNHighlightBlock } from './seq-n-highlighter.js';
