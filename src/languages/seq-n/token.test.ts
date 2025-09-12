@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { assert, describe, it } from 'vitest';
-import { SeqnParser } from './seq-n.js';
+import { seqnParser } from './seq-n.js';
 import { SEQN_NODES } from './seqn-grammar-constants.js';
 
 function getMetaType(node: SyntaxNode) {
@@ -28,7 +28,7 @@ describe('metadata', () => {
 @METADATA "name4" 4e1
 C STEM
 `;
-    const parseTree = SeqnParser.parse(input);
+    const parseTree = seqnParser.parse(input);
     assertNoErrorNodes(input);
     const topLevelMetaData = parseTree.topNode.getChild(SEQN_NODES.METADATA);
     const metaEntries = topLevelMetaData!.getChildren(SEQN_NODES.METADATA_ENTRY);
@@ -63,7 +63,7 @@ C STEM
 C STEM
 `;
     assertNoErrorNodes(input);
-    const parseTree = SeqnParser.parse(input);
+    const parseTree = seqnParser.parse(input);
     const topLevelMetaData = parseTree.topNode.getChild(SEQN_NODES.METADATA);
     const metaEntries = topLevelMetaData!.getChildren(SEQN_NODES.METADATA_ENTRY);
     assert.equal(metaEntries.length, 4);
@@ -118,7 +118,7 @@ describe('header directives', () => {
   C CMD_NO_ARGS
     `;
     assertNoErrorNodes(input);
-    const parseTree = SeqnParser.parse(input);
+    const parseTree = seqnParser.parse(input);
     assert.equal(getIdValue(parseTree, input), '"test.name"');
   });
 
@@ -130,7 +130,7 @@ describe('header directives', () => {
   C CMD_NO_ARGS
     `;
     assertNoErrorNodes(input);
-    const parseTree = SeqnParser.parse(input);
+    const parseTree = seqnParser.parse(input);
     assert.equal(getIdValue(parseTree, input), 'test_name');
   });
 
@@ -142,7 +142,7 @@ describe('header directives', () => {
   C CMD_NO_ARGS
     `;
     assertNoErrorNodes(input);
-    const parseTree = SeqnParser.parse(input);
+    const parseTree = seqnParser.parse(input);
     assert.equal(getIdValue(parseTree, input), '21');
   });
 
@@ -155,7 +155,7 @@ describe('header directives', () => {
     permutations.forEach((ordering: string[]) => {
       const input = ordering.join('\n\n');
       assertNoErrorNodes(input);
-      const parseTree = SeqnParser.parse(input);
+      const parseTree = seqnParser.parse(input);
       assert.equal(getIdValue(parseTree, input), `"test.seq"`);
       assert.deepEqual(
         parseTree.topNode
@@ -185,7 +185,7 @@ describe('variables', () => {
 @INPUT_PARAMS_END
     `;
     assertNoErrorNodes(input);
-    const parseTree = SeqnParser.parse(input);
+    const parseTree = seqnParser.parse(input);
     const localNodes = parseTree.topNode.getChild(SEQN_NODES.LOCAL_DECLARATION)?.getChildren(SEQN_NODES.VARIABLE) ?? [];
     const paramNodes =
       parseTree.topNode.getChild(SEQN_NODES.PARAMETER_DECLARATION)?.getChildren(SEQN_NODES.VARIABLE) ?? [];
@@ -207,7 +207,7 @@ R123T12:34:56 @ACTIVATE("act2.name") "foo" 1 2 3  # Comment text
 @ENGINE -1
   `;
     assertNoErrorNodes(input);
-    const parseTree = SeqnParser.parse(input);
+    const parseTree = seqnParser.parse(input);
     const activates = parseTree.topNode.firstChild?.getChildren(SEQN_NODES.ACTIVATE);
     assert.equal(activates?.length, 2);
   });
@@ -221,7 +221,7 @@ R123T12:34:56 @ACTIVATE("act2.name") "foo" 1 2 3  # Comment text
   @ENGINE -1
     `;
     assertNoErrorNodes(input);
-    const parseTree = SeqnParser.parse(input);
+    const parseTree = seqnParser.parse(input);
     const activates = parseTree.topNode.firstChild?.getChildren(SEQN_NODES.LOAD);
     assert.equal(activates?.length, 2);
   });
@@ -232,7 +232,7 @@ A2024-123T12:34:56 @GROUND_BLOCK("ground_block.name") # No Args
 R123T12:34:56 @GROUND_EVENT("ground_event.name") "foo" 1 2 3  # No Args
   `;
     assertNoErrorNodes(input);
-    const parseTree = SeqnParser.parse(input);
+    const parseTree = seqnParser.parse(input);
     assert.isNotNull(parseTree.topNode.firstChild);
     const groundBlocks = parseTree.topNode.firstChild!.getChildren(SEQN_NODES.GROUND_BLOCK);
     assert.equal(groundBlocks.length, 1);
@@ -267,7 +267,7 @@ A2024-123T12:34:56 @REQUEST_BEGIN("request2.name")
 @METADATA "foo" "bar"
 `;
     assertNoErrorNodes(input);
-    const parseTree = SeqnParser.parse(input);
+    const parseTree = seqnParser.parse(input);
     assert.isNotNull(parseTree.topNode.firstChild);
     const requests = parseTree.topNode.firstChild!.getChildren('Request');
     assert.equal(requests.length, 2);
@@ -320,7 +320,7 @@ describe('error positions', () => {
     },
   ]) {
     it(testname, () => {
-      const cursor = SeqnParser.parse(input).cursor();
+      const cursor = seqnParser.parse(input).cursor();
       do {
         const { node } = cursor;
         if (node.type.name === SEQN_NODES.ERROR) {
@@ -386,7 +386,7 @@ CMD0
     };
     const actualCommentLocations: { [name: string]: { from: number; to: number }[] } = {};
     assertNoErrorNodes(input);
-    const parseTree = SeqnParser.parse(input);
+    const parseTree = seqnParser.parse(input);
     const cursor = parseTree.cursor();
     do {
       const { node } = cursor;
@@ -415,7 +415,7 @@ CMD0
 });
 
 function assertNoErrorNodes(input: string, verbose?: boolean) {
-  const cursor = SeqnParser.parse(input).cursor();
+  const cursor = seqnParser.parse(input).cursor();
   do {
     const { node } = cursor;
     if (verbose) {
