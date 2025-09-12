@@ -11,7 +11,7 @@ import type {
   ParameterDictionary,
 } from '@nasa-jpl/aerie-ampcs';
 import type { EditorView } from 'codemirror';
-import type { LibrarySequenceMap } from './new-adaptation-interface';
+import type { LibrarySequenceSignature } from './new-adaptation-interface';
 
 export type TimeTagInfo = { node: SyntaxNode; text: string } | null | undefined;
 
@@ -86,7 +86,7 @@ export interface CommandInfoMapper {
 
   getCommandDef(
     commandDictionary: CommandDictionary | null,
-    librarySequenceMap: LibrarySequenceMap,
+    librarySequences: LibrarySequenceSignature[],
     stemName: string,
   ): FswCommand | null;
 

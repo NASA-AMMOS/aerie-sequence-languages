@@ -7,7 +7,7 @@ import type { EditorView } from 'codemirror';
 import { closest } from 'fastest-levenshtein';
 import { quoteEscape, unquoteUnescape } from '../../../utils/string.js';
 import { filterNodes, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
-import type { LibrarySequenceMap } from '../../interfaces/new-adaptation-interface.js';
+import type { LibrarySequenceSignature } from '../../interfaces/new-adaptation-interface.js';
 import type { GlobalType } from '../seq-n/global-types.js';
 import { VmlLanguage } from './vml.js';
 import {
@@ -29,6 +29,7 @@ import {
   TOKEN_UINT_CONST,
 } from '../../../languages/vml/vml-constants.js';
 import { getVmlVariables } from './vml-tree-utils.js';
+import { LibrarySequenceMap } from './vml-types.js';
 
 /**
  * Limitations

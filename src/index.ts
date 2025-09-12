@@ -12,11 +12,14 @@ export { SATF_SASF_NODES } from './languages/satf/constants/satf-sasf-constants.
 export type {
   UserSequence,
   LibrarySequenceSignature,
-  LibrarySequenceMap,
   PhoenixContext,
-  LanguageAdaptation,
-  OutputLanguageAdaptation,
-  NewAdaptationInterface,
+  BaseLanguage,
+  InputLanguage,
+  OutputLanguage,
+  PhoenixAdaptation,
+  PhoenixResources,
+  PhoenixLanguages,
+  CreateTooltip,
 } from './adaptation/interfaces/new-adaptation-interface.js';
 
 export type {
@@ -48,8 +51,8 @@ export {
   getAllEnumSymbols,
 } from './utils/sequence-utils.js';
 
-export { seqnAdaptation } from './adaptation/languages/seq-n/language.js';
+export { getSeqnLanguage } from './adaptation/languages/seq-n/language.js';
 
-export { seqJsonOutputAdaptation } from './adaptation/languages/seqjson/language.js';
+export { seqJsonOutputLanguage } from './adaptation/languages/seqjson/language.js';
 
 export { parseCdlDictionary, toAmpcsXml } from './adaptation/languages/vml/cdl-dictionary.js';

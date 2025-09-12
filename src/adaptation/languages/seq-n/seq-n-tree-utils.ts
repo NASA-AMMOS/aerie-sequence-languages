@@ -8,7 +8,7 @@ import type { ArgTextDef, TimeTagInfo } from '../../interfaces/command-info-mapp
 import { fswCommandArgDefault, isFswCommandArgumentRepeat } from '../../../utils/sequence-utils.js';
 import { getFromAndTo, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
 import type { CommandInfoMapper } from '../../interfaces/command-info-mapper.js';
-import type { LibrarySequenceSignature, LibrarySequenceMap } from '../../interfaces/new-adaptation-interface.js';
+import type { LibrarySequenceSignature, PhoenixContext } from '../../interfaces/new-adaptation-interface.js';
 import { globals } from './global-types.js';
 import { SeqLanguage } from './seq-n.js';
 import { TOKEN_ERROR } from './seq-n-constants.js';
@@ -197,7 +197,7 @@ export class SeqNCommandInfoMapper implements CommandInfoMapper {
     return argArray;
   }
 
-  getCommandDef(commandDictionary: CommandDictionary | null, librarySequenceMap: LibrarySequenceMap, stemName: string): FswCommand | null {
+  getCommandDef(commandDictionary: CommandDictionary | null, librarySequences: LibrarySequenceSignature[], stemName: string): FswCommand | null {
     const commandDefFromCommandDictionary = commandDictionary?.fswCommandMap[stemName];
     if (commandDefFromCommandDictionary) {
       return commandDefFromCommandDictionary;

@@ -18,7 +18,7 @@ import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
 import { unquoteUnescape } from '../../../utils/string.js';
 import { isFswCommand } from '../../../utils/sequence-utils.js';
 import { getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
-import type { LibrarySequenceSignature, LibrarySequenceMap } from '../../interfaces/new-adaptation-interface.js';
+import type { LibrarySequenceSignature } from '../../interfaces/new-adaptation-interface.js';
 import type { GlobalType } from '../seq-n/global-types.js';
 import { librarySequenceToFswCommand, vmlBlockLibraryToCommandDictionary } from './vml-block-library.js';
 import {
@@ -43,6 +43,7 @@ import {
 } from '../../../languages/vml/vml-constants.js';
 import { emptyFileOptions, SEQUENCE_SNIPPETS, structureSnippets } from './vml-snippets.js';
 import { getArgumentPosition, getVmlVariables } from './vml-tree-utils.js';
+import { LibrarySequenceMap } from './vml-types.js';
 
 const SECTION_LOCAL_VARIABLES: CompletionSection = {
   name: 'Local Variables',

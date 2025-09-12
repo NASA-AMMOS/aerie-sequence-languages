@@ -10,7 +10,7 @@ import {
   getNearestAncestorNodeOfType,
 } from '../../../utils/tree-utils.js';
 import type { CommandInfoMapper } from '../../interfaces/command-info-mapper.js';
-import type { LibrarySequenceMap } from '../../interfaces/new-adaptation-interface.js';
+import type { LibrarySequenceSignature } from '../../interfaces/new-adaptation-interface.js';
 import { getDefaultArgumentValue } from './vml-adaptation.js';
 import { librarySequenceToFswCommand } from './vml-block-library.js';
 import {
@@ -220,13 +220,13 @@ export class VmlCommandInfoMapper implements CommandInfoMapper {
     return argArray;
   }
 
-  getCommandDef(commandDictionary: CommandDictionary | null, librarySequenceMap: LibrarySequenceMap, stemName: string): FswCommand | null {
+  getCommandDef(commandDictionary: CommandDictionary | null, librarySequences: LibrarySequenceSignature[], stemName: string): FswCommand | null {
     const commandDefFromCommandDictionary = commandDictionary?.fswCommandMap[stemName];
     if (commandDefFromCommandDictionary) {
       return commandDefFromCommandDictionary;
     }
 
-    const librarySeqDef = librarySequenceMap[stemName];
+    const librarySeqDef = librarySequences.find(s => {s.name === stemName});
     if (librarySeqDef) {
       return librarySequenceToFswCommand(librarySeqDef);
     }

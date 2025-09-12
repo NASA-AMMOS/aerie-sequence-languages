@@ -3,16 +3,14 @@ import type { Extension } from '@codemirror/state';
 import { hoverTooltip, type EditorView, type Tooltip } from '@codemirror/view';
 import type { SyntaxNode } from '@lezer/common';
 import type {
-  ChannelDictionary,
   CommandDictionary,
   FswCommand,
   HwCommand,
-  ParameterDictionary,
 } from '@nasa-jpl/aerie-ampcs';
 import { SEQN_NODES } from '../../../languages/seq-n/seqn-grammar-constants.js';
-// import ArgumentTooltip from '../../../components/sequencing/ArgumentTooltip.svelte'; // TODO implement interface for tooltips...
-// import CommandTooltip from '../../../components/sequencing/CommandTooltip.svelte'; // TODO implement interface for tooltips...
 import { isFswCommandArgumentRepeat } from '../../../utils/sequence-utils.js';
+import { PhoenixResources } from 'adaptation/interfaces/new-adaptation-interface.js';
+import { buildAmpcsArgumentTooltip, buildAmpcsCommandTooltip } from '../../../utils/editor-utils.js';
 
 /**
  * Searches up through a node's ancestors to find a node by the given name.
@@ -55,9 +53,8 @@ export function getTokenPositionInLine(view: EditorView, pos: number) {
  * Can be optionally called with a command dictionary so it's available during tooltip generation.
  */
 export function sequenceTooltip(
-  channelDictionary: ChannelDictionary | null = null,
   commandDictionary: CommandDictionary | null = null,
-  parameterDictionaries: ParameterDictionary[] = [],
+  resources: PhoenixResources,
 ): Extension {
   return hoverTooltip((view, pos, side): Tooltip | null => {
     const { from, to } = getTokenPositionInLine(view, pos);
@@ -75,16 +72,7 @@ export function sequenceTooltip(
       const command: FswCommand | HwCommand | null = fswCommandMap[text] ?? hwCommandMap[text] ?? null;
 
       if (command) {
-        return {
-          above: true,
-          create() {
-            const dom = document.createElement('div');
-            // new CommandTooltip({ props: { command }, target: dom }); // TODO re-enable
-            return { dom };
-          },
-          end: to,
-          pos: from,
-        };
+        return resources.createTooltip(buildAmpcsCommandTooltip(command), from, to);
       }
     }
 
@@ -126,16 +114,7 @@ export function sequenceTooltip(
                 if (repeatArgNode.from === from && repeatArgNode.to === to) {
                   const arg = argDef.repeat?.arguments[j % argDef.repeat.arguments.length];
                   if (arg) {
-                    return {
-                      above: true,
-                      create() {
-                        const dom = document.createElement('div');
-                        // new ArgumentTooltip({ props: { arg, commandDictionary }, target: dom }); // TODO re-enable
-                        return { dom };
-                      },
-                      end: to,
-                      pos: from,
-                    };
+                    return resources.createTooltip(buildAmpcsArgumentTooltip(arg, commandDictionary), from, to);
                   }
                 }
                 repeatArgNode = repeatArgNode.nextSibling;
@@ -144,19 +123,10 @@ export function sequenceTooltip(
             }
 
             if ((argNode.from === from && argNode.to === to) || isRepeatArg) {
-              const arg = fswCommand.arguments[i]
+              const arg = fswCommand.arguments[i];
 
               if (arg) {
-                return {
-                  above: true,
-                  create() {
-                    const dom = document.createElement('div');
-                    // new ArgumentTooltip({ props: { arg, commandDictionary }, target: dom }); // TODO re-enable
-                    return { dom };
-                  },
-                  end: to,
-                  pos: from,
-                };
+                return resources.createTooltip(buildAmpcsArgumentTooltip(arg, commandDictionary), from, to);
               }
             }
           }

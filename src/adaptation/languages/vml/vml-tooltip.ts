@@ -15,7 +15,11 @@ import type { EditorView } from 'codemirror';
 import { decodeInt32Array } from '../../../utils/sequence-utils.js';
 import { unquoteUnescape } from '../../../utils/string.js';
 import { checkContainment, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
-import type { LibrarySequenceSignature } from '../../interfaces/new-adaptation-interface.js';
+import type {
+  CreateTooltip,
+  LibrarySequenceSignature,
+  PhoenixResources,
+} from '../../interfaces/new-adaptation-interface.js';
 import { getTokenPositionInLine } from '../seq-n/sequence-tooltip.js';
 import { librarySequenceToFswCommand } from './vml-block-library.js';
 import {
@@ -35,6 +39,7 @@ import {
   TOKEN_INT_CONST,
 } from '../../../languages/vml/vml-constants.js';
 import { getVmlNameNode } from './vml-tree-utils.js';
+import { buildAmpcsArgumentTooltip, buildAmpcsCommandTooltip } from 'utils/editor-utils.js';
 
 const sequenceEngineArgument: FswCommandArgumentInteger = {
   arg_type: 'integer',
@@ -49,6 +54,7 @@ const sequenceEngineArgument: FswCommandArgumentInteger = {
 export function vmlTooltip(
   commandDictionary: CommandDictionary | null,
   librarySequenceMap: { [sequenceName: string]: LibrarySequenceSignature },
+  resources: PhoenixResources,
 ): Extension {
   return hoverTooltip((view: EditorView, pos: number, side: number): Tooltip | null => {
     const { from, to } = getTokenPositionInLine(view, pos);
@@ -88,14 +94,14 @@ export function vmlTooltip(
 
     // cursor over command
     if (command && nameNode?.from === from && nameNode?.to === to) {
-      return cmdTooltip(command, from, to);
+      return cmdTooltip(resources.createTooltip, command, from, to);
     }
 
     // over seq engine
     if (
       checkContainment(cursorNode, [RULE_VM_MANAGEMENT, undefined, RULE_SIMPLE_EXPR, RULE_CONSTANT, TOKEN_INT_CONST])
     ) {
-      return argTooltip(sequenceEngineArgument, null, from, to);
+      return argTooltip(resources.createTooltip, sequenceEngineArgument, null, from, to);
     }
 
     const callParameterNode = getNearestAncestorNodeOfType(cursorNode, [RULE_CALL_PARAMETER]);
@@ -109,11 +115,11 @@ export function vmlTooltip(
           .map(node => view.state.sliceDoc(node.from, node.to));
         const decodedValue = decodeInt32Array(encodedValues);
         if (decodedValue) {
-          return strTooltip(decodedValue, from, to);
+          return strTooltip(resources.createTooltip, decodedValue, from, to);
         }
       }
 
-      return callParameterTooltip(callParameterNode, command, commandDictionary, from, to);
+      return callParameterTooltip(resources.createTooltip, callParameterNode, command, commandDictionary, from, to);
     }
 
     return null;
@@ -121,6 +127,7 @@ export function vmlTooltip(
 }
 
 function callParameterTooltip(
+  createTooltip: CreateTooltip,
   callParameterNode: SyntaxNode,
   command: FswCommand,
   commandDictionary: CommandDictionary | null,
@@ -142,56 +149,23 @@ function callParameterTooltip(
     return null;
   }
 
-  return argTooltip(arg, commandDictionary, from, to);
+  return argTooltip(createTooltip, arg, commandDictionary, from, to);
 }
 
-function strTooltip(message: string, from: number, to: number) {
-  return {
-    above: true,
-    create() {
-      const dom = document.createElement('div');
-      // SonarQube flags as useless, but Svelte component constructor has side-effects and instantiation is canonical
-      // new StringTooltip({
-      //   props: { message },
-      //   target: dom,
-      // }); // TODO re-enable
-      return { dom };
-    },
-    end: to,
-    pos: from,
-  };
+function strTooltip(createTooltip: CreateTooltip, message: string, from: number, to: number) {
+  return createTooltip([message], from, to);
 }
 
 function argTooltip(
+  createTooltip: CreateTooltip,
   arg: FswCommandArgument,
   commandDictionary: CommandDictionary | null,
   from: number,
   to: number,
 ): Tooltip {
-  return {
-    above: true,
-    create() {
-      const dom = document.createElement('div');
-      // new ArgumentTooltip({
-      //   props: { arg, commandDictionary },
-      //   target: dom,
-      // }); // TODO re-enable
-      return { dom };
-    },
-    end: to,
-    pos: from,
-  };
+  return createTooltip(buildAmpcsArgumentTooltip(arg, commandDictionary), from, to);
 }
 
-function cmdTooltip(command: FswCommand, from: number, to: number): Tooltip {
-  return {
-    above: true,
-    create() {
-      const dom = document.createElement('div');
-      // new CommandTooltip({ props: { command }, target: dom }); // TODO re-enable
-      return { dom };
-    },
-    end: to,
-    pos: from,
-  };
+function cmdTooltip(createTooltip: CreateTooltip, command: FswCommand, from: number, to: number): Tooltip {
+  return createTooltip(buildAmpcsCommandTooltip(command), from, to);
 }

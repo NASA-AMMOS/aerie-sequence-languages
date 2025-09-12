@@ -3,6 +3,7 @@ import type { ChannelDictionary, CommandDictionary, ParameterDictionary } from '
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
 import type { EditorView } from 'codemirror';
 import type { CommandInfoMapper } from './command-info-mapper';
+import type { Tooltip } from '@codemirror/view';
 
 export type UserSequence = {
   definition: string;
@@ -14,30 +15,53 @@ export type LibrarySequenceSignature = {
   parameters: VariableDeclaration[];
 };
 
-export type LibrarySequenceMap = { [sequenceName: string]: LibrarySequenceSignature }; // TODO drat, I forgot this depends on `LibrarySequenceSignature`...
+/**
+ * Static resources for adaptations to leverage core capabilities.
+ */
+export type CreateTooltip = (text: string[], from: number, to?: number) => Tooltip;
 
+export interface PhoenixResources {
+  createTooltip: CreateTooltip;
+}
+
+/**
+ * Dynamic context
+ * 
+ * TODO consider whether we can abstract all knowledge of library sequences out of the UI
+ * That would mean we could have library sequences accessible via PhoenixContext and let 
+ * the adaptation decide what to do. Right now, if we want dictionaries accessible to 
+ * `getLibrarySequences`, we create a circular dependency since the context contains the 
+ * library sequences.
+ */
 export interface PhoenixContext {
   commandDictionary: CommandDictionary | null;
   channelDictionary: ChannelDictionary | null;
   parameterDictionaries: ParameterDictionary[];
-  librarySequenceMap: LibrarySequenceMap;
+  librarySequences: LibrarySequenceSignature[];
 }
 
-export interface LanguageAdaptation {
+export interface BaseLanguage {
   name: string;
   fileExtension: string;
   editorExtension?: (context: PhoenixContext) => Extension;
+}
+
+export interface InputLanguage extends BaseLanguage {
   commandInfoMapper: CommandInfoMapper;
-  format?: (view: EditorView) => void;
+  format?: (view: EditorView, context: PhoenixContext) => void;
   getLibrarySequences?: (sequence: UserSequence) => LibrarySequenceSignature[];
 }
 
-export interface OutputLanguageAdaptation extends Omit<LanguageAdaptation, 'commandInfoMapper' | 'format'> {
+export interface OutputLanguage extends BaseLanguage {
   toOutputFormat: (input: string, context: PhoenixContext, name: string) => string;
   toInputFormat: (output: string, context: PhoenixContext, name: string) => string;
 }
 
-export interface NewAdaptationInterface {
-  input: LanguageAdaptation;
-  outputs: OutputLanguageAdaptation[];
+export interface PhoenixLanguages {
+  input: InputLanguage;
+  outputs: OutputLanguage[];
+}
+
+export interface PhoenixAdaptation {
+  getLanguages: (resources: PhoenixResources) => PhoenixLanguages;
 }
