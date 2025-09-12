@@ -12,7 +12,7 @@ import { removeEscapedQuotes, removeQuote, unquoteUnescape } from '../utils/stri
 import { SatfLanguage } from '../languages/satf/grammar/satf-sasf.js';
 import { SATF_SASF_NODES } from '../languages/satf/constants/satf-sasf-constants.js';
 import { ParsedSatf, ParsedSeqn, ParseSasf, Seqn } from '../languages/satf/types/types.js';
-import { SeqnParser } from '../languages/seq-n/seq-n.js';
+import { seqnParser } from '../languages/seq-n/seq-n.js';
 import { SEQN_NODES } from '../languages/seq-n/seqn-grammar-constants.js';
 import { parseVariables } from './seqnToSeqJson.js';
 /**
@@ -33,7 +33,7 @@ export async function seqnToSATF(
   globalVariables?: string[],
   commandDictionary?: CommandDictionary,
 ): Promise<ParsedSatf> {
-  const seqnTree = SeqnParser.parse(seqn);
+  const seqnTree = seqnParser.parse(seqn);
   const header = parseHeaderfromSeqn(seqnTree, seqn);
   const parameters = satfVariablesFromSeqn(seqnTree, seqn);
   const variables = satfVariablesFromSeqn(seqnTree, seqn, 'Variables');
@@ -71,7 +71,7 @@ export async function seqnToSASF(
   globalVariables?: string[],
   commandDictionary?: CommandDictionary,
 ): Promise<ParseSasf> {
-  const seqnTree = SeqnParser.parse(seqn);
+  const seqnTree = seqnParser.parse(seqn);
   const header = parseHeaderfromSeqn(seqnTree, seqn);
 
   // TODO: I don't think sasf have varaibles or parameters:

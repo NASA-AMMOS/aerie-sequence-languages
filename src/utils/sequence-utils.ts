@@ -19,7 +19,7 @@ import type {
   HwCommand,
 } from '@nasa-jpl/aerie-ampcs';
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
-import { CommandInfoMapper } from '../adaptation/interfaces/command-info-mapper.js';
+import { CommandInfoMapper } from '../interfaces/command-info-mapper.js';
 import { EditorView } from 'codemirror';
 
 /**

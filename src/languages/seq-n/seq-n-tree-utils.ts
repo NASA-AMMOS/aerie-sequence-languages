@@ -8,16 +8,16 @@ import type {
   FswCommandArgumentRepeat,
   ParameterDictionary,
 } from '@nasa-jpl/aerie-ampcs';
-import { SEQN_NODES } from '../../../languages/seq-n/seqn-grammar-constants.js';
-import { parseVariables } from '../../../converters/seqnToSeqJson.js';
+import { SEQN_NODES } from './seqn-grammar-constants.js';
+import { parseVariables } from '../../converters/seqnToSeqJson.js';
 import type { EditorView } from 'codemirror';
 import type { UserSequence, LibrarySequenceSignature } from '../../interfaces/phoenix.js';
 import type { ArgTextDef, TimeTagInfo } from '../../interfaces/command-info-mapper.js';
-import { fswCommandArgDefault, isFswCommandArgumentRepeat } from '../../../utils/sequence-utils.js';
-import { getFromAndTo, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
+import { fswCommandArgDefault, isFswCommandArgumentRepeat } from '../../utils/sequence-utils.js';
+import { getFromAndTo, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
 import type { CommandInfoMapper } from '../../interfaces/command-info-mapper.js';
 import { globals } from './global-types.js';
-import { SeqLanguage } from './seq-n.js';
+import { seqnLanguage } from './seq-n.js';
 import { TOKEN_ERROR } from './seq-n-constants.js';
 import { validateVariables } from './sequence-linter.js';
 
@@ -52,7 +52,7 @@ export function getAncestorStepOrRequest(node: SyntaxNode | null) {
 }
 
 export function userSequenceToLibrarySequence(sequence: UserSequence): LibrarySequenceSignature {
-  const tree = SeqLanguage.parser.parse(sequence.definition);
+  const tree = seqnLanguage.parser.parse(sequence.definition);
   return {
     name: sequence.name,
     parameters: parseVariables(tree.topNode, sequence.definition, SEQN_NODES.PARAMETER_DECLARATION) ?? [],

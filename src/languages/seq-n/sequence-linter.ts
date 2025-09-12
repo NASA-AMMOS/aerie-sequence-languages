@@ -13,7 +13,7 @@ import type {
 } from '@nasa-jpl/aerie-ampcs';
 import { closest, distance } from 'fastest-levenshtein';
 
-import { SEQN_NODES } from '../../../languages/seq-n/seqn-grammar-constants.js';
+import { SEQN_NODES } from './seqn-grammar-constants.js';
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
 import type { EditorView } from 'codemirror';
 import {
@@ -25,12 +25,12 @@ import {
   validateTime,
 } from '@nasa-jpl/aerie-time-utils';
 import { TOKEN_ERROR } from './seq-n-constants.js';
-import { addDefaultArgs, addDefaultVariableArgs, getAllEnumSymbols, isHexValue, parseNumericArg } from '../../../utils/sequence-utils.js';
-import { quoteEscape } from '../../../utils/string.js';
-import { getChildrenNode, getDeepestNode, getFromAndTo } from '../../../utils/tree-utils.js';
-import { pluralize } from '../../../utils/text.js';
+import { addDefaultArgs, addDefaultVariableArgs, getAllEnumSymbols, isHexValue, parseNumericArg } from '../../utils/sequence-utils.js';
+import { quoteEscape } from '../../utils/string.js';
+import { getChildrenNode, getDeepestNode, getFromAndTo } from '../../utils/tree-utils.js';
+import { pluralize } from '../../utils/text.js';
 import { getBalancedDuration } from '@nasa-jpl/aerie-time-utils';
-import { getDoyTime } from '../../../utils/time.js';
+import { getDoyTime } from '../../utils/time.js';
 import type { LibrarySequenceSignature } from '../../interfaces/phoenix.js';
 import { closeSuggestion, computeBlocks, openSuggestion } from './custom-folder';
 import type { GlobalType } from './global-types';

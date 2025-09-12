@@ -1,7 +1,7 @@
 import type { SyntaxNode } from '@lezer/common';
 import type { FswCommandArgumentInteger } from '@nasa-jpl/aerie-ampcs';
 import { assert, describe, expect, it } from 'vitest';
-import { filterNodes, nodeContents } from '../../../utils/tree-utils.js';
+import { filterNodes, nodeContents } from '../../utils/tree-utils.js';
 import { VmlLanguage } from './vml.js';
 import { vmlBlockLibraryToCommandDictionary } from './vml-block-library.js';
 import {
@@ -29,7 +29,7 @@ import {
   TOKEN_MODULE,
   TOKEN_SYMBOL_CONST,
   TOKEN_TIME_CONST,
-} from '../../../languages/vml/vml-constants.js';
+} from './vml-constants.js';
 
 // In versions of VML prior to 2.1, explicit time tags were required on every statement
 // confirm what version we're using

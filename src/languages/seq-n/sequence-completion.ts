@@ -1,14 +1,14 @@
 import type { Completion, CompletionContext, CompletionResult } from '@codemirror/autocomplete';
 import { syntaxTree } from '@codemirror/language';
 import type { ChannelDictionary, CommandDictionary, ParameterDictionary } from '@nasa-jpl/aerie-ampcs';
-import { SEQN_NODES } from '../../../languages/seq-n/seqn-grammar-constants.js';
-import { fswCommandArgDefault } from '../../../utils/sequence-utils.js';
-import { getDefaultVariableArgs } from '../../../utils/sequence-utils.js';
-import { getFromAndTo, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
-import { getDoyTime } from '../../../utils/time.js';
+import { SEQN_NODES } from './seqn-grammar-constants.js';
+import { fswCommandArgDefault } from '../../utils/sequence-utils.js';
+import { getDefaultVariableArgs } from '../../utils/sequence-utils.js';
+import { getFromAndTo, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
+import { getDoyTime } from '../../utils/time.js';
 import type { LibrarySequenceSignature } from '../../interfaces/phoenix.js';
 import type { GlobalType } from './global-types';
-import { SeqLanguage } from './seq-n.js';
+import { seqnLanguage } from './seq-n.js';
 
 type CursorInfo = {
   isAfterActivateOrLoad: boolean;
@@ -61,7 +61,7 @@ export function sequenceCompletion(
           nodeBefore.parent?.name === SEQN_NODES.ACTIVATE || nodeBefore.parent?.name === SEQN_NODES.LOAD,
         isAfterTimeTag: (() => {
           const line = context.state.doc.lineAt(context.pos);
-          const node = SeqLanguage.parser.parse(line.text).resolveInner(context.pos - line.from, -1);
+          const node = seqnLanguage.parser.parse(line.text).resolveInner(context.pos - line.from, -1);
 
           return node.parent?.getChild('TimeGroundEpoch') || node.parent?.getChild('TimeTag') ? true : false;
         })(),

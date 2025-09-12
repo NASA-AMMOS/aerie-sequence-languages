@@ -1,8 +1,8 @@
 import { CompletionContext, completeFromList, type CompletionResult } from '@codemirror/autocomplete';
 import { LRLanguage, LanguageSupport } from '@codemirror/language';
 import { parseMixed } from '@lezer/common';
-import { handlebarsLanguage } from '../handlebars/handlebars';
-import { SeqLanguage } from '../seq-n/seq-n.js';
+import { handlebarsLanguage } from '../handlebars/handlebars.js';
+import { seqnLanguage } from '../seq-n/seq-n.js';
 
 export const HandlebarsOverSeqLanguage = LRLanguage.define({
   languageData: {
@@ -13,7 +13,7 @@ export const HandlebarsOverSeqLanguage = LRLanguage.define({
       return node.type.isTop
         ? {
             overlay: node => node.type.name === 'Text',
-            parser: SeqLanguage.parser, // TODO: We need to get the correct parser from the sequence adaptation somehow...
+            parser: seqnLanguage.parser, // TODO: We need to get the correct parser from the sequence adaptation somehow...
           }
         : null;
     }),
@@ -33,7 +33,7 @@ const handlebarsCompletions = [
 export function setupLanguageSupport(autocomplete?: (context: CompletionContext) => CompletionResult | null) {
   if (autocomplete) {
     return new LanguageSupport(HandlebarsOverSeqLanguage, [
-      SeqLanguage.data.of({ autocomplete }),
+      seqnLanguage.data.of({ autocomplete }),
       handlebarsLanguage.extension,
       HandlebarsOverSeqLanguage.data.of({ autocomplete: completeFromList(handlebarsCompletions) }),
     ]);

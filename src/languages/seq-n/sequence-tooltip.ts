@@ -7,10 +7,10 @@ import type {
   FswCommand,
   HwCommand,
 } from '@nasa-jpl/aerie-ampcs';
-import { SEQN_NODES } from '../../../languages/seq-n/seqn-grammar-constants.js';
-import { isFswCommandArgumentRepeat } from '../../../utils/sequence-utils.js';
-import { PhoenixResources } from 'adaptation/interfaces/phoenix.js';
-import { buildAmpcsArgumentTooltip, buildAmpcsCommandTooltip } from '../../../utils/editor-utils.js';
+import { SEQN_NODES } from './seqn-grammar-constants.js';
+import { isFswCommandArgumentRepeat } from '../../utils/sequence-utils.js';
+import { PhoenixResources } from 'interfaces/phoenix.js';
+import { buildAmpcsArgumentTooltip, buildAmpcsCommandTooltip } from '../../utils/editor-utils.js';
 
 /**
  * Searches up through a node's ancestors to find a node by the given name.

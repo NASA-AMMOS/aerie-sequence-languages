@@ -1,9 +1,9 @@
 import { syntaxTree } from '@codemirror/language';
 import { Decoration, ViewPlugin, type DecorationSet, type ViewUpdate } from '@codemirror/view';
 import type { SyntaxNode } from '@lezer/common';
-import { SEQN_NODES } from '../../../languages/seq-n/seqn-grammar-constants.js';
-import { blockMark } from '../../../themes/block.js';
-import { getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
+import { SEQN_NODES } from './seqn-grammar-constants.js';
+import { blockMark } from '../../themes/block.js';
+import { getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
 import { computeBlocks, isBlockCommand } from './custom-folder.js';
 
 export const seqNBlockHighlighter = ViewPlugin.fromClass(

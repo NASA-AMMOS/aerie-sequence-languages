@@ -12,9 +12,9 @@ import type { EditorView } from 'codemirror';
 // import ArgumentTooltip from '../../../components/sequencing/ArgumentTooltip.svelte'; // TODO get via dependency injection
 // import CommandTooltip from '../../../components/sequencing/CommandTooltip.svelte'; // TODO get via dependency injection
 // import StringTooltip from '../../../components/sequencing/StringTooltip.svelte'; // TODO get via dependency injection
-import { decodeInt32Array } from '../../../utils/sequence-utils.js';
-import { unquoteUnescape } from '../../../utils/string.js';
-import { checkContainment, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
+import { decodeInt32Array } from '../../utils/sequence-utils.js';
+import { unquoteUnescape } from '../../utils/string.js';
+import { checkContainment, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
 import type {
   CreateTooltip,
   LibrarySequenceSignature,
@@ -37,7 +37,7 @@ import {
   RULE_VM_MANAGEMENT,
   TOKEN_HEX_CONST,
   TOKEN_INT_CONST,
-} from '../../../languages/vml/vml-constants.js';
+} from './vml-constants.js';
 import { getVmlNameNode } from './vml-tree-utils.js';
 import { buildAmpcsArgumentTooltip, buildAmpcsCommandTooltip } from 'utils/editor-utils.js';
 

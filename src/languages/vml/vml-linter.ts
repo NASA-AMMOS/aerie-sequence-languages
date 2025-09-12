@@ -5,8 +5,8 @@ import type { SyntaxNode, Tree } from '@lezer/common';
 import type { CommandDictionary, FswCommand, FswCommandArgument } from '@nasa-jpl/aerie-ampcs';
 import type { EditorView } from 'codemirror';
 import { closest } from 'fastest-levenshtein';
-import { quoteEscape, unquoteUnescape } from '../../../utils/string.js';
-import { filterNodes, getNearestAncestorNodeOfType } from '../../../utils/tree-utils.js';
+import { quoteEscape, unquoteUnescape } from '../../utils/string.js';
+import { filterNodes, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
 import type { GlobalType } from '../seq-n/global-types.js';
 import { VmlLanguage } from './vml.js';
 import {
@@ -26,7 +26,7 @@ import {
   TOKEN_INT_CONST,
   TOKEN_STRING_CONST,
   TOKEN_UINT_CONST,
-} from '../../../languages/vml/vml-constants.js';
+} from './vml-constants.js';
 import { getVmlVariables } from './vml-tree-utils.js';
 import { LibrarySequenceMap } from './vml-types.js';
 

@@ -1,5 +1,5 @@
 import { EditorState } from '@codemirror/state';
-import { SeqnParser } from '../../../languages/seq-n/seq-n.js';
+import { SeqnParser } from './seq-n.js';
 import { describe, expect, test } from 'vitest';
 import { foldRequest, foldSteps, foldVariables } from './custom-folder.js';
 
