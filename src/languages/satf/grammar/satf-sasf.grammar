@@ -128,7 +128,7 @@
           Stem{number? identifier}
           parentheses<
             Args<
-              String | Number | Bool | Enum | Global | Arithmetical
+              String | Number | Bool | Enum | Arithmetical
             >?
           >?
         >?
@@ -147,7 +147,7 @@
           Stem{"\""identifier"\""}
           parentheses<
             Args<
-              String | Number| Bool | Enum | Global | Expression | Arithmetical
+              String | Number| Bool | Enum | Expression | Arithmetical
             >?
           >?
         >?
@@ -210,7 +210,7 @@
         definition<Variable{identifier}>
         definitionValue<
           Args<
-            String | Number | Bool | Enum | Global | Expression | Arithmetical
+            String | Number | Bool | Enum | Expression | Arithmetical
           >
         >
       }
@@ -227,7 +227,7 @@
           Stem{identifier}
           parentheses<
             Args<
-              String | Number | Bool | Enum | Global | Arithmetical
+              String | Number | Bool | Enum | Arithmetical
             >?
           >?
         >?
@@ -251,10 +251,10 @@
   parentheses<expression> { "(" newLine? expression (~newLine)? (")" | "),")}
   StepLabel { singleDigit+ ("."singleDigit+)? }
   StartTime { definition<startTime> definition<Time{requestTime}> definition<TimeRelation{identifier}>?}
-  ScheduledTime { definition<"SCHEDULED_TIME"> (definitionValue<Time{anyASCII+}> | definition<Time{test}>) TimeRelation{identifier} newLine? ","? newLine? }
+  ScheduledTime { definition<"SCHEDULED_TIME"> (definitionValue<Time{anyASCII+}> | definition<Time{basicTime}>) TimeRelation{identifier} newLine? ","? newLine? }
   InclusionCondition {anyASCII+}
   AssumedModelValues{  Model (","Model)* (","Duration{modelDuration})* }
-  Model { (Key | Global)"="Value{modelValue+} }
+  Model { (Key)"="Value{modelValue+} }
   Draw { "VERTICAL" | "HORIZONTAL" | "HATCHED" | "STANDARD" | "DIAGONAL" }
   Comment { (anyASCII | newLine)+ }
   Ntext { (anyASCII | newLine)+ }
@@ -309,8 +309,8 @@
   @tokens {
 
     headerMarker { (@asciiLetter|@digit)*"$$MARK$$"(@asciiLetter|@digit)*";"}
-    identifier { (@asciiLetter | @digit) (@asciiLetter| @digit | "_" | "-")* }
-    test { (@digit) (@digit | ":")* }
+    identifier { (@asciiLetter | @digit) (@asciiLetter| @digit | "_" | "-" | "::")* }
+    basicTime { (@digit) (@digit | ":")* }
     string { '"' (!["\\] | "\\" _)* '"' }
 
     hex { @digit | $[A-F] }
@@ -366,7 +366,6 @@
     seqTranDirective{"SEQTRAN_directive"}
     seqend { "SEQEND" }
     assumeModel {"ASSUMED_MODEL_VALUES"}
-    Global { ("GLOBAL::" | "global::") identifier}
     count { "COUNT" }
     command { "command" }
     commandDynamic {"Command_dynamic"}
@@ -412,7 +411,6 @@
       seqTranDirective,
       assumeModel,
       modelDuration,
-      Global,
       count,
       processors,
       command,
@@ -425,7 +423,6 @@
       anyASCII,
       number,
       Bool,
-      // headerValue,
       startTime,
       requestor,
       processor,

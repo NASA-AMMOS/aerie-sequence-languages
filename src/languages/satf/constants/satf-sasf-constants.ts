@@ -54,7 +54,6 @@ export const STRING = 'String';
 export const NUMBER = 'Number';
 export const BOOLEAN = 'Bool';
 export const ENUM = 'Enum';
-export const GLOBAL = 'Global';
 export const EXPRESSION = 'Expression';
 export const ARITHMETICAL = 'Arithmetical';
 export const MODEL = 'Model';
@@ -127,7 +126,6 @@ export const SATF_SASF_NODES = {
   NUMBER,
   BOOLEAN,
   ENUM,
-  GLOBAL,
   EXPRESSION,
   ARITHMETICAL,
   MODEL,

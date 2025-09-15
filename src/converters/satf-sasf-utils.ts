@@ -254,7 +254,7 @@ function parseSeqNTime(
   const tag = '00:00:00';
   const timeTagNode = commandNode.getChild('TimeTag');
   if (timeTagNode === null) {
-    return { tag: '00:00:00', type: 'UNKNOWN' };
+    return { tag, type: 'UNKNOWN' };
   }
 
   const time = timeTagNode.firstChild;
@@ -332,7 +332,7 @@ function parseSeqNArgs(
   stem: string,
 ): {
   name?: string;
-  type: 'boolean' | 'enum' | 'number' | 'string' | 'global';
+  type: 'boolean' | 'enum' | 'number' | 'string';
   value: boolean | string;
 }[] {
   const args = [];
@@ -363,7 +363,7 @@ function parseSeqNArg(
 ):
   | {
       name?: string | undefined;
-      type: 'boolean' | 'enum' | 'number' | 'string' | 'global';
+      type: 'boolean' | 'enum' | 'number' | 'string';
       value: boolean | string;
     }
   | undefined {
@@ -389,13 +389,6 @@ function parseSeqNArg(
       return {
         name: dictionaryArg ? dictionaryArg.name : undefined,
         type: 'enum' as const,
-        value: nodeValue,
-      };
-    }
-    case SEQN_NODES.GLOBAL: {
-      return {
-        name: dictionaryArg ? dictionaryArg.name : undefined,
-        type: 'global' as const,
         value: nodeValue,
       };
     }
@@ -881,7 +874,7 @@ function parseTimeTagNode(timeValueNode: SyntaxNode | null, timeTagNode: SyntaxN
   if (timeValueNode && !timeTagNode) {
     return `A${text.slice(timeValueNode.from, timeValueNode.to)} `;
   } else if (!timeValueNode || !timeTagNode) {
-    return `R00:00:00`;
+    throw new Error(`Invalid time found in SATF/SASF. Aborting Seqn conversion...`);
   }
 
   const time = text.slice(timeValueNode.from, timeValueNode.to);
@@ -901,7 +894,7 @@ function parseTimeTagNode(timeValueNode: SyntaxNode | null, timeTagNode: SyntaxN
     case 'GROUND_EPOCH':
       return `G${time} `;
     default:
-      return 'error';
+      throw new Error(`Invalid Time Tag '${timeTag.trim()}' found in SATF/SASF. Aborting Seqn conversion...`);
   }
 }
 
@@ -950,7 +943,6 @@ function parseArgNode(argNode: SyntaxNode, text: string): string {
     case SATF_SASF_NODES.NUMBER:
     case SATF_SASF_NODES.BOOLEAN:
     case SATF_SASF_NODES.ENUM:
-    case SATF_SASF_NODES.GLOBAL:
       return `${argValue}`;
     case SATF_SASF_NODES.ARITHMETICAL:
       return `(${argValue})`;
@@ -1030,15 +1022,32 @@ function parseModel(modelNode: SyntaxNode | null, text: string): string {
   }
   const modelsNode = modelNode.getChildren(SATF_SASF_NODES.MODEL);
   const durationNodes = modelNode.getChildren(SATF_SASF_NODES.MODEL_DURATION);
+
+  //Talking with Shaheer and Carter here is the mismatch logic between models and duraiton if any
+  // 1. No duration present, apply 00:00:00 across all modeling variables
+  // 2. multiple model variables but only 1 duration -> apply the 1 duration across all variabels
+  // 3. 2 or more model variables and a mismatch of duration -> throw an error
+
+  if (
+    modelsNode.length != durationNodes.length &&
+    ((modelsNode.length > 2 && durationNodes.length > 1) || modelsNode.length < durationNodes.length)
+  ) {
+    throw new Error(`Mismatch of models to durations`);
+  }
+
+  let durationTime = '"00:00:00"';
   return modelsNode
-    .map((model, index) => {
-      const keyNode = model.getChild(SATF_SASF_NODES.KEY) || model.getChild(SATF_SASF_NODES.GLOBAL);
+    .map(model => {
+      const keyNode = model.getChild(SATF_SASF_NODES.KEY);
       const valueNode = model.getChild(SATF_SASF_NODES.VALUE);
-      const durationNode = index < durationNodes.length ? durationNodes[index] : null;
+      if (modelsNode.length != 0 && durationNodes.length == 1) {
+        durationTime = `"${text.slice(durationNodes[0].from, durationNodes[0].to)}"`;
+      }
+
       if (!keyNode || !valueNode) {
         return null;
       }
-      return `@MODEL "${text.slice(keyNode.from, keyNode.to)}" ${text.slice(valueNode.from, valueNode.to)} ${durationNode ? `"${text.slice(durationNode.from, durationNode.to)}"` : '"00:00:00"'}`;
+      return `@MODEL "${text.slice(keyNode.from, keyNode.to)}" ${text.slice(valueNode.from, valueNode.to)} ${durationTime}`;
     })
     .filter(model => model !== null)
     .join('\n');

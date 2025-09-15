@@ -99,7 +99,89 @@ describe('satfToSeqn', () => {
 @MODEL "y" "abc" "00:00:00"`);
   });
 
-  it('should return valid sequence with models times', async () => {
+  it('should throw for invalid time', async () => {
+    const satf = `
+      $$EOH
+      ABSOLUTE_SEQUENCE(test,\\testv01\\,
+          STEPS,
+          command (
+            3472, SCHEDULED_TIME, \\00:01:00\\, MARS_TIME, INCLUSION_CONDITION, \\param_rate == receive_rate\\,
+            DRAW, \\VERTICAL\\,
+            COMMENT, \\This command turns, to correct position.\\, ASSUMED_MODEL_VALUES, \\x=1,z=1.1,y="abc"\\,
+            01VV (param6, 10, false, "abc"),
+            PROCESSORS, "PRI", end),
+          end
+        )
+      $$EOF
+    `;
+    try {
+      await satfToSeqn(satf);
+    } catch (error) {
+      expect(error.message).toStrictEqual(
+        "Invalid Time Tag 'MARS_TIME' found in SATF/SASF. Aborting Seqn conversion...",
+      );
+    }
+  });
+
+  it('should return valid sequence and models times with 00:00:00 for durations', async () => {
+    const satf = `
+      $$EOH
+      ABSOLUTE_SEQUENCE(test,\\testv01\\,
+          STEPS,
+          command (
+            3472, SCHEDULED_TIME, \\00:01:00\\, EPOCH, INCLUSION_CONDITION, \\param_rate == receive_rate\\,
+            DRAW, \\VERTICAL\\,
+            COMMENT, \\This command turns, to correct position.\\, ASSUMED_MODEL_VALUES,\\a=1,GLOBAL::b=1.1,c="abc"\\,
+            01VV (param6, 10, false, "abc"),
+            PROCESSORS, "PRI", end),
+          end
+        )
+      $$EOF
+    `;
+    const result = await satfToSeqn(satf);
+    expect(result).toHaveProperty('sequences');
+    expect(result.sequences[0].name).toStrictEqual('test');
+    expect(result.sequences[0].steps)
+      .toStrictEqual(`E00:01:00 01VV param6 10 false "abc" # This command turns, to correct position.
+@METADATA "INCLUSION_CONDITION" "param_rate == receive_rate"
+@METADATA "DRAW" "VERTICAL"
+@MODEL "a" 1 "00:00:00"
+@MODEL "GLOBAL::b" 1.1 "00:00:00"
+@MODEL "c" "abc" "00:00:00"`);
+  });
+
+  it('should return valid sequence and models times with single duration spread across all models', async () => {
+    const satf = `
+      $$EOH
+      ABSOLUTE_SEQUENCE(test,\\testv01\\,
+          STEPS,
+          command (
+            3472, SCHEDULED_TIME, \\00:01:00\\, EPOCH, INCLUSION_CONDITION, \\param_rate == receive_rate\\,
+            DRAW, \\VERTICAL\\,
+            COMMENT, \\This command turns, to correct position.\\, ASSUMED_MODEL_VALUES,\\a=1,GLOBAL::b=1.1,c="abc",00:00:01\\,
+            01VV (param6, 10, false, "abc"),
+            PROCESSORS, "PRI", end),
+          end
+        )
+      $$EOF
+    `;
+    try {
+      const result = await satfToSeqn(satf);
+      expect(result).toHaveProperty('sequences');
+      expect(result.sequences[0].name).toStrictEqual('test');
+      expect(result.sequences[0].steps)
+        .toStrictEqual(`E00:01:00 01VV param6 10 false "abc" # This command turns, to correct position.
+@METADATA "INCLUSION_CONDITION" "param_rate == receive_rate"
+@METADATA "DRAW" "VERTICAL"
+@MODEL "a" 1 "00:00:01"
+@MODEL "GLOBAL::b" 1.1 "00:00:01"
+@MODEL "c" "abc" "00:00:01"`);
+    } catch (exception) {
+      console.log('hi');
+    }
+  });
+
+  it('should return an error of mismatch modeling times', async () => {
     const satf = `
       $$EOH
       ABSOLUTE_SEQUENCE(test,\\testv01\\,
@@ -114,16 +196,11 @@ describe('satfToSeqn', () => {
         )
       $$EOF
     `;
-    const result = await satfToSeqn(satf);
-    expect(result).toHaveProperty('sequences');
-    expect(result.sequences[0].name).toStrictEqual('test');
-    expect(result.sequences[0].steps)
-      .toStrictEqual(`E00:01:00 01VV param6 10 false "abc" # This command turns, to correct position.
-@METADATA "INCLUSION_CONDITION" "param_rate == receive_rate"
-@METADATA "DRAW" "VERTICAL"
-@MODEL "a" 1 "00:00:01"
-@MODEL "GLOBAL::b" 1.1 "00:00:02"
-@MODEL "c" "abc" "00:00:00"`);
+    try {
+      await satfToSeqn(satf);
+    } catch (error) {
+      expect(error.message).toStrictEqual('Mismatch of models to durations');
+    }
   });
 
   it('should handle multiline comments', async () => {

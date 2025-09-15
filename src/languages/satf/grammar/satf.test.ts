@@ -512,7 +512,7 @@ const tests = [
                 ),
                 AssumedModelValues(
                   Model(Key,Value),
-                  Model(Global,Value)),
+                  Model(Key,Value)),
                 Stem,
                 Args(
                   String
@@ -855,7 +855,7 @@ const tests = [
           Steps(
             Note(StepLabel,ScheduledTime(Time,TimeRelation),Stem,Args(Expression)),
             Note(StepLabel,ScheduledTime(Time,TimeRelation),Stem,Args(Expression)),
-            Command(StepLabel,ScheduledTime(Time,TimeRelation),Stem,Args(Global, Bool,String,Enum, Number,Arithmetical))
+            Command(StepLabel,ScheduledTime(Time,TimeRelation),Stem,Args(Enum, Bool,String,Enum, Number,Arithmetical))
     ))))))`,
   ],
   [
