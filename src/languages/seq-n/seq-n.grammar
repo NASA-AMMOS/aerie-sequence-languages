@@ -80,7 +80,7 @@ RepeatArg {
   "[" (whiteSpace? arg)* whiteSpace? "]"
 }
 
-arg[@isGroup=Arguments] { Number | String | Boolean | Enum | Global | RepeatArg }
+arg[@isGroup=Arguments] { Number | String | Boolean | Enum | RepeatArg }
 
 Command {
   TimeTag?
@@ -170,14 +170,12 @@ Models {
   }+
 }
 
-Global { identifier "::" identifier }
-
 Enum { identifier }
 
 Stem { !stemStart identifier }
 
 @tokens {
-  identifier { @asciiLetter (@asciiLetter| @digit | "_" | "-")* }
+  identifier { @asciiLetter (@asciiLetter| @digit | "_" | "-" | "::")* }
 
   timeHhmmss { @digit@digit":"@digit@digit":"@digit@digit("."@digit+)? }
 
