@@ -99,7 +99,7 @@ describe('satfToSeqn', () => {
 @MODEL "y" "abc" "00:00:00"`);
   });
 
-  it('should throw for invalid time', async () => {
+  it('should throw for invalid time tag', async () => {
     const satf = `
       $$EOH
       ABSOLUTE_SEQUENCE(test,\\testv01\\,
@@ -118,8 +118,30 @@ describe('satfToSeqn', () => {
       await satfToSeqn(satf);
     } catch (error) {
       expect(error.message).toStrictEqual(
-        "Invalid Time Tag 'MARS_TIME' found in SATF/SASF. Aborting Seqn conversion...",
+        "Invalid Time Tag 'MARS_TIME' found in SATF/SASF. Aborting SATF/SASF -> Seqn conversion...",
       );
+    }
+  });
+
+  it('should throw for no time', async () => {
+    const satf = `
+      $$EOH
+      ABSOLUTE_SEQUENCE(test,\\testv01\\,
+          STEPS,
+          command (
+            3472, SCHEDULED_TIME, EPOCH, INCLUSION_CONDITION, \\param_rate == receive_rate\\,
+            DRAW, \\VERTICAL\\,
+            COMMENT, \\This command turns, to correct position.\\, ASSUMED_MODEL_VALUES, \\x=1,z=1.1,y="abc"\\,
+            01VV (param6, 10, false, "abc"),
+            PROCESSORS, "PRI", end),
+          end
+        )
+      $$EOF
+    `;
+    try {
+      await satfToSeqn(satf);
+    } catch (error) {
+      expect(error.message).toStrictEqual('No time found in SATF/SASF. Aborting SATF/SASF -> Seqn conversion...');
     }
   });
 
@@ -850,6 +872,39 @@ end`);
 		NO_OP()
 	),
 end`);
+  });
+
+  it('Throw error for no time found', async () => {
+    try {
+      const result = await seqnToSATF(`
+    CMD true 1.45`);
+    } catch (error) {
+      expect(error.message).toStrictEqual(
+        'No time found for command CMD true 1.45. Aborting Seqn -> SATF/SASF conversion...',
+      );
+    }
+  });
+
+  it('Throw error for invalid time found', async () => {
+    try {
+      const result = await seqnToSATF(`
+    R0:1:0 CMD true 1.45`);
+    } catch (error) {
+      expect(error.message).toStrictEqual(
+        'No time found for command R0:1:0 CMD true 1.45. Aborting Seqn -> SATF/SASF conversion...',
+      );
+    }
+  });
+
+  it('Throw error for invalid time tag found', async () => {
+    try {
+      const result = await seqnToSATF(`
+    Z00:00:00 CMD true 1.45`);
+    } catch (error) {
+      expect(error.message).toStrictEqual(
+        'No time found for command Z00:00:00 CMD true 1.45. Aborting Seqn -> SATF/SASF conversion...',
+      );
+    }
   });
 
   it('should round trip a satf', async () => {

@@ -251,15 +251,19 @@ function parseSeqNTime(
     | 'GROUND_EPOCH'
     | 'FROM_REQUEST_START';
 } {
-  const tag = '00:00:00';
+  const tag = '00:00:00'; // need this for command completes as their start time in satf is 00:00:00
   const timeTagNode = commandNode.getChild('TimeTag');
   if (timeTagNode === null) {
-    return { tag, type: 'UNKNOWN' };
+    throw new Error(
+      `No time found for command ${sequence.slice(commandNode.from, commandNode.to).trim()}. Aborting Seqn -> SATF/SASF conversion...`,
+    );
   }
 
   const time = timeTagNode.firstChild;
   if (time === null) {
-    return { tag, type: 'UNKNOWN' };
+    throw new Error(
+      `Invalid time found for command ${sequence.slice(commandNode.from, commandNode.to).trim()}. Aborting Seqn -> SATF/SASF conversion...`,
+    );
   }
 
   const timeValue = sequence.slice(time.from + 1, time.to).trim();
@@ -311,7 +315,9 @@ function parseSeqNTime(
       return { tag: balancedTime, type };
     }
   }
-  return { tag, type: 'UNKNOWN' };
+  throw new Error(
+    `Invalid time tag found for command ${sequence.slice(commandNode.from, commandNode.to).trim()}. Aborting Seqn -> SATF/SASF conversion...`,
+  );
 }
 
 function parseSeqNDescription(node: SyntaxNode, text: string): string | undefined {
@@ -874,7 +880,7 @@ function parseTimeTagNode(timeValueNode: SyntaxNode | null, timeTagNode: SyntaxN
   if (timeValueNode && !timeTagNode) {
     return `A${text.slice(timeValueNode.from, timeValueNode.to)} `;
   } else if (!timeValueNode || !timeTagNode) {
-    throw new Error(`Invalid time found in SATF/SASF. Aborting Seqn conversion...`);
+    throw new Error(`No time found in SATF/SASF. Aborting SATF/SASF -> Seqn conversion...`);
   }
 
   const time = text.slice(timeValueNode.from, timeValueNode.to);
@@ -894,7 +900,9 @@ function parseTimeTagNode(timeValueNode: SyntaxNode | null, timeTagNode: SyntaxN
     case 'GROUND_EPOCH':
       return `G${time} `;
     default:
-      throw new Error(`Invalid Time Tag '${timeTag.trim()}' found in SATF/SASF. Aborting Seqn conversion...`);
+      throw new Error(
+        `Invalid Time Tag '${timeTag.trim()}' found in SATF/SASF. Aborting SATF/SASF -> Seqn conversion...`,
+      );
   }
 }
 
