@@ -225,6 +225,53 @@ describe('satfToSeqn', () => {
     }
   });
 
+  it('should return valid sequence and model times with one duration per variable with two variables', async () => {
+    const satf = `
+      $$EOH
+      ABSOLUTE_SEQUENCE(test,\\testv01\\,
+          STEPS,
+          command (
+            0, SCHEDULED_TIME, \\00:01:00\\, EPOCH, 
+            ASSUMED_MODEL_VALUES,\\a=1,GLOBAL::b=1.1,00:00:01,00:00:02\\,
+            CMD (),
+            PROCESSORS, "PRI", end),
+          end
+        )
+      $$EOF
+    `;
+      const result = await satfToSeqn(satf);
+      expect(result).toHaveProperty('sequences');
+      expect(result.sequences[0].name).toStrictEqual('test');
+      expect(result.sequences[0].steps)
+        .toStrictEqual(`E00:01:00 CMD
+@MODEL "a" 1 "00:00:01"
+@MODEL "GLOBAL::b" 1.1 "00:00:02"`);
+  });
+
+  it('should return valid sequence and model times with one duration per variable with three variables', async () => {
+    const satf = `
+      $$EOH
+      ABSOLUTE_SEQUENCE(test,\\testv01\\,
+          STEPS,
+          command (
+            0, SCHEDULED_TIME, \\00:01:00\\, EPOCH, 
+            ASSUMED_MODEL_VALUES,\\a=1,GLOBAL::b=1.1,c="abc",00:00:01,00:00:02,00:00:03\\,
+            CMD (),
+            PROCESSORS, "PRI", end),
+          end
+        )
+      $$EOF
+    `;
+      const result = await satfToSeqn(satf);
+      expect(result).toHaveProperty('sequences');
+      expect(result.sequences[0].name).toStrictEqual('test');
+      expect(result.sequences[0].steps)
+        .toStrictEqual(`E00:01:00 CMD
+@MODEL "a" 1 "00:00:01"
+@MODEL "GLOBAL::b" 1.1 "00:00:02"
+@MODEL "c" "abc" "00:00:03"`);
+  });
+
   it('should handle multiline comments', async () => {
     const satf = `
     $$EOH
