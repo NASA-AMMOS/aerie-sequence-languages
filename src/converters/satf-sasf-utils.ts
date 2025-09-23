@@ -1031,10 +1031,11 @@ function parseModel(modelNode: SyntaxNode | null, text: string): string {
   const modelsNode = modelNode.getChildren(SATF_SASF_NODES.MODEL);
   const durationNodes = modelNode.getChildren(SATF_SASF_NODES.MODEL_DURATION);
 
-  //Talking with Shaheer and Carter here is the mismatch logic between models and duraiton if any
-  // 1. No duration present, apply 00:00:00 across all modeling variables
-  // 2. multiple model variables but only 1 duration -> apply the 1 duration across all variabels
-  // 3. 2 or more model variables and a mismatch of duration -> throw an error
+  // Talking with Shaheer and Carter here is the mismatch logic between models and duration
+  // 1. No duration present -> apply 00:00:00 across all modeling variables
+  // 2. Multiple model variables but only 1 duration -> apply the 1 duration across all variables
+  // 3. Matching number of model variables and durations -> apply each duration to its corresponding variable
+  // 4. Mis-matched number of models/durations not covered by cases 1 or 2 -> throw error
 
   if (
     modelsNode.length != durationNodes.length &&
