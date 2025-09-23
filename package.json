@@ -65,6 +65,7 @@
   },
   "dependencies": {
     "@codemirror/language": "^6.11.0",
+    "@codemirror/view": "^6.38.2",
     "@lezer/common": "^1.2.3",
     "@lezer/lr": "^1.4.2",
     "@nasa-jpl/aerie-ampcs": "^1.0.6",

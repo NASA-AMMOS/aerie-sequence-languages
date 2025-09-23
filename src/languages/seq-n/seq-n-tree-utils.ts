@@ -171,6 +171,18 @@ export class SeqNCommandInfoMapper implements CommandInfoMapper {
           argDef = argumentDefs[argDefIndex];
         }
 
+        // TODO apply `getCustomArgDef` to `argDef`
+        // if (commandDef && argDef) {
+        //   argDef = getCustomArgDef(
+        //     commandDef?.stem,
+        //     argDef,
+        //     precedingArgValues,
+        //     parameterDictionaries,
+        //     channelDictionary,
+        //     sequenceAdaptation,
+        //   );
+        // }
+
         let children: ArgTextDef[] | undefined = undefined;
         if (!!argDef && isFswCommandArgumentRepeat(argDef)) {
           children = this.getArgumentInfo(

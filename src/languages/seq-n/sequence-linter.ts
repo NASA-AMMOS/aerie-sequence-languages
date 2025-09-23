@@ -1348,6 +1348,8 @@ function validateArgument(
   channelDictionary: ChannelDictionary | null,
   parameterDictionaries: ParameterDictionary[],
 ): Diagnostic[] {
+  // TODO apply getCustomArgDef to `dictArg`
+
   const diagnostics: Diagnostic[] = [];
 
   const dictArgType = dictArg.arg_type;

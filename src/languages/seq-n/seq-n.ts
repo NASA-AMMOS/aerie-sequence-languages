@@ -6,6 +6,7 @@ import { customFoldInside } from './custom-folder.js';
 
 export const seqnParser = parser;
 
+// TODO re-name this to something other than seqnLanguage to not conflict with naming convention for the Phoenix language specs
 export const seqnLanguage = LRLanguage.define({
   languageData: {
     commentTokens: { line: '#' },

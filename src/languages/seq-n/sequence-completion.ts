@@ -356,6 +356,7 @@ function generateCommandCompletions(
     if (args.length) {
       const argDefaults: string[] = [];
       args.forEach(arg => {
+        // TODO apply `getCustomArgDef` to `arg`
         argDefaults.push(fswCommandArgDefault(arg, commandDictionary.enumMap));
       });
       const argsStr = argDefaults.join(' ');

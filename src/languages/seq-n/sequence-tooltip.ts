@@ -124,6 +124,7 @@ export function sequenceTooltip(
 
             if ((argNode.from === from && argNode.to === to) || isRepeatArg) {
               const arg = fswCommand.arguments[i];
+              // TODO apply `getCustomArgDef` to `arg`
 
               if (arg) {
                 return resources.createTooltip(buildAmpcsArgumentTooltip(arg, commandDictionary), from, to);
