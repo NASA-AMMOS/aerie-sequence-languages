@@ -510,7 +510,7 @@ function satfVariablesFromSeqn(
         tags.push(`\tRANGE,\\${range.min}...${range.max}\\`);
       });
     if (variable.allowable_values) tags.push(`\tRANGE,\\${variable.allowable_values}\\`);
-    if (variable.sc_name) tags.push(`\tSC_NAME,${variable.sc_name}`);
+    if (variable.sc_name) tags.push(`\tSC_NAME,\\${variable.sc_name}\\`);
     return `${variable.name}(\n` + tags.join(',\n') + `\n)`;
   });
 
