@@ -99,6 +99,179 @@ describe('satfToSeqn', () => {
 @MODEL "y" "abc" "00:00:00"`);
   });
 
+  it('should throw for invalid time tag', async () => {
+    const satf = `
+      $$EOH
+      ABSOLUTE_SEQUENCE(test,\\testv01\\,
+          STEPS,
+          command (
+            3472, SCHEDULED_TIME, \\00:01:00\\, MARS_TIME, INCLUSION_CONDITION, \\param_rate == receive_rate\\,
+            DRAW, \\VERTICAL\\,
+            COMMENT, \\This command turns, to correct position.\\, ASSUMED_MODEL_VALUES, \\x=1,z=1.1,y="abc"\\,
+            01VV (param6, 10, false, "abc"),
+            PROCESSORS, "PRI", end),
+          end
+        )
+      $$EOF
+    `;
+    try {
+      await satfToSeqn(satf);
+    } catch (error) {
+      expect(error.message).toStrictEqual(
+        "Invalid Time Tag 'MARS_TIME' found in SATF/SASF. Aborting SATF/SASF -> Seqn conversion...",
+      );
+    }
+  });
+
+  it('should throw for no time', async () => {
+    const satf = `
+      $$EOH
+      ABSOLUTE_SEQUENCE(test,\\testv01\\,
+          STEPS,
+          command (
+            3472, SCHEDULED_TIME, EPOCH, INCLUSION_CONDITION, \\param_rate == receive_rate\\,
+            DRAW, \\VERTICAL\\,
+            COMMENT, \\This command turns, to correct position.\\, ASSUMED_MODEL_VALUES, \\x=1,z=1.1,y="abc"\\,
+            01VV (param6, 10, false, "abc"),
+            PROCESSORS, "PRI", end),
+          end
+        )
+      $$EOF
+    `;
+    try {
+      await satfToSeqn(satf);
+    } catch (error) {
+      expect(error.message).toStrictEqual('No time found in SATF/SASF. Aborting SATF/SASF -> Seqn conversion...');
+    }
+  });
+
+  it('should return valid sequence and models times with 00:00:00 for durations', async () => {
+    const satf = `
+      $$EOH
+      ABSOLUTE_SEQUENCE(test,\\testv01\\,
+          STEPS,
+          command (
+            3472, SCHEDULED_TIME, \\00:01:00\\, EPOCH, INCLUSION_CONDITION, \\param_rate == receive_rate\\,
+            DRAW, \\VERTICAL\\,
+            COMMENT, \\This command turns, to correct position.\\, ASSUMED_MODEL_VALUES,\\a=1,GLOBAL::b=1.1,c="abc"\\,
+            01VV (param6, 10, false, "abc"),
+            PROCESSORS, "PRI", end),
+          end
+        )
+      $$EOF
+    `;
+    const result = await satfToSeqn(satf);
+    expect(result).toHaveProperty('sequences');
+    expect(result.sequences[0].name).toStrictEqual('test');
+    expect(result.sequences[0].steps)
+      .toStrictEqual(`E00:01:00 01VV param6 10 false "abc" # This command turns, to correct position.
+@METADATA "INCLUSION_CONDITION" "param_rate == receive_rate"
+@METADATA "DRAW" "VERTICAL"
+@MODEL "a" 1 "00:00:00"
+@MODEL "GLOBAL::b" 1.1 "00:00:00"
+@MODEL "c" "abc" "00:00:00"`);
+  });
+
+  it('should return valid sequence and models times with single duration spread across all models', async () => {
+    const satf = `
+      $$EOH
+      ABSOLUTE_SEQUENCE(test,\\testv01\\,
+          STEPS,
+          command (
+            3472, SCHEDULED_TIME, \\00:01:00\\, EPOCH, INCLUSION_CONDITION, \\param_rate == receive_rate\\,
+            DRAW, \\VERTICAL\\,
+            COMMENT, \\This command turns, to correct position.\\, ASSUMED_MODEL_VALUES,\\a=1,GLOBAL::b=1.1,c="abc",00:00:01\\,
+            01VV (param6, 10, false, "abc"),
+            PROCESSORS, "PRI", end),
+          end
+        )
+      $$EOF
+    `;
+    try {
+      const result = await satfToSeqn(satf);
+      expect(result).toHaveProperty('sequences');
+      expect(result.sequences[0].name).toStrictEqual('test');
+      expect(result.sequences[0].steps)
+        .toStrictEqual(`E00:01:00 01VV param6 10 false "abc" # This command turns, to correct position.
+@METADATA "INCLUSION_CONDITION" "param_rate == receive_rate"
+@METADATA "DRAW" "VERTICAL"
+@MODEL "a" 1 "00:00:01"
+@MODEL "GLOBAL::b" 1.1 "00:00:01"
+@MODEL "c" "abc" "00:00:01"`);
+    } catch (exception) {
+      console.log('hi');
+    }
+  });
+
+  it('should return an error of mismatch modeling times', async () => {
+    const satf = `
+      $$EOH
+      ABSOLUTE_SEQUENCE(test,\\testv01\\,
+          STEPS,
+          command (
+            3472, SCHEDULED_TIME, \\00:01:00\\, EPOCH, INCLUSION_CONDITION, \\param_rate == receive_rate\\,
+            DRAW, \\VERTICAL\\,
+            COMMENT, \\This command turns, to correct position.\\, ASSUMED_MODEL_VALUES,\\a=1,GLOBAL::b=1.1,c="abc",00:00:01,00:00:02\\,
+            01VV (param6, 10, false, "abc"),
+            PROCESSORS, "PRI", end),
+          end
+        )
+      $$EOF
+    `;
+    try {
+      await satfToSeqn(satf);
+    } catch (error) {
+      expect(error.message).toStrictEqual('Mismatch of models to durations');
+    }
+  });
+
+  it('should return valid sequence and model times with one duration per variable with two variables', async () => {
+    const satf = `
+      $$EOH
+      ABSOLUTE_SEQUENCE(test,\\testv01\\,
+          STEPS,
+          command (
+            0, SCHEDULED_TIME, \\00:01:00\\, EPOCH, 
+            ASSUMED_MODEL_VALUES,\\a=1,GLOBAL::b=1.1,00:00:01,00:00:02\\,
+            CMD (),
+            PROCESSORS, "PRI", end),
+          end
+        )
+      $$EOF
+    `;
+      const result = await satfToSeqn(satf);
+      expect(result).toHaveProperty('sequences');
+      expect(result.sequences[0].name).toStrictEqual('test');
+      expect(result.sequences[0].steps)
+        .toStrictEqual(`E00:01:00 CMD
+@MODEL "a" 1 "00:00:01"
+@MODEL "GLOBAL::b" 1.1 "00:00:02"`);
+  });
+
+  it('should return valid sequence and model times with one duration per variable with three variables', async () => {
+    const satf = `
+      $$EOH
+      ABSOLUTE_SEQUENCE(test,\\testv01\\,
+          STEPS,
+          command (
+            0, SCHEDULED_TIME, \\00:01:00\\, EPOCH, 
+            ASSUMED_MODEL_VALUES,\\a=1,GLOBAL::b=1.1,c="abc",00:00:01,00:00:02,00:00:03\\,
+            CMD (),
+            PROCESSORS, "PRI", end),
+          end
+        )
+      $$EOF
+    `;
+      const result = await satfToSeqn(satf);
+      expect(result).toHaveProperty('sequences');
+      expect(result.sequences[0].name).toStrictEqual('test');
+      expect(result.sequences[0].steps)
+        .toStrictEqual(`E00:01:00 CMD
+@MODEL "a" 1 "00:00:01"
+@MODEL "GLOBAL::b" 1.1 "00:00:02"
+@MODEL "c" "abc" "00:00:03"`);
+  });
+
   it('should handle multiline comments', async () => {
     const satf = `
     $$EOH
@@ -120,7 +293,7 @@ describe('satfToSeqn', () => {
     expect(result).toHaveProperty('sequences');
     expect(result.sequences[0].name).toStrictEqual('test');
     expect(result.sequences[0].steps).toStrictEqual(
-      `R00:01:00 echo # hi  : bye", "A   : pickup shoe", "B: put on shoe", "C: tie shoe", "cumulative_time is     1 sec (2024-00T01:00:00)`,
+      `R00:01:00 echo # "hi  : bye", "A   : pickup shoe", "B: put on shoe", "C: tie shoe", "cumulative_time is     1 sec (2024-00T01:00:00)"`,
     );
   });
 
@@ -132,7 +305,7 @@ describe('satfToSeqn', () => {
           command (
             3472, SCHEDULED_TIME, \\00:01:00\\, FROM_ACTIVITY_START, INCLUSION_CONDITION, \\param_rate == receive_rate\\,
             DRAW, \\VERTICAL\\,
-            NTEXT, \\"this is a ntext"\\,
+            NTEXT, \\"this is a ntext with quotes"\\,
             COMMENT, \\This command turns, to correct position.\\, ASSUMED_MODEL_VALUES, \\x=1,z=1.1,y="abc"\\,
             01VV (param6, 10, false, "abc"),
             PROCESSORS, "PRI", end),
@@ -149,7 +322,7 @@ describe('satfToSeqn', () => {
           STEPS,
           command (
             3472, SCHEDULED_TIME, \\00:01:00\\, FROM_ACTIVITY_START,
-            NTEXT, \\this is a ntext\\,
+            NTEXT, \\this is a ntext without quotes\\,
             COMMENT, \\This command turns, to correct position.\\, ASSUMED_MODEL_VALUES, \\x=1,z=1.1,y="abc"\\,
             01VV (param6, 10, false, "abc"),
             PROCESSORS, "PRI", end),
@@ -165,7 +338,7 @@ describe('satfToSeqn', () => {
       .toStrictEqual(`B00:01:00 01VV param6 10 false "abc" # This command turns, to correct position.
 @METADATA "INCLUSION_CONDITION" "param_rate == receive_rate"
 @METADATA "DRAW" "VERTICAL"
-@METADATA "NTEXT" "this is a ntext"
+@METADATA "NTEXT" "\\"this is a ntext with quotes\\""
 @MODEL "x" 1 "00:00:00"
 @MODEL "z" 1.1 "00:00:00"
 @MODEL "y" "abc" "00:00:00"`);
@@ -176,7 +349,7 @@ describe('satfToSeqn', () => {
 @METADATA "SEQGEN" "S$BEGIN"`);
     expect(result.sequences[1].steps)
       .toStrictEqual(`B00:01:00 01VV param6 10 false "abc" # This command turns, to correct position.
-@METADATA "NTEXT" "this is a ntext"
+@METADATA "NTEXT" "this is a ntext without quotes"
 @MODEL "x" 1 "00:00:00"
 @MODEL "z" 1.1 "00:00:00"
 @MODEL "y" "abc" "00:00:00"`);
@@ -189,16 +362,16 @@ describe('satfToSeqn', () => {
           STEPS,
           command (
             1, SCHEDULED_TIME, \\00:01:00\\, FROM_PREVIOUS_START, INCLUSION_CONDITION,
-            ECHO ("GlobalG", 10, "NOGLOBAL")
+            ECHO ("GLOBAL::GlobalG", 10, "NOGLOBAL")
             ),
           end
         )
       $$EOF
     `;
-    const result = await satfToSeqn(sasf, ['GlobalG']);
+    const result = await satfToSeqn(sasf);
     expect(result).toHaveProperty('sequences');
     expect(result.sequences[0].name).toStrictEqual('test');
-    expect(result.sequences[0].steps).toStrictEqual(`R00:01:00 ECHO GlobalG 10 "NOGLOBAL"`);
+    expect(result.sequences[0].steps).toStrictEqual(`R00:01:00 ECHO "GLOBAL::GlobalG" 10 "NOGLOBAL"`);
   });
 
   it('Parameters', async () => {
@@ -314,7 +487,7 @@ true UINT
 attitude_spec ENUM STORE_NAME "" "BOB_HARDWARE, SALLY_FARM, TIM_FLOWERS"
 @INPUT_PARAMS_END`);
 
-    expect(result.sequences[0].steps).toStrictEqual(`B00:01:00 ECHO "abc" attitude_spec
+    expect(result.sequences[0].steps).toStrictEqual(`B00:01:00 ECHO "abc" "attitude_spec"
 @METADATA "INCLUSION_CONDITION" "param_rate == receive_rate"`);
   });
 
@@ -420,7 +593,7 @@ describe('sasfToSeqn', () => {
         KEY, "No_Key")
 
         command(1,
-          SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+          SCHEDULED_TIME,\\00:00:01.123456\\,FROM_PREVIOUS_START,
           COMMENT,\\"this "is a" comment"\\,
           FILE_REMOVE("/eng/seq/awesome.abs", TRUE)
         ),
@@ -437,7 +610,7 @@ describe('sasfToSeqn', () => {
     expect(result.sequences[0].name).toStrictEqual('VFT2_REQUEST_01');
     expect(result.sequences[0].requests).toStrictEqual(
       `A2024-266T19:59:57 @REQUEST_BEGIN("VFT2_REQUEST_01")
-  R00:00:01 FILE_REMOVE "/eng/seq/awesome.abs" TRUE # this "is a" comment
+  R00:00:01.123456 FILE_REMOVE "/eng/seq/awesome.abs" TRUE # "this "is a" comment"
   R00:00:01 USER_SEQ_ECHO "SEQ awesome COMPLETION IN 2 MINS" # cumulative_time is "2 sec"
 @REQUEST_END
 @METADATA "REQUESTOR" "me"
@@ -559,7 +732,7 @@ C ECHO "HI"
     expect(result).toEqual({
       header: {},
       variables: `VARIABLES,
- 	time(
+	time(
 		TYPE,UNSIGNED_DECIMAL
 	),
 	alpha(
@@ -578,7 +751,7 @@ C ECHO "HI"
 	),
 	STORE(
 		TYPE,STRING,
-		ENUM_NAME,STORE_NAME,
+		ENUM_NAME,\\STORE_NAME\\,
 		RANGE,\\MACY,ROSS,BEST_BUY\\
 	),
 	CHARGE(
@@ -587,8 +760,7 @@ C ECHO "HI"
 	true(
 		TYPE,UNSIGNED_DECIMAL
 	),
-end,
-`,
+end`,
     } as ParsedSatf);
   });
 
@@ -606,7 +778,7 @@ end,
     expect(result).toEqual({
       header: {},
       parameters: `PARAMETERS,
- 	time(
+	time(
 		TYPE,UNSIGNED_DECIMAL
 	),
 	alpha(
@@ -625,34 +797,33 @@ end,
 	),
 	STORE(
 		TYPE,STRING,
-		ENUM_NAME,STORE_NAME,
+		ENUM_NAME,\\STORE_NAME\\,
 		RANGE,\\MACY,ROSS,BEST_BUY\\
 	),
 	CHARGE(
 		TYPE,SIGNED_DECIMAL
 	),
-end,
-`,
+end`,
     } as ParsedSatf);
   });
 
   it('should return satf steps', async () => {
     const result = await seqnToSATF(`
-    R00:00:01.000 CMD true 1
+    R00:00:01.000 CMD true 1.45
     R00:00:01.000 CMD "OFF"
-    R00:00:01.000 CMD 1.0`);
+    R00:00:01.000 CMD .01`);
     expect(result.steps).toEqual(`STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
-		CMD(TRUE, 1.0)
+		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+		CMD(TRUE, 1.45)
 	),
 	command(2,
-		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
+		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
 		CMD("OFF")
 	),
 	command(3,
-		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
-		CMD(1.0)
+		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+		CMD(.01)
 	),
 end`);
   });
@@ -662,9 +833,9 @@ end`);
     R00:00:01.000 CMD true 1 #I am a description`);
     expect(result.steps).toEqual(`STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
+		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
 		COMMENT,\\I am a description\\,
-		CMD(TRUE, 1.0)
+		CMD(TRUE, 1)
 	),
 end`);
   });
@@ -696,14 +867,14 @@ end`);
       temperature STRING
     @INPUT_PARAMS_END
 
-    E00:00:01.000 CMD temperature level #I am a description
+    E00:00:01.010 CMD temperature level #I am a description
     B-10 USER_SEQ_DIR temperature #I am a description`,
       ['level'],
     );
 
     expect(result.steps).toEqual(`STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01.000\\,EPOCH,
+		SCHEDULED_TIME,\\00:00:01.010\\,EPOCH,
 		COMMENT,\\I am a description\\,
 		CMD(temperature, level)
 	),
@@ -722,10 +893,10 @@ end`);
 
     expect(result.steps).toEqual(`STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01\\,WAIT_PREVIOUS_END,
+		SCHEDULED_TIME,\\00:00:00\\,WAIT_PREVIOUS_END,
 		NTEXT,\\this is a place for notes\\,
 		COMMENT,\\NTEXT is supported "metadata"\\,
-		NO_OP
+		NO_OP()
 	),
 end`);
   });
@@ -741,13 +912,46 @@ end`);
 
     expect(result.steps).toEqual(`STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01\\,WAIT_PREVIOUS_END,
+		SCHEDULED_TIME,\\00:00:00\\,WAIT_PREVIOUS_END,
 		NTEXT,\\this is a place for notes\\,
 		COMMENT,\\NTEXT is supported "metadata"\\,
-		ASSUMED_MODEL_VALUES,\\x=1,y="abc",z=true\\,
-		NO_OP
+		ASSUMED_MODEL_VALUES,\\x=1,y="abc",z=true,00:00:00,00:00:01,00:00:02\\,
+		NO_OP()
 	),
 end`);
+  });
+
+  it('Throw error for no time found', async () => {
+    try {
+      const result = await seqnToSATF(`
+    CMD true 1.45`);
+    } catch (error) {
+      expect(error.message).toStrictEqual(
+        'No time found for command CMD true 1.45. Aborting Seqn -> SATF/SASF conversion...',
+      );
+    }
+  });
+
+  it('Throw error for invalid time found', async () => {
+    try {
+      const result = await seqnToSATF(`
+    R0:1:0 CMD true 1.45`);
+    } catch (error) {
+      expect(error.message).toStrictEqual(
+        'No time found for command R0:1:0 CMD true 1.45. Aborting Seqn -> SATF/SASF conversion...',
+      );
+    }
+  });
+
+  it('Throw error for invalid time tag found', async () => {
+    try {
+      const result = await seqnToSATF(`
+    Z00:00:00 CMD true 1.45`);
+    } catch (error) {
+      expect(error.message).toStrictEqual(
+        'No time found for command Z00:00:00 CMD true 1.45. Aborting Seqn -> SATF/SASF conversion...',
+      );
+    }
   });
 
   it('should round trip a satf', async () => {
@@ -771,12 +975,12 @@ end`);
       end,
       STEPS,
           command(1,
-              SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
+              SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
               NTEXT,\\"Set package"\\,
               STATUS("EXECUTE","status")
           ),
           command(2,
-              SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
+              SCHEDULED_TIME,\\00:00:01.123456\\,FROM_PREVIOUS_START,
               NTEXT,\\"Disable volatage"\\,
               VOLTAGE_OFF("OFF")
           )
@@ -787,28 +991,28 @@ end`);
     const result = await seqnToSATF(`${seqn.sequences[0].inputParameters}\n${seqn.sequences[0].steps}`);
     expect(result.parameters?.trimEnd()).toEqual(
       `PARAMETERS,
- 	status(
+	status(
 		TYPE,UNSIGNED_DECIMAL
 	),
 	id(
 		TYPE,STRING,
-		ENUM_NAME,GRNS_ANNEAL_HEATER
+		ENUM_NAME,\\GRNS_ANNEAL_HEATER\\
 	),
 	temp(
 		TYPE,UNSIGNED_DECIMAL
 	),
-end,`,
+end`,
     );
     expect(result.steps?.trimEnd()).toEqual(
       `STEPS,
 	command(1,
-		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
-		NTEXT,\\Set package\\,
-		STATUS("EXECUTE", status)
+		SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+		NTEXT,\\"Set package"\\,
+		STATUS("EXECUTE", "status")
 	),
 	command(2,
-		SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
-		NTEXT,\\Disable volatage\\,
+		SCHEDULED_TIME,\\00:00:01.123456\\,FROM_PREVIOUS_START,
+		NTEXT,\\"Disable volatage"\\,
 		VOLTAGE_OFF("OFF")
 	),
 end`,
@@ -819,38 +1023,38 @@ end`,
     A2025-001T10:00:00 CMD
     R10:00:00 CMD
     R500 CMD
-    E-03:00:00 CMD
+    E-03:00:00.1 CMD
     E+1.0 CMD
     B00:08:00 CMD
     C CMD`);
     expect(result.steps).toEqual(`STEPS,
 	command(1,
 		SCHEDULED_TIME,\\2025-001T10:00:00\\,ABSOLUTE,
-		CMD
+		CMD()
 	),
 	command(2,
-		SCHEDULED_TIME,\\10:00:00.000\\,FROM_PREVIOUS_START,
-		CMD
+		SCHEDULED_TIME,\\10:00:00\\,FROM_PREVIOUS_START,
+		CMD()
 	),
 	command(3,
 		SCHEDULED_TIME,\\00:08:20\\,FROM_PREVIOUS_START,
-		CMD
+		CMD()
 	),
 	command(4,
-		SCHEDULED_TIME,\\-03:00:00.000\\,EPOCH,
-		CMD
+		SCHEDULED_TIME,\\-03:00:00.100\\,EPOCH,
+		CMD()
 	),
 	command(5,
 		SCHEDULED_TIME,\\00:00:01\\,EPOCH,
-		CMD
+		CMD()
 	),
 	command(6,
-		SCHEDULED_TIME,\\00:08:00.000\\,FROM_REQUEST_START,
-		CMD
+		SCHEDULED_TIME,\\00:08:00\\,FROM_REQUEST_START,
+		CMD()
 	),
 	command(7,
-		SCHEDULED_TIME,\\00:00:01\\,WAIT_PREVIOUS_END,
-		CMD
+		SCHEDULED_TIME,\\00:00:00\\,WAIT_PREVIOUS_END,
+		CMD()
 	),
 end`);
   });
@@ -868,7 +1072,7 @@ describe('seqnToSasf', () => {
   `);
     expect(result.requests?.trimEnd()).toEqual(
       `request(request1,
-	START_TIME, 00:00:01,WAIT_PREVIOUS_END,
+	START_TIME, 00:00:00,WAIT_PREVIOUS_END,
 	REQUESTOR,"me",
 	PROCESSOR,"VC2AB",
 	KEY,"No_Key")
@@ -914,15 +1118,15 @@ end;`,
 	PROCESSOR,"VC2AB",
 	KEY,"NO_KEY")
 		command(1,
-			SCHEDULED_TIME,\\00:00:01.000\\,FROM_PREVIOUS_START,
-			USER_SEQ_VAR_SEQ_ACTIVATE("NO_EPOCH", -1.00, "/eng/seq/ep_configure.mod", "THRUSTER_TABLE_A", 55.00, 10.00, 35.00)
+			SCHEDULED_TIME,\\00:00:01\\,FROM_PREVIOUS_START,
+			USER_SEQ_VAR_SEQ_ACTIVATE("NO_EPOCH", -1, "/eng/seq/ep_configure.mod", "THRUSTER_TABLE_A", 55, 10, 35)
 		),
 		command(2,
-			SCHEDULED_TIME,\\01:00:00.000\\,FROM_PREVIOUS_START,
-			USER_SEQ_VAR_SEQ_LOAD("NO_EPOCH", -1.00, "/eng/seq/ep_start_mission_thrust.mod", "TRUE", 235.000, 0.218, 2400.0000)
+			SCHEDULED_TIME,\\01:00:00\\,FROM_PREVIOUS_START,
+			USER_SEQ_VAR_SEQ_LOAD("NO_EPOCH", -1, "/eng/seq/ep_start_mission_thrust.mod", "TRUE", 235, 0.218, 2400)
 		),
 		command(3,
-			SCHEDULED_TIME,\\00:01:00.000\\,FROM_PREVIOUS_START,
+			SCHEDULED_TIME,\\00:01:00\\,FROM_PREVIOUS_START,
 			USER_SEQ_EXECUTE("ep_start_mission_thrust.mod")
 		),
 end;`,
@@ -942,27 +1146,27 @@ end;`,
 	START_TIME, -00:00:00.100,GROUND_EPOCH)
 		command(1,
 			SCHEDULED_TIME,\\2025-001T10:00:00\\,ABSOLUTE,
-			CMD
+			CMD()
 		),
 		command(2,
-			SCHEDULED_TIME,\\10:00:00.000\\,FROM_PREVIOUS_START,
-			CMD
+			SCHEDULED_TIME,\\10:00:00\\,FROM_PREVIOUS_START,
+			CMD()
 		),
 		command(3,
 			SCHEDULED_TIME,\\00:08:20\\,FROM_PREVIOUS_START,
-			CMD
+			CMD()
 		),
 		command(4,
-			SCHEDULED_TIME,\\-03:00:00.000\\,EPOCH,
-			CMD
+			SCHEDULED_TIME,\\-03:00:00\\,EPOCH,
+			CMD()
 		),
 		command(5,
 			SCHEDULED_TIME,\\00:00:01\\,EPOCH,
-			CMD
+			CMD()
 		),
 		command(6,
-			SCHEDULED_TIME,\\00:08:00.000\\,FROM_REQUEST_START,
-			CMD
+			SCHEDULED_TIME,\\00:08:00\\,FROM_REQUEST_START,
+			CMD()
 		),
 end;
 `);

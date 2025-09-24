@@ -54,11 +54,11 @@ export const STRING = 'String';
 export const NUMBER = 'Number';
 export const BOOLEAN = 'Bool';
 export const ENUM = 'Enum';
-export const GLOBAL = 'Global';
 export const EXPRESSION = 'Expression';
 export const ARITHMETICAL = 'Arithmetical';
 export const MODEL = 'Model';
 export const ASSUMED_MODEL_VALUES = 'AssumedModelValues';
+export const MODEL_DURATION = 'Duration';
 
 export const PARAM_UNSIGNED_DECIMAL = 'UNSIGNED_DECIMAL';
 export const PARAM_SIGNED_DECIMAL = 'SIGNED_DECIMAL';
@@ -66,6 +66,7 @@ export const PARAM_HEXADECIMAL = 'HEXADECIMAL';
 export const PARAM_OCTAL = 'OCTAL';
 export const PARAM_BINARY = 'BINARY';
 export const PARAM_ENGINEERING = 'ENGINEERING';
+export const PARAM_FLOAT = 'FLOAT';
 export const PARAM_TIME = 'TIME';
 export const PARAM_DURATION = 'DURATION';
 export const PARAM_QUOTED_STRING = 'QUOTED_STRING';
@@ -125,17 +126,18 @@ export const SATF_SASF_NODES = {
   NUMBER,
   BOOLEAN,
   ENUM,
-  GLOBAL,
   EXPRESSION,
   ARITHMETICAL,
   MODEL,
   ASSUMED_MODEL_VALUES,
+  MODEL_DURATION,
   PARAM_UNSIGNED_DECIMAL,
   PARAM_SIGNED_DECIMAL,
   PARAM_HEXADECIMAL,
   PARAM_OCTAL,
   PARAM_BINARY,
   PARAM_ENGINEERING,
+  PARAM_FLOAT,
   PARAM_TIME,
   PARAM_DURATION,
   PARAM_QUOTED_STRING,
