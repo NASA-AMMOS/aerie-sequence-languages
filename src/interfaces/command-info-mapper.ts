@@ -24,8 +24,14 @@ export type ArgTextDef = {
   parentArgDef?: FswCommandArgumentRepeat;
   text?: string;
 };
+
+/**
+ * Collection of utilities used primarily to build the command panel in the Phoenix UI.
+ * 
+ * TODO future work is to generalize this interface s.t. adaptations can better control what's in 
+ * the panel and don't need to implement all these particular pieces.
+ */
 export interface CommandInfoMapper {
-  // TODO is there a way we can generalize what's in the command panel?
   /** format string of multiple arguments */
   formatArgumentArray(values: string[], commandNode: SyntaxNode | null): string;
 
