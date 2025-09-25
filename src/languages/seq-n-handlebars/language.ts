@@ -1,45 +1,52 @@
-import { indentService } from '@codemirror/language';
-import { EditorView } from 'codemirror';
-import { debounce } from 'lodash-es';
-import type { PhoenixResources } from '../../interfaces/phoenix.js';
-import { globals } from '../seq-n/global-types.js';
+import { completeFromList } from '@codemirror/autocomplete';
+import { LanguageSupport } from '@codemirror/language';
+import type { PhoenixContext, PhoenixResources } from '../../interfaces/phoenix.js';
 import type { InputLanguage } from '../../interfaces/language.js';
-import { seqNBlockHighlighter, seqNHighlightBlock } from '../seq-n/seq-n-highlighter.js';
-import { SeqNCommandInfoMapper, userSequenceToLibrarySequence } from '../seq-n/seq-n-tree-utils.js';
-import { seqNFormat, sequenceAutoIndent } from '../seq-n/sequence-autoindent.js';
-import { sequenceCompletion } from '../seq-n/sequence-completion.js';
-import { seqnLinter } from '../seq-n/sequence-linter.js';
-import { sequenceTooltip } from '../seq-n/sequence-tooltip.js';
-import { setupLanguageSupport } from './seq-n-handlebars.js';
+import { SeqNCommandInfoMapper, seqnToLibrarySequence } from '../seq-n/seq-n-tree-utils.js';
+import { seqNFormat } from '../seq-n/seq-n-format.js';
+import { seqnCompletion } from '../seq-n/seq-n-completion.js';
+import { HandlebarsOverSeqLanguage } from './seq-n-handlebars.js';
+import { getSeqnExtensions } from 'languages/seq-n/language.js';
+import { seqnLRLanguage } from 'languages/seq-n/seq-n.js';
+import { handlebarsLanguage } from 'languages/handlebars/handlebars.js';
 
-const debouncedSeqNHighlightBlock = debounce(seqNHighlightBlock, 250);
+const handlebarsCompletions = [
+  // Helpers
+  'add-time',
+  'subtract-time',
+  'flatten',
+  'formatAsDate',
+  // Args
+  'startTime',
+];
+
+/**
+ * Editor extensions for SeqN with handlebars is the same as SeqN but with modified language definition/completions
+ */
+function getSeqnHandlebarsExtensions(resources: PhoenixResources, context: PhoenixContext) {
+  const extensions = getSeqnExtensions(resources, context);
+  extensions.languageSupport = new LanguageSupport(HandlebarsOverSeqLanguage, [
+    seqnLRLanguage.data.of({
+      autocomplete: seqnCompletion(
+        context.channelDictionary,
+        context.commandDictionary,
+        context.parameterDictionaries,
+        context.librarySequences,
+      ),
+    }),
+    handlebarsLanguage.extension,
+    HandlebarsOverSeqLanguage.data.of({ autocomplete: completeFromList(handlebarsCompletions) }),
+  ]);
+  return extensions;
+}
 
 export function getSeqnHandlebarsLanguage(resources: PhoenixResources): InputLanguage {
   return {
     name: 'SeqN (Template)',
     fileExtension: '.template.seqN.txt',
-    editorExtension: context => [
-      setupLanguageSupport(
-        sequenceCompletion(
-          context.channelDictionary,
-          context.commandDictionary,
-          context.parameterDictionaries,
-          Object.values(context.librarySequences),
-        ),
-      ),
-      seqnLinter(
-        globals,
-        context.channelDictionary,
-        context.commandDictionary,
-        context.parameterDictionaries,
-        Object.values(context.librarySequences),
-      ),
-      sequenceTooltip(context.commandDictionary, resources),
-      indentService.of(sequenceAutoIndent()),
-      [EditorView.updateListener.of(debouncedSeqNHighlightBlock), seqNBlockHighlighter],
-    ],
+    editorExtension: context => Object.values(getSeqnHandlebarsExtensions(resources, context)),
     commandInfoMapper: new SeqNCommandInfoMapper(),
     format: seqNFormat,
-    getLibrarySequences: sequence => [userSequenceToLibrarySequence(sequence)],
+    getLibrarySequences: sequence => [seqnToLibrarySequence(sequence)],
   };
 }

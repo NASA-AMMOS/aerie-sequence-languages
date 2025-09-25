@@ -11,6 +11,7 @@ import { SEQN_NODES } from './seqn-grammar-constants.js';
 import { isFswCommandArgumentRepeat } from '../../utils/sequence-utils.js';
 import { PhoenixResources } from 'interfaces/phoenix.js';
 import { buildAmpcsArgumentTooltip, buildAmpcsCommandTooltip } from '../../utils/editor-utils.js';
+import { getTokenPositionInLine } from 'utils/tree-utils.js';
 
 /**
  * Searches up through a node's ancestors to find a node by the given name.
@@ -27,32 +28,10 @@ function getParentNodeByName(view: EditorView, pos: number, name: string): Synta
 }
 
 /**
- * Returns a text token range for a line in the view at a given position.
- * @see https://codemirror.net/examples/tooltip/#hover-tooltips
- */
-export function getTokenPositionInLine(view: EditorView, pos: number) {
-  const { from, to, text } = view.state.doc.lineAt(pos);
-  const tokenRegex = /[a-zA-Z0-9_".-]/;
-
-  let start = pos;
-  let end = pos;
-
-  while (start > from && tokenRegex.test(text[start - from - 1])) {
-    --start;
-  }
-
-  while (end < to && tokenRegex.test(text[end - from])) {
-    ++end;
-  }
-
-  return { from: start, to: end };
-}
-
-/**
  * Tooltip function that returns a Code Mirror extension function.
  * Can be optionally called with a command dictionary so it's available during tooltip generation.
  */
-export function sequenceTooltip(
+export function seqnTooltip(
   commandDictionary: CommandDictionary | null = null,
   resources: PhoenixResources,
 ): Extension {

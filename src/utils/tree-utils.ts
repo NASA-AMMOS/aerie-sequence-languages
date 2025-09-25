@@ -1,6 +1,7 @@
 /**
  * Ported from `tree-utils.ts` in aerie-ui
  */
+import { EditorView } from '@codemirror/view';
 import type { SyntaxNode, TreeCursor } from '@lezer/common';
 
 export function numberOfChildren(node: SyntaxNode): number {
@@ -95,4 +96,26 @@ export function filterNodesToArray(cursor: TreeCursor, filter?: (node: SyntaxNod
 
 export function nodeContents(input: string, node: SyntaxNode): string {
   return input.substring(node.from, node.to);
+}
+
+/**
+ * Returns a text token range for a line in the view at a given position.
+ * @see https://codemirror.net/examples/tooltip/#hover-tooltips
+ */
+export function getTokenPositionInLine(view: EditorView, pos: number) {
+  const { from, to, text } = view.state.doc.lineAt(pos);
+  const tokenRegex = /[a-zA-Z0-9_".-]/;
+
+  let start = pos;
+  let end = pos;
+
+  while (start > from && tokenRegex.test(text[start - from - 1])) {
+    --start;
+  }
+
+  while (end < to && tokenRegex.test(text[end - from])) {
+    ++end;
+  }
+
+  return { from: start, to: end };
 }

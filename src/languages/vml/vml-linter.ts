@@ -7,7 +7,7 @@ import type { EditorView } from 'codemirror';
 import { closest } from 'fastest-levenshtein';
 import { quoteEscape, unquoteUnescape } from '../../utils/string.js';
 import { filterNodes, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
-import type { GlobalType } from '../seq-n/global-types.js';
+import type { GlobalVariable } from '../../types/global-types.js';
 import { VmlLanguage } from './vml.js';
 import {
   RULE_CALL_PARAMETER,
@@ -45,7 +45,7 @@ const MAX_PARSER_ERRORS = 10;
 export function vmlLinter(
   commandDictionary: CommandDictionary | null = null,
   librarySequenceMap: LibrarySequenceMap = {},
-  globals: GlobalType[] = [],
+  globals: GlobalVariable[] = [],
 ): Extension {
   return linter(view => {
     const diagnostics: Diagnostic[] = [];
@@ -64,7 +64,7 @@ export function vmlLinter(
   });
 }
 
-function validateGlobals(input: string, tree: Tree, globals: GlobalType[]): Diagnostic[] {
+function validateGlobals(input: string, tree: Tree, globals: GlobalVariable[]): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
   const globalNames: Set<string> = new Set(globals.map(g => g.name));
 

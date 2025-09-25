@@ -9,18 +9,14 @@ import type {
   FswCommandArgumentInteger,
 } from '@nasa-jpl/aerie-ampcs';
 import type { EditorView } from 'codemirror';
-// import ArgumentTooltip from '../../../components/sequencing/ArgumentTooltip.svelte'; // TODO get via dependency injection
-// import CommandTooltip from '../../../components/sequencing/CommandTooltip.svelte'; // TODO get via dependency injection
-// import StringTooltip from '../../../components/sequencing/StringTooltip.svelte'; // TODO get via dependency injection
 import { decodeInt32Array } from '../../utils/sequence-utils.js';
 import { unquoteUnescape } from '../../utils/string.js';
-import { checkContainment, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
+import { checkContainment, getNearestAncestorNodeOfType, getTokenPositionInLine } from '../../utils/tree-utils.js';
 import type {
   CreateTooltip,
   LibrarySequenceSignature,
   PhoenixResources,
 } from '../../interfaces/phoenix.js';
-import { getTokenPositionInLine } from '../seq-n/sequence-tooltip.js';
 import { librarySequenceToFswCommand } from './vml-block-library.js';
 import {
   RULE_BYTE_ARRAY,

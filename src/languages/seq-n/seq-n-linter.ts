@@ -1,11 +1,10 @@
 import { syntaxTree } from '@codemirror/language';
-import { linter, type Diagnostic } from '@codemirror/lint';
-import { EditorState, type Extension } from '@codemirror/state';
+import { type Diagnostic } from '@codemirror/lint';
+import { EditorState } from '@codemirror/state';
 import type { SyntaxNode, Tree } from '@lezer/common';
 import type {
   ChannelDictionary,
   CommandDictionary,
-  EnumMap,
   FswCommand,
   FswCommandArgument,
   HwCommand,
@@ -20,7 +19,6 @@ import {
   convertIsoToUnixEpoch,
   isTimeBalanced,
   isTimeMax,
-  parseDurationString,
   TimeTypes,
   validateTime,
 } from '@nasa-jpl/aerie-time-utils';
@@ -32,9 +30,9 @@ import { pluralize } from '../../utils/text.js';
 import { getBalancedDuration } from '@nasa-jpl/aerie-time-utils';
 import { getDoyTime } from '../../utils/time.js';
 import type { LibrarySequenceSignature } from '../../interfaces/phoenix.js';
-import { closeSuggestion, computeBlocks, openSuggestion } from './custom-folder';
-import type { GlobalType } from './global-types';
-import { SeqNCommandInfoMapper } from './seq-n-tree-utils';
+import { closeSuggestion, computeBlocks, openSuggestion } from './custom-folder.js';
+import type { GlobalVariable } from '../../types/global-types.js';
+import { SeqNCommandInfoMapper } from './seq-n-tree-utils.js';
 
 const KNOWN_DIRECTIVES = [
   'LOAD_AND_GO',
@@ -81,40 +79,16 @@ type VariableMap = {
   [name: string]: VariableDeclaration;
 };
 
-export function seqnLinter(
-  globalVariables: GlobalType[],
-  channelDictionary: ChannelDictionary | null = null,
-  commandDictionary: CommandDictionary | null = null,
-  parameterDictionaries: ParameterDictionary[] = [],
-  librarySequences: LibrarySequenceSignature[] = [],
-): Extension {
-  return linter(view => {
-    let diagnostics: Diagnostic[];
-
-    diagnostics = sequenceLinter(
-      view,
-      channelDictionary,
-      commandDictionary,
-      parameterDictionaries,
-      librarySequences,
-      globalVariables,
-    );
-
-    return diagnostics;
-  });
-}
-
 /**
- * Linter function that returns a Code Mirror extension function.
- * Can be optionally called with a command dictionary so it's available during linting.
+ * Linter function returns codemirror diagnostics
  */
-export function sequenceLinter(
+export function seqnLinter(
   view: EditorView,
   channelDictionary: ChannelDictionary | null = null,
   commandDictionary: CommandDictionary | null = null,
   parameterDictionaries: ParameterDictionary[] = [],
   librarySequences: LibrarySequenceSignature[] = [],
-  globalVariables: GlobalType[],
+  globalVariables: GlobalVariable[] = [],
 ): Diagnostic[] {
   const tree = syntaxTree(view.state);
   const treeNode = tree.topNode;
@@ -362,6 +336,10 @@ function validateCommandTypeMixing(node: SyntaxNode): Diagnostic[] {
   return diagnostics;
 }
 
+/**
+ * TODO refactor this into two methods? Currently used for the distinct tasks of validating 
+ * variable declarations and simply extracting the variables in use.
+ */
 export function validateVariables(inputParams: SyntaxNode[], text: string, type: 'INPUT_PARAMS' | 'LOCALS' = 'LOCALS') {
   const variables: VariableDeclaration[] = [];
   const diagnostics: Diagnostic[] = [];

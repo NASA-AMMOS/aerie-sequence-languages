@@ -1,6 +1,6 @@
-import { EditorView } from "codemirror";
-import { CommandInfoMapper } from "./command-info-mapper.js";
-import { LibrarySequenceSignature, PhoenixContext, UserSequence } from "./phoenix.js";
+import { EditorView } from 'codemirror';
+import { CommandInfoMapper } from './command-info-mapper.js';
+import { LibrarySequenceSignature, PhoenixContext, UserSequence } from './phoenix.js';
 import type { Extension } from '@codemirror/state';
 
 /**
@@ -9,13 +9,13 @@ import type { Extension } from '@codemirror/state';
 export interface BaseLanguage {
   name: string;
   fileExtension: string;
-  editorExtension?: (context: PhoenixContext) => Extension;
+  editorExtension?: (context: PhoenixContext) => Extension[];
 }
 
 /**
- * Extension of base language implementation for "input" (authoring) language definition adds 
- * `commandInfoMapper`, which feeds the Phoenix UI command panel, `format` to apply code 
- * formatting, and `getLibrarySequences` to tell Phoenix how to evaluate a call signature(s) given 
+ * Extension of base language implementation for "input" (authoring) language definition adds
+ * `commandInfoMapper`, which feeds the Phoenix UI command panel, `format` to apply code
+ * formatting, and `getLibrarySequences` to tell Phoenix how to evaluate a call signature(s) given
  * other sequence files in the workspace.
  */
 export interface InputLanguage extends BaseLanguage {
@@ -25,7 +25,7 @@ export interface InputLanguage extends BaseLanguage {
 }
 
 /**
- * Extension of base language implementation for "output" language definition adds converters that, 
+ * Extension of base language implementation for "output" language definition adds converters that,
  * for each output language, convert to/from the specified input language.
  */
 export interface OutputLanguage extends BaseLanguage {

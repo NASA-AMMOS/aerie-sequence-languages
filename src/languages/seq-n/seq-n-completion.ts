@@ -7,8 +7,8 @@ import { getDefaultVariableArgs } from '../../utils/sequence-utils.js';
 import { getFromAndTo, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
 import { getDoyTime } from '../../utils/time.js';
 import type { LibrarySequenceSignature } from '../../interfaces/phoenix.js';
-import type { GlobalType } from './global-types';
-import { seqnLanguage } from './seq-n.js';
+import type { GlobalVariable } from '../../types/global-types.js';
+import { seqnLRLanguage } from './seq-n.js';
 
 type CursorInfo = {
   isAfterActivateOrLoad: boolean;
@@ -25,11 +25,12 @@ type CursorInfo = {
  * Completion function that returns a Code Mirror extension function.
  * Can be optionally called with a command dictionary so it's available for completion.
  */
-export function sequenceCompletion(
+export function seqnCompletion(
   channelDictionary: ChannelDictionary | null = null,
   commandDictionary: CommandDictionary | null = null,
   parameterDictionaries: ParameterDictionary[],
   librarySequences: LibrarySequenceSignature[],
+  globals?: GlobalVariable[]
 ) {
   return (context: CompletionContext): CompletionResult | null => {
     const nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1);
@@ -61,7 +62,7 @@ export function sequenceCompletion(
           nodeBefore.parent?.name === SEQN_NODES.ACTIVATE || nodeBefore.parent?.name === SEQN_NODES.LOAD,
         isAfterTimeTag: (() => {
           const line = context.state.doc.lineAt(context.pos);
-          const node = seqnLanguage.parser.parse(line.text).resolveInner(context.pos - line.from, -1);
+          const node = seqnLRLanguage.parser.parse(line.text).resolveInner(context.pos - line.from, -1);
 
           return node.parent?.getChild('TimeGroundEpoch') || node.parent?.getChild('TimeTag') ? true : false;
         })(),
@@ -268,9 +269,6 @@ export function sequenceCompletion(
       //     });
       //   }
       // }
-
-      const globals: GlobalType[] = [];
-      // TODO: Define the static list of globals
 
       if (globals) {
         for (const global of globals) {

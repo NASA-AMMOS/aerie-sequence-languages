@@ -1,13 +1,11 @@
-import { CompletionContext, type CompletionResult } from '@codemirror/autocomplete';
-import { LRLanguage, LanguageSupport, delimitedIndent, foldNodeProp, indentNodeProp } from '@codemirror/language';
+import { LRLanguage, delimitedIndent, foldNodeProp, indentNodeProp } from '@codemirror/language';
 import { styleTags, tags as t } from '@lezer/highlight';
 import { parser } from './seq-n.grammar.js';
 import { customFoldInside } from './custom-folder.js';
 
 export const seqnParser = parser;
 
-// TODO re-name this to something other than seqnLanguage to not conflict with naming convention for the Phoenix language specs
-export const seqnLanguage = LRLanguage.define({
+export const seqnLRLanguage = LRLanguage.define({
   languageData: {
     commentTokens: { line: '#' },
   },
@@ -62,12 +60,3 @@ export const seqnLanguage = LRLanguage.define({
     ],
   }),
 });
-
-export function setupLanguageSupport(autocomplete?: (context: CompletionContext) => CompletionResult | null) {
-  if (autocomplete) {
-    const autocompleteExtension = seqnLanguage.data.of({ autocomplete });
-    return new LanguageSupport(seqnLanguage, [autocompleteExtension]);
-  } else {
-    return new LanguageSupport(seqnLanguage);
-  }
-}

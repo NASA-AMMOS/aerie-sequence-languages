@@ -16,10 +16,10 @@ import type { ArgTextDef, TimeTagInfo } from '../../interfaces/command-info-mapp
 import { fswCommandArgDefault, isFswCommandArgumentRepeat } from '../../utils/sequence-utils.js';
 import { getFromAndTo, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
 import type { CommandInfoMapper } from '../../interfaces/command-info-mapper.js';
-import { globals } from './global-types.js';
-import { seqnLanguage } from './seq-n.js';
+import { GlobalVariable } from '../../types/global-types.js';
+import { seqnLRLanguage } from './seq-n.js';
 import { TOKEN_ERROR } from './seq-n-constants.js';
-import { validateVariables } from './sequence-linter.js';
+import { validateVariables } from './seq-n-linter.js';
 
 export function getNameNode(stepNode: SyntaxNode | null) {
   if (stepNode) {
@@ -51,8 +51,8 @@ export function getAncestorStepOrRequest(node: SyntaxNode | null) {
   ]);
 }
 
-export function userSequenceToLibrarySequence(sequence: UserSequence): LibrarySequenceSignature {
-  const tree = seqnLanguage.parser.parse(sequence.definition);
+export function seqnToLibrarySequence(sequence: UserSequence): LibrarySequenceSignature {
+  const tree = seqnLRLanguage.parser.parse(sequence.definition);
   return {
     name: sequence.name,
     parameters: parseVariables(tree.topNode, sequence.definition, SEQN_NODES.PARAMETER_DECLARATION) ?? [],
@@ -60,6 +60,12 @@ export function userSequenceToLibrarySequence(sequence: UserSequence): LibrarySe
 }
 
 export class SeqNCommandInfoMapper implements CommandInfoMapper {
+  globals: GlobalVariable[];
+
+  constructor(globals?: GlobalVariable[]) {
+    this.globals = globals ?? [];
+  }
+
   getArgumentAppendPosition(commandOrRepeatArgNode: SyntaxNode | null): number | undefined {
     if (
       commandOrRepeatArgNode?.name === SEQN_NODES.COMMAND ||
@@ -237,7 +243,7 @@ export class SeqNCommandInfoMapper implements CommandInfoMapper {
   }
 
   getVariablesInScope(seqEditorView: EditorView, tree: Tree | null, cursorPosition?: number): string[] {
-    const globalNames = globals.map(globalVariable => globalVariable.name);
+    const globalNames = this.globals.map(globalVariable => globalVariable.name);
     if (tree && cursorPosition !== undefined) {
       const docText = seqEditorView.state.doc.toString();
       return [...globalNames, ...this.getVariables(docText, tree)];

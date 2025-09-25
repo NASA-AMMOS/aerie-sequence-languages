@@ -19,7 +19,7 @@ import { unquoteUnescape } from '../../utils/string.js';
 import { isFswCommand } from '../../utils/sequence-utils.js';
 import { getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
 import type { LibrarySequenceSignature } from '../../interfaces/phoenix.js';
-import type { GlobalType } from '../seq-n/global-types.js';
+import type { GlobalVariable } from '../../types/global-types.js';
 import { librarySequenceToFswCommand, vmlBlockLibraryToCommandDictionary } from './vml-block-library.js';
 import {
   RULE_BODY,
@@ -64,7 +64,7 @@ const SECTION_HARDWARE_COMMANDS: CompletionSection = {
 
 export function vmlAutoComplete(
   commandDictionary: CommandDictionary | null,
-  globals: GlobalType[],
+  globals: GlobalVariable[],
   librarySequenceMap: LibrarySequenceMap,
 ): (context: CompletionContext) => CompletionResult | null {
   return (context: CompletionContext): CompletionResult | null => {
@@ -111,7 +111,7 @@ function suggestDictionaryCompletions(
   node: SyntaxNode,
   tree: Tree,
   commandDictionary: CommandDictionary,
-  globals: GlobalType[],
+  globals: GlobalVariable[],
   librarySequenceMap: LibrarySequenceMap,
 ): Completion[] | null {
   if (isStatementNode(context, node)) {
@@ -129,7 +129,7 @@ function suggestDictionaryCompletions(
   return null;
 }
 
-function suggestTimeTaggedCompletions(context: CompletionContext, tree: Tree, globals: GlobalType[]): Completion[] {
+function suggestTimeTaggedCompletions(context: CompletionContext, tree: Tree, globals: GlobalVariable[]): Completion[] {
   const structs: Completion[] = structureSnippets('');
   const variableCompletions = suggestVariableReferenceCompletions(context, tree, globals);
   return [...structs, ...(variableCompletions ?? [])];
@@ -272,7 +272,7 @@ function getFswCommand(
 function suggestVariableReferenceCompletions(
   context: CompletionContext,
   tree: Tree,
-  globals: GlobalType[],
+  globals: GlobalVariable[],
 ): Completion[] {
   const variableOptions: Completion[] = getVmlVariables(context.state.sliceDoc(), tree, context.pos).map(variable => ({
     detail: 'local',
@@ -417,7 +417,7 @@ function enumOptions(enumDef: Enum, argDef: FswCommandArgument): Completion[] {
   );
 }
 
-function globalOptions(globals: GlobalType[]): Completion[] {
+function globalOptions(globals: GlobalVariable[]): Completion[] {
   return globals.map(
     (g): Completion => ({
       detail: 'category' in g && typeof g.category === 'string' ? g.category : 'global',

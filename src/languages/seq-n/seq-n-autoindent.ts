@@ -1,6 +1,4 @@
-import { indentSelection } from '@codemirror/commands';
 import { syntaxTree, type IndentContext } from '@codemirror/language';
-import { EditorView } from 'codemirror';
 import { getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
 import { computeBlocks } from './custom-folder.js';
 
@@ -16,7 +14,7 @@ const TAB_SIZE = 2;
  * @param {number} pos - The position in the editor where indentation is needed.
  * @return {number | null | undefined} The number of spaces to indent or null/undefined if no indentation is needed.
  */
-export function sequenceAutoIndent(): (context: IndentContext, pos: number) => number | null | undefined {
+export function seqnAutoIndent(): (context: IndentContext, pos: number) => number | null | undefined {
   return (context, pos) => {
     // see if the inner children are part of the request block
     const stepNode = getNearestAncestorNodeOfType(syntaxTree(context.state).cursorAt(pos).node, ['Steps']);
@@ -55,23 +53,4 @@ export function sequenceAutoIndent(): (context: IndentContext, pos: number) => n
     // otherwise, don't indent
     return 0;
   };
-}
-
-export function seqNFormat(editorSequenceView: EditorView) {
-  // apply indentation
-  editorSequenceView.update([
-    editorSequenceView.state.update({
-      selection: { anchor: 0, head: editorSequenceView.state.doc.length },
-    }),
-  ]);
-  indentSelection({
-    dispatch: transaction => editorSequenceView.update([transaction]),
-    state: editorSequenceView.state,
-  });
-  // clear selection
-  editorSequenceView.update([
-    editorSequenceView.state.update({
-      selection: { anchor: 0, head: 0 },
-    }),
-  ]);
 }
