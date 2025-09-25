@@ -24,6 +24,7 @@ export function buildAmpcsArgumentTooltip(
 ): string[] {
   let displayLines: string[] = [`Name: ${arg.name}`, `Type: ${arg.arg_type}`, `Description: ${arg.description}`];
 
+  // TODO replace all these big if statements with waterfalling switch/case
   if (
     arg.arg_type === 'boolean' ||
     arg.arg_type === 'enum' ||
