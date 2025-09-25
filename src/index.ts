@@ -12,7 +12,7 @@ export { SATF_SASF_NODES } from './languages/satf/constants/satf-sasf-constants.
 
 export { isQuoted, unquoteUnescape, quoteEscape, removeQuote, removeEscapedQuotes } from './utils/string.js';
 
-export type { GlobalVariable, GlobalTypes } from './types/global-types.js';
+export { type GlobalVariable, GlobalTypes } from './types/global-types.js';
 
 export type {
   UserSequence,
