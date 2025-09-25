@@ -1,14 +1,18 @@
 import type { SyntaxNode, Tree } from '@lezer/common';
-import type { ChannelDictionary, CommandDictionary, EnumMap, FswCommand, FswCommandArgument, FswCommandArgumentRepeat, ParameterDictionary } from '@nasa-jpl/aerie-ampcs';
+import type {
+  ChannelDictionary,
+  CommandDictionary,
+  EnumMap,
+  FswCommand,
+  FswCommandArgument,
+  FswCommandArgumentRepeat,
+  ParameterDictionary,
+} from '@nasa-jpl/aerie-ampcs';
 import type { EditorView } from 'codemirror';
 import type { ArgTextDef, TimeTagInfo } from '../../interfaces/command-info-mapper.js';
 import { filterEmpty } from '../../utils/generic.js';
 import { isFswCommandArgumentRepeat } from '../../utils/sequence-utils.js';
-import {
-  filterNodesToArray,
-  getChildrenNode,
-  getNearestAncestorNodeOfType,
-} from '../../utils/tree-utils.js';
+import { filterNodesToArray, getChildrenNode, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
 import type { CommandInfoMapper } from '../../interfaces/command-info-mapper.js';
 import type { LibrarySequenceSignature } from '../../interfaces/phoenix.js';
 import { getDefaultArgumentValue } from './vml-adaptation.js';
@@ -159,17 +163,25 @@ export class VmlCommandInfoMapper implements CommandInfoMapper {
     );
   }
 
-  getArgumentInfo(commandDef: FswCommand | null, channelDictionary: ChannelDictionary | null, seqEditorView: EditorView, args: SyntaxNode | null, argumentDefs: FswCommandArgument[] | undefined, parentArgDef: FswCommandArgumentRepeat | undefined, parameterDictionaries: ParameterDictionary[]): ArgTextDef[] {
+  getArgumentInfo(
+    commandDef: FswCommand | null,
+    channelDictionary: ChannelDictionary | null,
+    seqEditorView: EditorView,
+    args: SyntaxNode | null,
+    argumentDefs: FswCommandArgument[] | undefined,
+    parentArgDef: FswCommandArgumentRepeat | undefined,
+    parameterDictionaries: ParameterDictionary[],
+  ): ArgTextDef[] {
     const argArray: ArgTextDef[] = [];
     const precedingArgValues: string[] = [];
     const parentRepeatLength = parentArgDef?.repeat?.arguments.length;
-  
+
     if (args) {
       for (const node of this.getArgumentsFromContainer(args)) {
         if (node.name === TOKEN_ERROR) {
           continue;
         }
-  
+
         let argDef: FswCommandArgument | undefined = undefined;
         if (argumentDefs) {
           let argDefIndex = argArray.length;
@@ -179,7 +191,7 @@ export class VmlCommandInfoMapper implements CommandInfoMapper {
           }
           argDef = argumentDefs[argDefIndex];
         }
-  
+
         let children: ArgTextDef[] | undefined = undefined;
         if (!!argDef && isFswCommandArgumentRepeat(argDef)) {
           children = this.getArgumentInfo(
@@ -216,17 +228,23 @@ export class VmlCommandInfoMapper implements CommandInfoMapper {
         }
       }
     }
-  
+
     return argArray;
   }
 
-  getCommandDef(commandDictionary: CommandDictionary | null, librarySequences: LibrarySequenceSignature[], stemName: string): FswCommand | null {
+  getCommandDef(
+    commandDictionary: CommandDictionary | null,
+    librarySequences: LibrarySequenceSignature[],
+    stemName: string,
+  ): FswCommand | null {
     const commandDefFromCommandDictionary = commandDictionary?.fswCommandMap[stemName];
     if (commandDefFromCommandDictionary) {
       return commandDefFromCommandDictionary;
     }
 
-    const librarySeqDef = librarySequences.find(s => {s.name === stemName});
+    const librarySeqDef = librarySequences.find(s => {
+      s.name === stemName;
+    });
     if (librarySeqDef) {
       return librarySequenceToFswCommand(librarySeqDef);
     }

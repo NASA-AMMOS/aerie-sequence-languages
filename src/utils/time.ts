@@ -1,7 +1,7 @@
 /**
  * TODO migrate everything here to aerie-time-utils
  */
-import { getDoyTimeComponents } from "@nasa-jpl/aerie-time-utils";
+import { getDoyTimeComponents } from '@nasa-jpl/aerie-time-utils';
 
 /**
  * Get a day-of-year timestamp from a given JavaScript Date object.

@@ -30,7 +30,7 @@ export function seqnCompletion(
   commandDictionary: CommandDictionary | null = null,
   parameterDictionaries: ParameterDictionary[],
   librarySequences: LibrarySequenceSignature[],
-  globals?: GlobalVariable[]
+  globals?: GlobalVariable[],
 ) {
   return (context: CompletionContext): CompletionResult | null => {
     const nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1);

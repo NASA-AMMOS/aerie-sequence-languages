@@ -1,7 +1,7 @@
-import { linter, type Diagnostic } from "@codemirror/lint";
+import { linter, type Diagnostic } from '@codemirror/lint';
 import type { Extension, Text } from '@codemirror/state';
-import type { CommandDictionary } from "@nasa-jpl/aerie-ampcs";
-import type { EditorView } from "codemirror";
+import type { CommandDictionary } from '@nasa-jpl/aerie-ampcs';
+import type { EditorView } from 'codemirror';
 import { parse as jsonSourceMapParse } from 'json-source-map';
 
 type JsonSourceMapPointerPosition = {
@@ -17,9 +17,7 @@ type JsonSourceMapPointer = {
   valueEnd: JsonSourceMapPointerPosition;
 };
 
-export function outputLinter(
-  commandDictionary: CommandDictionary | null = null,
-): Extension {
+export function outputLinter(commandDictionary: CommandDictionary | null = null): Extension {
   return linter(view => seqJsonLinter(view, commandDictionary));
 }
 

@@ -1,9 +1,6 @@
 import { EditorView } from 'codemirror';
 import { debounce } from 'lodash-es';
-import type {
-  PhoenixContext,
-  PhoenixResources,
-} from '../../interfaces/phoenix.js';
+import type { PhoenixContext, PhoenixResources } from '../../interfaces/phoenix.js';
 import { InputLanguage } from '../../interfaces/language.js';
 import { setupVmlLanguageSupport, vmlBlockHighlighter, vmlHighlightBlock } from './vml.js';
 import { parseFunctionSignatures, vmlAutoComplete } from './vml-adaptation.js';

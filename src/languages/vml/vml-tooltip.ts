@@ -12,11 +12,7 @@ import type { EditorView } from 'codemirror';
 import { decodeInt32Array } from '../../utils/sequence-utils.js';
 import { unquoteUnescape } from '../../utils/string.js';
 import { checkContainment, getNearestAncestorNodeOfType, getTokenPositionInLine } from '../../utils/tree-utils.js';
-import type {
-  CreateTooltip,
-  LibrarySequenceSignature,
-  PhoenixResources,
-} from '../../interfaces/phoenix.js';
+import type { CreateTooltip, LibrarySequenceSignature, PhoenixResources } from '../../interfaces/phoenix.js';
 import { librarySequenceToFswCommand } from './vml-block-library.js';
 import {
   RULE_BYTE_ARRAY,

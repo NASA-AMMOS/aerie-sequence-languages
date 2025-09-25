@@ -15,15 +15,15 @@ import { closest, distance } from 'fastest-levenshtein';
 import { SEQN_NODES } from './seqn-grammar-constants.js';
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
 import type { EditorView } from 'codemirror';
-import {
-  convertIsoToUnixEpoch,
-  isTimeBalanced,
-  isTimeMax,
-  TimeTypes,
-  validateTime,
-} from '@nasa-jpl/aerie-time-utils';
+import { convertIsoToUnixEpoch, isTimeBalanced, isTimeMax, TimeTypes, validateTime } from '@nasa-jpl/aerie-time-utils';
 import { TOKEN_ERROR } from './seq-n-constants.js';
-import { addDefaultArgs, addDefaultVariableArgs, getAllEnumSymbols, isHexValue, parseNumericArg } from '../../utils/sequence-utils.js';
+import {
+  addDefaultArgs,
+  addDefaultVariableArgs,
+  getAllEnumSymbols,
+  isHexValue,
+  parseNumericArg,
+} from '../../utils/sequence-utils.js';
 import { quoteEscape } from '../../utils/string.js';
 import { getChildrenNode, getDeepestNode, getFromAndTo } from '../../utils/tree-utils.js';
 import { pluralize } from '../../utils/text.js';
@@ -337,7 +337,7 @@ function validateCommandTypeMixing(node: SyntaxNode): Diagnostic[] {
 }
 
 /**
- * TODO refactor this into two methods? Currently used for the distinct tasks of validating 
+ * TODO refactor this into two methods? Currently used for the distinct tasks of validating
  * variable declarations and simply extracting the variables in use.
  */
 export function validateVariables(inputParams: SyntaxNode[], text: string, type: 'INPUT_PARAMS' | 'LOCALS' = 'LOCALS') {
@@ -508,7 +508,11 @@ function getVariableInfo(
   };
 }
 
-function validateActivateLoad(node: SyntaxNode[], text: string, librarySequences: LibrarySequenceSignature[]): Diagnostic[] {
+function validateActivateLoad(
+  node: SyntaxNode[],
+  text: string,
+  librarySequences: LibrarySequenceSignature[],
+): Diagnostic[] {
   if (node.length === 0) {
     return [];
   }

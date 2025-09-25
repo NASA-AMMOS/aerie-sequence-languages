@@ -282,6 +282,7 @@ export function decodeInt32Array(encoded: string[]) {
     .join('');
 }
 
-export function getAllEnumSymbols(enumMap: EnumMap, enumName: string): undefined | string[] { // TODO move this to some utils
+export function getAllEnumSymbols(enumMap: EnumMap, enumName: string): undefined | string[] {
+  // TODO move this to some utils
   return enumMap[enumName]?.values.map(({ symbol }) => symbol);
 }

@@ -22,7 +22,7 @@ export interface PhoenixResources {
 }
 
 /**
- * Dynamic Phoenix context used by adaptation components. Dictionaries are available if included in 
+ * Dynamic Phoenix context used by adaptation components. Dictionaries are available if included in
  * the current parcel.
  *
  * TODO consider whether we can abstract all knowledge of library sequences out of the UI

@@ -27,8 +27,8 @@ export type ArgTextDef = {
 
 /**
  * Collection of utilities used primarily to build the command panel in the Phoenix UI.
- * 
- * TODO future work is to generalize this interface s.t. adaptations can better control what's in 
+ *
+ * TODO future work is to generalize this interface s.t. adaptations can better control what's in
  * the panel and don't need to implement all these particular pieces.
  */
 export interface CommandInfoMapper {
