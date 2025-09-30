@@ -2,14 +2,7 @@ import { syntaxTree } from '@codemirror/language';
 import { type Diagnostic } from '@codemirror/lint';
 import { EditorState } from '@codemirror/state';
 import type { SyntaxNode, Tree } from '@lezer/common';
-import type {
-  ChannelDictionary,
-  CommandDictionary,
-  FswCommand,
-  FswCommandArgument,
-  HwCommand,
-  ParameterDictionary,
-} from '@nasa-jpl/aerie-ampcs';
+import type { CommandDictionary, FswCommand, FswCommandArgument, HwCommand } from '@nasa-jpl/aerie-ampcs';
 import { closest, distance } from 'fastest-levenshtein';
 
 import { SEQN_NODES } from './seqn-grammar-constants.js';
@@ -29,7 +22,7 @@ import { getChildrenNode, getDeepestNode, getFromAndTo } from '../../utils/tree-
 import { pluralize } from '../../utils/text.js';
 import { getBalancedDuration } from '@nasa-jpl/aerie-time-utils';
 import { getDoyTime } from '../../utils/time.js';
-import type { LibrarySequenceSignature } from '../../interfaces/phoenix.js';
+import type { PhoenixContext } from '../../interfaces/phoenix.js';
 import { closeSuggestion, computeBlocks, openSuggestion } from './custom-folder.js';
 import type { GlobalVariable } from '../../types/global-types.js';
 import { SeqNCommandInfoMapper } from './seq-n-tree-utils.js';
@@ -84,11 +77,9 @@ type VariableMap = {
  */
 export function seqnLinter(
   view: EditorView,
-  channelDictionary: ChannelDictionary | null = null,
-  commandDictionary: CommandDictionary | null = null,
-  parameterDictionaries: ParameterDictionary[] = [],
-  librarySequences: LibrarySequenceSignature[] = [],
-  globalVariables: GlobalVariable[] = [],
+  phoenixContext: PhoenixContext,
+  globalVariables: GlobalVariable[],
+  mapper: SeqNCommandInfoMapper,
 ): Diagnostic[] {
   const tree = syntaxTree(view.state);
   const treeNode = tree.topNode;
@@ -140,24 +131,16 @@ export function seqnLinter(
         ],
         docText,
         variableMap,
-        commandDictionary,
-        channelDictionary,
-        parameterDictionaries,
+        phoenixContext,
+        mapper,
       ),
     );
     diagnostics.push(
-      ...validateRequests(
-        commandsNode.getChildren(SEQN_NODES.REQUEST),
-        docText,
-        variableMap,
-        commandDictionary,
-        channelDictionary,
-        parameterDictionaries,
-      ),
+      ...validateRequests(commandsNode.getChildren(SEQN_NODES.REQUEST), docText, variableMap, phoenixContext, mapper),
     );
     diagnostics.push(
-      ...validateActivateLoad(commandsNode.getChildren(SEQN_NODES.ACTIVATE), docText, librarySequences),
-      ...validateActivateLoad(commandsNode.getChildren(SEQN_NODES.LOAD), docText, librarySequences),
+      ...validateActivateLoad(commandsNode.getChildren(SEQN_NODES.ACTIVATE), docText, phoenixContext, mapper),
+      ...validateActivateLoad(commandsNode.getChildren(SEQN_NODES.LOAD), docText, phoenixContext, mapper),
     );
   }
 
@@ -170,9 +153,8 @@ export function seqnLinter(
       ],
       docText,
       variableMap,
-      commandDictionary,
-      channelDictionary,
-      parameterDictionaries,
+      phoenixContext,
+      mapper,
     ),
   );
 
@@ -180,9 +162,8 @@ export function seqnLinter(
     ...hardwareCommandLinter(
       treeNode.getChild('HardwareCommands')?.getChildren(SEQN_NODES.COMMAND) || [],
       docText,
-      commandDictionary,
-      channelDictionary,
-      parameterDictionaries,
+      phoenixContext,
+      mapper,
     ),
   );
 
@@ -266,9 +247,8 @@ function validateRequests(
   requestNodes: SyntaxNode[],
   text: string,
   variables: VariableMap,
-  commandDictionary: CommandDictionary | null,
-  channelDictionary: ChannelDictionary | null,
-  parameterDictionaries: ParameterDictionary[],
+  phoenixContext: PhoenixContext,
+  mapper: SeqNCommandInfoMapper,
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
 
@@ -283,9 +263,8 @@ function validateRequests(
         request.getChild('Steps')?.getChildren(SEQN_NODES.COMMAND) ?? [],
         text,
         variables,
-        commandDictionary,
-        channelDictionary,
-        parameterDictionaries,
+        phoenixContext,
+        mapper,
       ),
     ),
   );
@@ -511,7 +490,8 @@ function getVariableInfo(
 function validateActivateLoad(
   node: SyntaxNode[],
   text: string,
-  librarySequences: LibrarySequenceSignature[],
+  context: PhoenixContext,
+  mapper: SeqNCommandInfoMapper,
 ): Diagnostic[] {
   if (node.length === 0) {
     return [];
@@ -526,7 +506,7 @@ function validateActivateLoad(
     if (sequenceName === null || argNode === null) {
       return;
     }
-    const library = librarySequences.find(
+    const library = context.librarySequences.find(
       sequence => sequence.name === text.slice(sequenceName.from, sequenceName.to).replace(/^"|"$/g, ''),
     );
     const argsNode = getChildrenNode(argNode);
@@ -539,7 +519,7 @@ function validateActivateLoad(
       });
     } else {
       const structureError = validateCommandStructure(activate, argsNode, library.parameters.length, (view: any) => {
-        addDefaultVariableArgs(library.parameters.slice(argsNode.length), view, activate, new SeqNCommandInfoMapper());
+        addDefaultVariableArgs(library.parameters.slice(argsNode.length), view, activate, mapper);
       });
       if (structureError) {
         diagnostics.push(structureError);
@@ -697,9 +677,8 @@ function commandLinter(
   commandNodes: SyntaxNode[] | undefined,
   text: string,
   variables: VariableMap,
-  commandDictionary: CommandDictionary | null,
-  channelDictionary: ChannelDictionary | null,
-  parameterDictionaries: ParameterDictionary[],
+  phoenixContext: PhoenixContext,
+  mapper: SeqNCommandInfoMapper,
 ): Diagnostic[] {
   // If there are no command nodes, return an empty array of diagnostics
   if (!commandNodes) {
@@ -721,17 +700,7 @@ function commandLinter(
     }
 
     // Validate the command and push the generated diagnostics to the array
-    diagnostics.push(
-      ...validateCommand(
-        command,
-        text,
-        'command',
-        variables,
-        commandDictionary,
-        channelDictionary,
-        parameterDictionaries,
-      ),
-    );
+    diagnostics.push(...validateCommand(command, text, 'command', variables, phoenixContext, mapper));
 
     // Lint the metadata and models
     diagnostics.push(...validateMetadata(command));
@@ -906,9 +875,8 @@ function immediateCommandLinter(
   commandNodes: SyntaxNode[] | undefined,
   text: string,
   variables: VariableMap,
-  commandDictionary: CommandDictionary | null,
-  channelDictionary: ChannelDictionary | null,
-  parameterDictionaries: ParameterDictionary[],
+  phoenixContext: PhoenixContext,
+  mapper: SeqNCommandInfoMapper,
 ): Diagnostic[] {
   // If there are no command nodes, return the empty array
   if (!commandNodes) {
@@ -935,17 +903,7 @@ function immediateCommandLinter(
     }
 
     // Validate the command and push the generated diagnostics to the array
-    diagnostics.push(
-      ...validateCommand(
-        command,
-        text,
-        'immediate',
-        variables,
-        commandDictionary,
-        channelDictionary,
-        parameterDictionaries,
-      ),
-    );
+    diagnostics.push(...validateCommand(command, text, 'immediate', variables, phoenixContext, mapper));
 
     // Lint the metadata
     diagnostics.push(...validateMetadata(command));
@@ -976,9 +934,8 @@ function immediateCommandLinter(
 function hardwareCommandLinter(
   commands: SyntaxNode[] | undefined,
   text: string,
-  commandDictionary: CommandDictionary | null,
-  channelDictionary: ChannelDictionary | null,
-  parameterDictionaries: ParameterDictionary[],
+  phoenixContext: PhoenixContext,
+  mapper: SeqNCommandInfoMapper,
 ): Diagnostic[] {
   // Initialize an empty array to hold diagnostics
   const diagnostics: Diagnostic[] = [];
@@ -1006,9 +963,7 @@ function hardwareCommandLinter(
     }
 
     // Validate the command and push the generated diagnostics to the array
-    diagnostics.push(
-      ...validateCommand(command, text, 'hardware', {}, commandDictionary, channelDictionary, parameterDictionaries),
-    );
+    diagnostics.push(...validateCommand(command, text, 'hardware', {}, phoenixContext, mapper));
 
     // Lint the metadata
     diagnostics.push(...validateMetadata(command));
@@ -1042,10 +997,10 @@ function validateCommand(
   text: string,
   type: 'command' | 'immediate' | 'hardware' = 'command',
   variables: VariableMap,
-  commandDictionary: CommandDictionary | null,
-  channelDictionary: ChannelDictionary | null,
-  parameterDictionaries: ParameterDictionary[],
+  phoenixContext: PhoenixContext,
+  mapper: SeqNCommandInfoMapper,
 ): Diagnostic[] {
+  const { commandDictionary } = phoenixContext;
   // If the command dictionary is not initialized, return an empty array of diagnostics.
   if (!commandDictionary) {
     return [];
@@ -1088,9 +1043,8 @@ function validateCommand(
       text,
       stemText,
       variables,
-      commandDictionary,
-      channelDictionary,
-      parameterDictionaries,
+      phoenixContext,
+      mapper,
     ),
   );
 
@@ -1167,10 +1121,13 @@ function validateStem(
 
 /**
  * Validates and lints the command arguments based on the dictionary of command arguments.
- * @param dictArgs - The dictionary of command arguments.
  * @param argNode - The SyntaxNode representing the arguments of the command.
  * @param command - The SyntaxNode representing the command.
  * @param text - The text of the document.
+ * @param stem - The string text command stem
+ * @param variables - Variables currently in scope
+ * @param phoenixContext - Editor context for dictionaries and callables
+ * @param mapper - Implementation of misc. utilities
  * @returns An array of Diagnostic objects representing the validation errors.
  */
 function validateAndLintArguments(
@@ -1180,21 +1137,24 @@ function validateAndLintArguments(
   text: string,
   stem: string,
   variables: VariableMap,
-  commandDictionary: CommandDictionary | null,
-  channelDictionary: ChannelDictionary | null,
-  parameterDictionaries: ParameterDictionary[],
+  phoenixContext: PhoenixContext,
+  mapper: SeqNCommandInfoMapper,
 ): Diagnostic[] {
   // Initialize an array to store the validation errors
   let diagnostics: Diagnostic[] = [];
+  const { commandDictionary } = phoenixContext;
 
   const structureError = validateCommandStructure(command, argNode, dictArgs.length, (view: any) => {
     if (commandDictionary) {
       addDefaultArgs(
+        // TODO refactor this code to work one arg at a time and validate structure and values left to right
+        // This way, we can apply the arg delegate left to right such that the defaults use the custom arg defs
+        // Right now, this will just apply dictionary defaults without mission-specific modifications
         commandDictionary,
         view,
         command,
         dictArgs.slice(argNode ? argNode.length : 0),
-        new SeqNCommandInfoMapper(),
+        mapper,
       );
     }
   });
@@ -1210,9 +1170,6 @@ function validateAndLintArguments(
   }
 
   const argValues = argNode?.map(arg => text.slice(arg.from, arg.to)) ?? [];
-
-  // grab the first argument node
-  // let node = argNode?.firstChild ?? null;
 
   // Iterate through the dictionary of command arguments
   for (let i = 0; i < dictArgs.length; i++) {
@@ -1233,17 +1190,7 @@ function validateAndLintArguments(
 
     // Validate and lint the current argument node
     diagnostics = diagnostics.concat(
-      ...validateArgument(
-        dictArg,
-        arg,
-        command,
-        text,
-        stem,
-        variables,
-        commandDictionary,
-        channelDictionary,
-        parameterDictionaries,
-      ),
+      ...validateArgument(dictArg, arg, command, text, stem, argValues, variables, phoenixContext, mapper),
     );
   }
 
@@ -1310,31 +1257,36 @@ function validateCommandStructure(
 }
 
 /**
-+ * Validates the given FSW command argument against the provided syntax node,
-+ * and generates diagnostics if the validation fails.
-+ *
-+ * @param dictArg The FSW command argument to validate.
-+ * @param argNode The syntax node to validate against.
-+ * @param command The command node containing the argument node.
-+ * @param text The full text of the document.
-+ * @returns An array of diagnostics generated during the validation.
-+ */
+ * Validates the given FSW command argument against the provided syntax node,
+ * and generates diagnostics if the validation fails.
+ *
+ * @param argDef The FSW command argument to validate.
+ * @param argNode The syntax node to validate against.
+ * @param command The command node containing the argument node.
+ * @param stemText - The string text command stem
+ * @param precedingArgValues - The previous argument values
+ * @param variables - Variables currently in scope
+ * @param phoenixContext - Editor context for dictionaries and callables
+ * @param mapper - Implementation of misc. utilities
+ * @returns An array of diagnostics generated during the validation.
+ */
 function validateArgument(
-  dictArg: FswCommandArgument,
+  defaultArgDef: FswCommandArgument,
   argNode: SyntaxNode,
   command: SyntaxNode,
   text: string,
   stemText: string,
+  precedingArgValues: string[],
   variables: VariableMap,
-  commandDictionary: CommandDictionary | null,
-  channelDictionary: ChannelDictionary | null,
-  parameterDictionaries: ParameterDictionary[],
+  phoenixContext: PhoenixContext,
+  mapper: SeqNCommandInfoMapper,
 ): Diagnostic[] {
-  // TODO apply getCustomArgDef to `dictArg`
+  const { commandDictionary } = phoenixContext;
+  const argDef = mapper.getArgumentDef(stemText, defaultArgDef, precedingArgValues, phoenixContext);
 
   const diagnostics: Diagnostic[] = [];
 
-  const dictArgType = dictArg.arg_type;
+  const dictArgType = argDef.arg_type;
   const argType = argNode.name;
   const argText = text.slice(argNode.from, argNode.to);
 
@@ -1360,7 +1312,7 @@ function validateArgument(
         });
       } else {
         if (commandDictionary) {
-          const symbols = getAllEnumSymbols(commandDictionary?.enumMap, dictArg.enum_name) ?? dictArg.range ?? [];
+          const symbols = getAllEnumSymbols(commandDictionary?.enumMap, argDef.enum_name) ?? argDef.range ?? [];
           const unquotedArgText = argText.replace(/^"|"$/g, '');
           if (!symbols.includes(unquotedArgText)) {
             const guess = closest(unquotedArgText.toUpperCase(), symbols);
@@ -1408,10 +1360,10 @@ function validateArgument(
     case 'numeric':
     case 'unsigned':
       if (argType === SEQN_NODES.NUMBER) {
-        if (dictArg.range === null) {
+        if (argDef.range === null) {
           break;
         }
-        const { max, min } = dictArg.range;
+        const { max, min } = argDef.range;
         const nodeTextAsNumber = parseNumericArg(argText, dictArgType);
         if (nodeTextAsNumber < min || nodeTextAsNumber > max) {
           const message =
@@ -1493,7 +1445,7 @@ function validateArgument(
         });
       } else {
         const repeatNodes = argNode.getChildren('Arguments');
-        const repeatDef = dictArg.repeat;
+        const repeatDef = argDef.repeat;
         if (repeatDef) {
           const repeatLength = repeatDef.arguments.length;
           const minSets = repeatDef.min ?? 0;
@@ -1567,9 +1519,8 @@ function validateArgument(
                     text,
                     stemText,
                     variables,
-                    commandDictionary,
-                    channelDictionary,
-                    parameterDictionaries,
+                    phoenixContext,
+                    mapper,
                   ),
                 );
               });

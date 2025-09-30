@@ -11,7 +11,7 @@ import type {
 import { SEQN_NODES } from './seqn-grammar-constants.js';
 import { parseVariables } from '../../converters/seqnToSeqJson.js';
 import type { EditorView } from 'codemirror';
-import type { UserSequence, LibrarySequenceSignature } from '../../interfaces/phoenix.js';
+import type { UserSequence, LibrarySequenceSignature, PhoenixContext } from '../../interfaces/phoenix.js';
 import type { ArgTextDef, TimeTagInfo } from '../../interfaces/command-info-mapper.js';
 import { fswCommandArgDefault, isFswCommandArgumentRepeat } from '../../utils/sequence-utils.js';
 import { getFromAndTo, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
@@ -150,12 +150,11 @@ export class SeqNCommandInfoMapper implements CommandInfoMapper {
 
   getArgumentInfo(
     commandDef: FswCommand | null,
-    channelDictionary: ChannelDictionary | null,
     seqEditorView: EditorView,
     args: SyntaxNode | null,
     argumentDefs: FswCommandArgument[] | undefined,
     parentArgDef: FswCommandArgumentRepeat | undefined,
-    parameterDictionaries: ParameterDictionary[],
+    phoenixContext: PhoenixContext,
   ): ArgTextDef[] {
     const argArray: ArgTextDef[] = [];
     const precedingArgValues: string[] = [];
@@ -177,28 +176,24 @@ export class SeqNCommandInfoMapper implements CommandInfoMapper {
           argDef = argumentDefs[argDefIndex];
         }
 
-        // TODO apply `getCustomArgDef` to `argDef`
-        // if (commandDef && argDef) {
-        //   argDef = getCustomArgDef(
-        //     commandDef?.stem,
-        //     argDef,
-        //     precedingArgValues,
-        //     parameterDictionaries,
-        //     channelDictionary,
-        //     sequenceAdaptation,
-        //   );
-        // }
+        if (commandDef && argDef) {
+          argDef = this.getArgumentDef(
+            commandDef?.stem,
+            argDef,
+            precedingArgValues,
+            phoenixContext,
+          );
+        }
 
         let children: ArgTextDef[] | undefined = undefined;
         if (!!argDef && isFswCommandArgumentRepeat(argDef)) {
           children = this.getArgumentInfo(
             commandDef,
-            channelDictionary,
             seqEditorView,
             node,
             argDef.repeat?.arguments,
             argDef,
-            parameterDictionaries,
+            phoenixContext,
           );
         }
         const argValue = seqEditorView.state.sliceDoc(node.from, node.to);
@@ -240,6 +235,15 @@ export class SeqNCommandInfoMapper implements CommandInfoMapper {
     } else {
       return null;
     }
+  }
+
+  getArgumentDef(
+    stem: string,
+    defaultArgDef: FswCommandArgument,
+    precedingArgs: string[],
+    context: PhoenixContext,
+  ): FswCommandArgument {
+    return defaultArgDef;
   }
 
   getVariablesInScope(seqEditorView: EditorView, tree: Tree | null, cursorPosition?: number): string[] {

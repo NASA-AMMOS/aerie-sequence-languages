@@ -11,7 +11,7 @@ import type {
   ParameterDictionary,
 } from '@nasa-jpl/aerie-ampcs';
 import type { EditorView } from 'codemirror';
-import type { LibrarySequenceSignature } from './phoenix.js';
+import type { LibrarySequenceSignature, PhoenixContext } from './phoenix.js';
 
 export type TimeTagInfo = { node: SyntaxNode; text: string } | null | undefined;
 
@@ -82,12 +82,11 @@ export interface CommandInfoMapper {
 
   getArgumentInfo(
     commandDef: FswCommand | null,
-    channelDictionary: ChannelDictionary | null,
     seqEditorView: EditorView,
     args: SyntaxNode | null,
     argumentDefs: FswCommandArgument[] | undefined,
     parentArgDef: FswCommandArgumentRepeat | undefined,
-    parameterDictionaries: ParameterDictionary[],
+    phoenixContext: PhoenixContext,
   ): ArgTextDef[];
 
   getCommandDef(

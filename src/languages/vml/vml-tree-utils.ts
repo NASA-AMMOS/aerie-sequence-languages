@@ -14,7 +14,7 @@ import { filterEmpty } from '../../utils/generic.js';
 import { isFswCommandArgumentRepeat } from '../../utils/sequence-utils.js';
 import { filterNodesToArray, getChildrenNode, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
 import type { CommandInfoMapper } from '../../interfaces/command-info-mapper.js';
-import type { LibrarySequenceSignature } from '../../interfaces/phoenix.js';
+import type { LibrarySequenceSignature, PhoenixContext } from '../../interfaces/phoenix.js';
 import { getDefaultArgumentValue } from './vml-adaptation.js';
 import { librarySequenceToFswCommand } from './vml-block-library.js';
 import {
@@ -165,12 +165,11 @@ export class VmlCommandInfoMapper implements CommandInfoMapper {
 
   getArgumentInfo(
     commandDef: FswCommand | null,
-    channelDictionary: ChannelDictionary | null,
     seqEditorView: EditorView,
     args: SyntaxNode | null,
     argumentDefs: FswCommandArgument[] | undefined,
     parentArgDef: FswCommandArgumentRepeat | undefined,
-    parameterDictionaries: ParameterDictionary[],
+    phoenixContext: PhoenixContext,
   ): ArgTextDef[] {
     const argArray: ArgTextDef[] = [];
     const precedingArgValues: string[] = [];
@@ -196,12 +195,11 @@ export class VmlCommandInfoMapper implements CommandInfoMapper {
         if (!!argDef && isFswCommandArgumentRepeat(argDef)) {
           children = this.getArgumentInfo(
             commandDef,
-            channelDictionary,
             seqEditorView,
             node,
             argDef.repeat?.arguments,
             argDef,
-            parameterDictionaries,
+            phoenixContext,
           );
         }
         const argValue = seqEditorView.state.sliceDoc(node.from, node.to);

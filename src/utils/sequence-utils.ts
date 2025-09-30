@@ -1,6 +1,3 @@
-/**
- * This file is a migration of utilities in `sequence-utils.ts` and `command-dictionary.ts` from the aerie-ui repo
- */
 import { SyntaxNode } from '@lezer/common';
 import type {
   CommandDictionary,
@@ -283,6 +280,5 @@ export function decodeInt32Array(encoded: string[]) {
 }
 
 export function getAllEnumSymbols(enumMap: EnumMap, enumName: string): undefined | string[] {
-  // TODO move this to some utils
   return enumMap[enumName]?.values.map(({ symbol }) => symbol);
 }

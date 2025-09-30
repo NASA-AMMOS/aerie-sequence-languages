@@ -5,9 +5,10 @@ import type { SyntaxNode } from '@lezer/common';
 import type { CommandDictionary, FswCommand, HwCommand } from '@nasa-jpl/aerie-ampcs';
 import { SEQN_NODES } from './seqn-grammar-constants.js';
 import { isFswCommandArgumentRepeat } from '../../utils/sequence-utils.js';
-import { PhoenixResources } from 'interfaces/phoenix.js';
+import { PhoenixContext, PhoenixResources } from 'interfaces/phoenix.js';
 import { buildAmpcsArgumentTooltip, buildAmpcsCommandTooltip } from '../../utils/editor-utils.js';
 import { getTokenPositionInLine } from '../../utils/tree-utils.js';
+import { SeqNCommandInfoMapper } from './seq-n-tree-utils.js';
 
 /**
  * Searches up through a node's ancestors to find a node by the given name.
@@ -30,6 +31,8 @@ function getParentNodeByName(view: EditorView, pos: number, name: string): Synta
 export function seqnTooltip(
   commandDictionary: CommandDictionary | null = null,
   resources: PhoenixResources,
+  phoenixContext: PhoenixContext,
+  mapper: SeqNCommandInfoMapper,
 ): Extension {
   return hoverTooltip((view, pos, side): Tooltip | null => {
     const { from, to } = getTokenPositionInLine(view, pos);
@@ -98,8 +101,7 @@ export function seqnTooltip(
             }
 
             if ((argNode.from === from && argNode.to === to) || isRepeatArg) {
-              const arg = fswCommand.arguments[i];
-              // TODO apply `getCustomArgDef` to `arg`
+              const arg = mapper.getArgumentDef(text, fswCommand.arguments[i], argValues, phoenixContext);
 
               if (arg) {
                 return resources.createTooltip(buildAmpcsArgumentTooltip(arg, commandDictionary), from, to);

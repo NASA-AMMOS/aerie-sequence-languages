@@ -9,6 +9,7 @@ import { HandlebarsOverSeqLanguage } from './seq-n-handlebars.js';
 import { getSeqnExtensions } from 'languages/seq-n/language.js';
 import { seqnLRLanguage } from 'languages/seq-n/seq-n.js';
 import { handlebarsLanguage } from 'languages/handlebars/handlebars.js';
+import { GlobalVariable } from 'types/global-types.js';
 
 const handlebarsCompletions = [
   // Helpers
@@ -23,16 +24,18 @@ const handlebarsCompletions = [
 /**
  * Editor extensions for SeqN with handlebars is the same as SeqN but with modified language definition/completions
  */
-function getSeqnHandlebarsExtensions(resources: PhoenixResources, context: PhoenixContext) {
-  const extensions = getSeqnExtensions(resources, context);
+function getSeqnHandlebarsExtensions(
+  resources: PhoenixResources,
+  context: PhoenixContext,
+  globals?: GlobalVariable[],
+  mapper?: SeqNCommandInfoMapper,
+) {
+  globals = globals ?? [];
+  mapper = mapper ?? new SeqNCommandInfoMapper(globals);
+  const extensions = getSeqnExtensions(resources, context, globals, mapper);
   extensions.languageSupport = new LanguageSupport(HandlebarsOverSeqLanguage, [
     seqnLRLanguage.data.of({
-      autocomplete: seqnCompletion(
-        context.channelDictionary,
-        context.commandDictionary,
-        context.parameterDictionaries,
-        context.librarySequences,
-      ),
+      autocomplete: seqnCompletion(context, globals, mapper),
     }),
     handlebarsLanguage.extension,
     HandlebarsOverSeqLanguage.data.of({ autocomplete: completeFromList(handlebarsCompletions) }),

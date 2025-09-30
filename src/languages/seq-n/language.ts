@@ -19,30 +19,22 @@ const debouncedSeqNHighlightBlock = debounce(seqNHighlightBlock, 250);
 /**
  * Get keyed object for SeqN editor extensions to more easily replace/extend components.
  */
-export function getSeqnExtensions(resources: PhoenixResources, context: PhoenixContext, globals?: GlobalVariable[]) {
+export function getSeqnExtensions(
+  resources: PhoenixResources,
+  context: PhoenixContext,
+  globals?: GlobalVariable[],
+  mapper?: SeqNCommandInfoMapper,
+) {
+  globals = globals ?? [];
+  mapper = mapper ?? new SeqNCommandInfoMapper();
   return {
     languageSupport: new LanguageSupport(seqnLRLanguage, [
       seqnLRLanguage.data.of({
-        autocomplete: seqnCompletion(
-          context.channelDictionary,
-          context.commandDictionary,
-          context.parameterDictionaries,
-          context.librarySequences,
-          globals,
-        ),
+        autocomplete: seqnCompletion(context, globals, mapper),
       }),
     ]),
-    linter: linter(view =>
-      seqnLinter(
-        view,
-        context.channelDictionary,
-        context.commandDictionary,
-        context.parameterDictionaries,
-        context.librarySequences,
-        globals,
-      ),
-    ),
-    tooltip: seqnTooltip(context.commandDictionary, resources),
+    linter: linter(view => seqnLinter(view, context, globals, mapper)),
+    tooltip: seqnTooltip(context.commandDictionary, resources, context, mapper),
     indent: indentService.of(seqnAutoIndent()),
     highlight: [EditorView.updateListener.of(debouncedSeqNHighlightBlock), seqNBlockHighlighter],
   };

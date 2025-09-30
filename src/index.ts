@@ -4,6 +4,8 @@ export { seqnParser } from './languages/seq-n/seq-n.js';
 export { SEQN_NODES } from './languages/seq-n/seqn-grammar-constants.js';
 export { getSeqnLanguage, getSeqnExtensions } from './languages/seq-n/language.js';
 export { seqnLinter } from './languages/seq-n/seq-n-linter.js';
+export { seqNFormat } from './languages/seq-n/seq-n-format.js';
+export { SeqNCommandInfoMapper, seqnToLibrarySequence } from './languages/seq-n/seq-n-tree-utils.js';
 
 export type { ParsedSeqn, Seqn, ParsedSatf, ParseSasf } from './languages/satf/types/types.js';
 export { seqnToSATF, seqnToSASF, satfToSeqn, sasfToSeqn } from './converters/satf-sasf-utils.js';

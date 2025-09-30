@@ -1,14 +1,15 @@
 import type { Completion, CompletionContext, CompletionResult } from '@codemirror/autocomplete';
 import { syntaxTree } from '@codemirror/language';
-import type { ChannelDictionary, CommandDictionary, ParameterDictionary } from '@nasa-jpl/aerie-ampcs';
+import type { CommandDictionary } from '@nasa-jpl/aerie-ampcs';
 import { SEQN_NODES } from './seqn-grammar-constants.js';
 import { fswCommandArgDefault } from '../../utils/sequence-utils.js';
 import { getDefaultVariableArgs } from '../../utils/sequence-utils.js';
 import { getFromAndTo, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
 import { getDoyTime } from '../../utils/time.js';
-import type { LibrarySequenceSignature } from '../../interfaces/phoenix.js';
+import type { PhoenixContext } from '../../interfaces/phoenix.js';
 import type { GlobalVariable } from '../../types/global-types.js';
 import { seqnLRLanguage } from './seq-n.js';
+import { SeqNCommandInfoMapper } from './seq-n-tree-utils.js';
 
 type CursorInfo = {
   isAfterActivateOrLoad: boolean;
@@ -26,13 +27,12 @@ type CursorInfo = {
  * Can be optionally called with a command dictionary so it's available for completion.
  */
 export function seqnCompletion(
-  channelDictionary: ChannelDictionary | null = null,
-  commandDictionary: CommandDictionary | null = null,
-  parameterDictionaries: ParameterDictionary[],
-  librarySequences: LibrarySequenceSignature[],
-  globals?: GlobalVariable[],
+  phoenixContext: PhoenixContext,
+  globals: GlobalVariable[],
+  mapper: SeqNCommandInfoMapper,
 ) {
   return (context: CompletionContext): CompletionResult | null => {
+    const { commandDictionary, librarySequences } = phoenixContext;
     const nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1);
     const nodeCurrent = syntaxTree(context.state).resolveInner(context.pos, 0);
     const baseNode = syntaxTree(context.state).topNode;
@@ -246,7 +246,7 @@ export function seqnCompletion(
       // If TimeTag has been entered show the completion list when 1 character has been entered
       if (word.text.length > (cursor.isAfterTimeTag || cursor.isBeforeImmedOrHDWCommands === false ? 0 : 1)) {
         fswCommandsCompletions.push(
-          ...generateCommandCompletions(channelDictionary, commandDictionary, cursor, parameterDictionaries),
+          ...generateCommandCompletions(cursor, phoenixContext, mapper),
         );
 
         //add load, activate, ground_block, and ground_event commands
@@ -332,11 +332,11 @@ export function seqnCompletion(
 }
 
 function generateCommandCompletions(
-  channelDictionary: ChannelDictionary | null,
-  commandDictionary: CommandDictionary | null,
   cursor: CursorInfo,
-  parameterDictionaries: ParameterDictionary[],
+  context: PhoenixContext,
+  mapper: SeqNCommandInfoMapper,
 ): Completion[] {
+  const commandDictionary = context.commandDictionary;
   if (commandDictionary === null) {
     return [];
   }
@@ -354,8 +354,8 @@ function generateCommandCompletions(
     if (args.length) {
       const argDefaults: string[] = [];
       args.forEach(arg => {
-        // TODO apply `getCustomArgDef` to `arg`
-        argDefaults.push(fswCommandArgDefault(arg, commandDictionary.enumMap));
+        const argDef = mapper.getArgumentDef(stem, arg, argDefaults.slice(), context);
+        argDefaults.push(fswCommandArgDefault(argDef, commandDictionary.enumMap));
       });
       const argsStr = argDefaults.join(' ');
       apply = `${stem} ${argsStr} `;
