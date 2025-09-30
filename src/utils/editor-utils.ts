@@ -1,5 +1,5 @@
 import { CommandDictionary, FswCommand, FswCommandArgument, HwCommand } from '@nasa-jpl/aerie-ampcs';
-import { getAllEnumSymbols } from './sequence-utils';
+import { getAllEnumSymbols } from './sequence-utils.js';
 
 export function buildAmpcsCommandTooltip(command: FswCommand | HwCommand): string[] {
   let commandExample: string = '';

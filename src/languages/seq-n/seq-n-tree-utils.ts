@@ -1,12 +1,10 @@
 import type { SyntaxNode, Tree } from '@lezer/common';
 import type {
-  ChannelDictionary,
   CommandDictionary,
   EnumMap,
   FswCommand,
   FswCommandArgument,
   FswCommandArgumentRepeat,
-  ParameterDictionary,
 } from '@nasa-jpl/aerie-ampcs';
 import { SEQN_NODES } from './seqn-grammar-constants.js';
 import { parseVariables } from '../../converters/seqnToSeqJson.js';
