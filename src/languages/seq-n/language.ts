@@ -11,7 +11,7 @@ import { seqnCompletion } from './seq-n-completion.js';
 import { seqnLinter } from './seq-n-linter.js';
 import { seqnTooltip } from './seq-n-tooltip.js';
 import { linter } from '@codemirror/lint';
-import { GlobalVariable } from 'types/global-types.js';
+import { GlobalVariable } from '../../types/global-types.js';
 
 const debouncedSeqNHighlightBlock = debounce(seqNHighlightBlock, 250);
 
