@@ -1,4 +1,4 @@
-import { CompletionContext, type CompletionResult } from '@codemirror/autocomplete';
+import type { CompletionContext, CompletionResult } from '@codemirror/autocomplete';
 import { LRLanguage, LanguageSupport, foldInside, foldNodeProp, syntaxTree } from '@codemirror/language';
 import { Decoration, ViewPlugin, type DecorationSet, type ViewUpdate } from '@codemirror/view';
 import type { SyntaxNode } from '@lezer/common';

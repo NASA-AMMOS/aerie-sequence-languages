@@ -1,9 +1,8 @@
 import { indentService, LanguageSupport } from '@codemirror/language';
-import { EditorView } from 'codemirror';
 import { debounce } from 'lodash-es';
 import type { PhoenixContext, PhoenixResources } from '../../interfaces/phoenix.js';
 import type { InputLanguage } from '../../interfaces/language.js';
-import { seqnLRLanguage } from './seq-n.js';
+import { getSeqnLRLanguage } from './seq-n.js';
 import { seqNBlockHighlighter, seqNHighlightBlock } from './seq-n-highlighter.js';
 import { SeqNCommandInfoMapper, seqnToLibrarySequence } from './seq-n-tree-utils.js';
 import { seqnAutoIndent } from './seq-n-autoindent.js';
@@ -27,6 +26,7 @@ export function getSeqnExtensions(
 ) {
   globals = globals ?? [];
   mapper = mapper ?? new SeqNCommandInfoMapper();
+  const seqnLRLanguage = getSeqnLRLanguage(resources);
   return {
     languageSupport: new LanguageSupport(seqnLRLanguage, [
       seqnLRLanguage.data.of({
@@ -36,7 +36,7 @@ export function getSeqnExtensions(
     linter: linter(view => seqnLinter(view, context, globals, mapper)),
     tooltip: seqnTooltip(context.commandDictionary, resources, context, mapper),
     indent: indentService.of(seqnAutoIndent()),
-    highlight: [EditorView.updateListener.of(debouncedSeqNHighlightBlock), seqNBlockHighlighter],
+    highlight: [resources.EditorView.updateListener.of(debouncedSeqNHighlightBlock), seqNBlockHighlighter],
   };
 }
 

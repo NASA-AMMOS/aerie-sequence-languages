@@ -8,7 +8,7 @@ import { getFromAndTo, getNearestAncestorNodeOfType } from '../../utils/tree-uti
 import { getDoyTime } from '../../utils/time.js';
 import type { PhoenixContext } from '../../interfaces/phoenix.js';
 import type { GlobalVariable } from '../../types/global-types.js';
-import { seqnLRLanguage } from './seq-n.js';
+import { seqnParser } from './seq-n.js';
 import { SeqNCommandInfoMapper } from './seq-n-tree-utils.js';
 
 type CursorInfo = {
@@ -62,7 +62,7 @@ export function seqnCompletion(
           nodeBefore.parent?.name === SEQN_NODES.ACTIVATE || nodeBefore.parent?.name === SEQN_NODES.LOAD,
         isAfterTimeTag: (() => {
           const line = context.state.doc.lineAt(context.pos);
-          const node = seqnLRLanguage.parser.parse(line.text).resolveInner(context.pos - line.from, -1);
+          const node = seqnParser.parse(line.text).resolveInner(context.pos - line.from, -1); // TODO is it bad to use seqnParser here? test with comments
 
           return node.parent?.getChild('TimeGroundEpoch') || node.parent?.getChild('TimeTag') ? true : false;
         })(),

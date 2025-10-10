@@ -1,4 +1,3 @@
-import { EditorView } from 'codemirror';
 import { debounce } from 'lodash-es';
 import type { PhoenixContext, PhoenixResources } from '../../interfaces/phoenix.js';
 import { InputLanguage } from '../../interfaces/language.js';
@@ -28,7 +27,7 @@ const getEditorExtension = (context: PhoenixContext, resources: PhoenixResources
     ),
     vmlTooltip(context.commandDictionary, librarySequenceMap, resources),
     // indentService.of(adaptation.autoIndent()) // VML doesn't seem to have an indenter???
-    [EditorView.updateListener.of(debouncedVmlHighlightBlock), vmlBlockHighlighter],
+    [resources.EditorView.updateListener.of(debouncedVmlHighlightBlock), vmlBlockHighlighter],
   ];
 };
 

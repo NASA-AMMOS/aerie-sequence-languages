@@ -1,6 +1,6 @@
 import { syntaxTree } from '@codemirror/language';
 import { type Diagnostic } from '@codemirror/lint';
-import { EditorState } from '@codemirror/state';
+import { type EditorState } from '@codemirror/state';
 import type { SyntaxNode, Tree } from '@lezer/common';
 import type { CommandDictionary, FswCommand, FswCommandArgument, HwCommand } from '@nasa-jpl/aerie-ampcs';
 import { closest, distance } from 'fastest-levenshtein';

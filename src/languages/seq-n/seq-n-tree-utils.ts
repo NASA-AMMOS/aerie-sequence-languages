@@ -15,7 +15,7 @@ import { fswCommandArgDefault, isFswCommandArgumentRepeat } from '../../utils/se
 import { getFromAndTo, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
 import type { CommandInfoMapper } from '../../interfaces/command-info-mapper.js';
 import { GlobalVariable } from '../../types/global-types.js';
-import { seqnLRLanguage } from './seq-n.js';
+import { seqnParser } from './seq-n.js';
 import { TOKEN_ERROR } from './seq-n-constants.js';
 import { validateVariables } from './seq-n-linter.js';
 
@@ -50,7 +50,7 @@ export function getAncestorStepOrRequest(node: SyntaxNode | null) {
 }
 
 export function seqnToLibrarySequence(sequence: UserSequence): LibrarySequenceSignature {
-  const tree = seqnLRLanguage.parser.parse(sequence.definition);
+  const tree = seqnParser.parse(sequence.definition); // TODO is it bad to use seqnParser here? test with comments
   return {
     name: sequence.name,
     parameters: parseVariables(tree.topNode, sequence.definition, SEQN_NODES.PARAMETER_DECLARATION) ?? [],

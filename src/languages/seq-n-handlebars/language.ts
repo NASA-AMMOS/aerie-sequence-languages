@@ -7,7 +7,7 @@ import { seqNFormat } from '../seq-n/seq-n-format.js';
 import { seqnCompletion } from '../seq-n/seq-n-completion.js';
 import { HandlebarsOverSeqLanguage } from './seq-n-handlebars.js';
 import { getSeqnExtensions } from 'languages/seq-n/language.js';
-import { seqnLRLanguage } from 'languages/seq-n/seq-n.js';
+import { getSeqnLRLanguage } from 'languages/seq-n/seq-n.js';
 import { handlebarsLanguage } from 'languages/handlebars/handlebars.js';
 import { GlobalVariable } from 'types/global-types.js';
 
@@ -33,6 +33,7 @@ function getSeqnHandlebarsExtensions(
   globals = globals ?? [];
   mapper = mapper ?? new SeqNCommandInfoMapper(globals);
   const extensions = getSeqnExtensions(resources, context, globals, mapper);
+  const seqnLRLanguage = getSeqnLRLanguage(resources);
   extensions.languageSupport = new LanguageSupport(HandlebarsOverSeqLanguage, [
     seqnLRLanguage.data.of({
       autocomplete: seqnCompletion(context, globals, mapper),

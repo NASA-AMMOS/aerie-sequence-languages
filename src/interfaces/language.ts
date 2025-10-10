@@ -1,6 +1,6 @@
-import { EditorView } from 'codemirror';
+import type { EditorView } from 'codemirror';
 import { CommandInfoMapper } from './command-info-mapper.js';
-import { LibrarySequenceSignature, PhoenixContext, UserSequence } from './phoenix.js';
+import type { LibrarySequenceSignature, PhoenixContext, UserSequence } from './phoenix.js';
 import type { Extension } from '@codemirror/state';
 
 /**

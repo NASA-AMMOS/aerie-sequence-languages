@@ -1,5 +1,5 @@
 import { indentSelection } from '@codemirror/commands';
-import { EditorView } from 'codemirror';
+import type { EditorView } from 'codemirror';
 
 export function seqNFormat(editorSequenceView: EditorView) {
   // apply indentation

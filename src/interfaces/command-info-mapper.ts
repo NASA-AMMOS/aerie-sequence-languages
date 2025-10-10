@@ -1,6 +1,5 @@
 import type { SyntaxNode, Tree } from '@lezer/common';
 import type {
-  ChannelDictionary,
   CommandDictionary,
   EnumMap,
   FswCommand,
@@ -8,7 +7,6 @@ import type {
   FswCommandArgumentRepeat,
   FswCommandArgumentVarString,
   FswCommandArgumentFixedString,
-  ParameterDictionary,
 } from '@nasa-jpl/aerie-ampcs';
 import type { EditorView } from 'codemirror';
 import type { LibrarySequenceSignature, PhoenixContext } from './phoenix.js';

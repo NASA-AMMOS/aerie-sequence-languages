@@ -1,7 +1,7 @@
 import { LRLanguage } from '@codemirror/language';
 import { parseMixed } from '@lezer/common';
 import { handlebarsLanguage } from '../handlebars/handlebars.js';
-import { seqnLRLanguage } from '../seq-n/seq-n.js';
+import { seqnParser } from '../seq-n/seq-n.js';
 
 export const HandlebarsOverSeqLanguage = LRLanguage.define({
   languageData: {
@@ -12,7 +12,7 @@ export const HandlebarsOverSeqLanguage = LRLanguage.define({
       return node.type.isTop
         ? {
             overlay: node => node.type.name === 'Text',
-            parser: seqnLRLanguage.parser, // TODO: We need to get the correct parser from the sequence adaptation somehow...
+            parser: seqnParser, // TODO: We need to get the correct parser from the sequence adaptation somehow...
           }
         : null;
     }),
