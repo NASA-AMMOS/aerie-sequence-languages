@@ -1,6 +1,12 @@
-import type { SyntaxNode, Tree } from '@lezer/common';
+import type { SyntaxNode } from '@lezer/common';
+import { Tree } from '@lezer/common';
 import type { CommandDictionary, FswCommandArgument } from '@nasa-jpl/aerie-ampcs';
-import { getBalancedDuration, parseDurationString, TimeTypes, validateTime } from '@nasa-jpl/aerie-time-utils';
+import {
+  getBalancedDuration,
+  parseDurationString,
+  TimeTypes,
+  validateTime
+} from '@nasa-jpl/aerie-time-utils';
 import { SATF_SASF_NODES } from '../languages/satf/constants/satf-sasf-constants.js';
 import { SatfLanguage } from '../languages/satf/grammar/satf-sasf.js';
 import { ParsedSatf, ParsedSeqn, ParseSasf, Seqn } from '../languages/satf/types/types.js';
@@ -732,7 +738,7 @@ function parseVariableName(parameterNode: SyntaxNode | null, text: string): stri
     return [];
   }
   const entries = parameterNode.getChildren(SATF_SASF_NODES.ENTRY);
-  if (!entries || entries.length === 0) {
+  if (!entries || entries.length == 0) {
     return [];
   }
 
