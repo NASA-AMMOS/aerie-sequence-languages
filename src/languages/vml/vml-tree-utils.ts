@@ -1,20 +1,17 @@
+import type { EditorView } from '@codemirror/view';
 import type { SyntaxNode, Tree } from '@lezer/common';
 import type {
-  ChannelDictionary,
   CommandDictionary,
   EnumMap,
   FswCommand,
   FswCommandArgument,
   FswCommandArgumentRepeat,
-  ParameterDictionary,
 } from '@nasa-jpl/aerie-ampcs';
-import type { EditorView } from '@codemirror/view';
-import type { ArgTextDef, TimeTagInfo } from '../../interfaces/command-info-mapper.js';
+import type { ArgTextDef, CommandInfoMapper, TimeTagInfo } from '../../interfaces/command-info-mapper.js';
+import type { LibrarySequenceSignature, PhoenixContext } from '../../interfaces/phoenix.js';
 import { filterEmpty } from '../../utils/generic.js';
 import { isFswCommandArgumentRepeat } from '../../utils/sequence-utils.js';
 import { filterNodesToArray, getChildrenNode, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
-import type { CommandInfoMapper } from '../../interfaces/command-info-mapper.js';
-import type { LibrarySequenceSignature, PhoenixContext } from '../../interfaces/phoenix.js';
 import { getDefaultArgumentValue } from './vml-adaptation.js';
 import { librarySequenceToFswCommand } from './vml-block-library.js';
 import {

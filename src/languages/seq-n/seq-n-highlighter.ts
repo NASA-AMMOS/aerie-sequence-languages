@@ -1,12 +1,11 @@
-// import { syntaxTree } from '@codemirror/language';
+import { syntaxTree } from '@codemirror/language';
 import { Decoration, type DecorationSet, type ViewUpdate } from '@codemirror/view';
 import type { SyntaxNode } from '@lezer/common';
-import { SEQN_NODES } from './seqn-grammar-constants.js';
+import { PhoenixResources } from '../../interfaces/phoenix.js';
 import { blockMark } from '../../themes/block.js';
 import { getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
 import { computeBlocks, isBlockCommand } from './custom-folder.js';
-import { PhoenixResources } from '../../interfaces/phoenix.js';
-import { syntaxTree } from '@codemirror/language';
+import { SEQN_NODES } from './seqn-grammar-constants.js';
 
 export function seqNBlockHighlighter(resources: PhoenixResources) {
   return resources.ViewPlugin.fromClass(

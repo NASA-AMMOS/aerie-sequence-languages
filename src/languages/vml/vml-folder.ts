@@ -1,5 +1,5 @@
 import { foldService, syntaxTree } from '@codemirror/language';
-import { EditorState } from '@codemirror/state';
+import type { EditorState } from '@codemirror/state';
 import type { SyntaxNode } from '@lezer/common';
 import {
   RULE_ELSE,

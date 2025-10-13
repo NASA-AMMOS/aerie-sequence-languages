@@ -491,7 +491,7 @@ function satfVariablesFromSeqn(
     ?.map(variable => {
       return (
         `\t${variable.name}` +
-        `(\n\t\tTYPE,${variable.type}${variable.enum_name ? `,\n\t\tENUM_NAME,${variable.enum_name}` : ''}` +
+        `(\n\t\tTYPE,${variable.type}${variable.enum_name ? `,\n\t\t\ENUM_NAME,${variable.enum_name}` : ''}` +
         `${
           variable.allowable_ranges
             ? `,${variable.allowable_ranges
@@ -532,9 +532,9 @@ function sasfRequestFromSeqN(
       const request =
         `request(${name},` +
         `\n\tSTART_TIME, ${parsedTime.tag},${parsedTime.type}` +
-        `${requester ? `,\n\t${requester.replaceAll('\\', '"')}` : ''}` +
-        `${processor ? `,\n\t${processor.replaceAll('\\', '"')}` : ''}` +
-        `${key ? `,\n\t${key.replaceAll('\\', '"')}` : ''})`;
+        `${requester ? `,\n\t${requester.replaceAll('\\', '\"')}` : ''}` +
+        `${processor ? `,\n\t${processor.replaceAll('\\', '\"')}` : ''}` +
+        `${key ? `,\n\t${key.replaceAll('\\', '\"')}` : ''})`;
       `\n\n`;
       let order = 1;
       let child = requestNode?.getChild(SEQN_NODES.STEPS)?.firstChild;

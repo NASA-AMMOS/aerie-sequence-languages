@@ -1,5 +1,5 @@
 import { syntaxTree } from '@codemirror/language';
-import { EditorState } from '@codemirror/state';
+import type { EditorState } from '@codemirror/state';
 import type { SyntaxNode } from '@lezer/common';
 import { getFromAndTo } from '../../utils/tree-utils.js';
 import { SEQN_NODES } from './seqn-grammar-constants.js';

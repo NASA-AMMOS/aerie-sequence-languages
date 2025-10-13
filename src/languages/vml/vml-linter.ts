@@ -1,5 +1,5 @@
 import { syntaxTree } from '@codemirror/language';
-import { type Diagnostic } from '@codemirror/lint';
+import type { Diagnostic } from '@codemirror/lint';
 import type { Text } from '@codemirror/state';
 import type { EditorView } from '@codemirror/view';
 import type { SyntaxNode, Tree } from '@lezer/common';
