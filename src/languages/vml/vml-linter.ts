@@ -1,14 +1,13 @@
 import { syntaxTree } from '@codemirror/language';
-import { linter, type Diagnostic } from '@codemirror/lint';
-import type { Extension, Text } from '@codemirror/state';
+import { type Diagnostic } from '@codemirror/lint';
+import type { Text } from '@codemirror/state';
+import type { EditorView } from '@codemirror/view';
 import type { SyntaxNode, Tree } from '@lezer/common';
 import type { CommandDictionary, FswCommand, FswCommandArgument } from '@nasa-jpl/aerie-ampcs';
-import type { EditorView } from 'codemirror';
 import { closest } from 'fastest-levenshtein';
+import type { GlobalVariable } from '../../types/global-types.js';
 import { quoteEscape, unquoteUnescape } from '../../utils/string.js';
 import { filterNodes, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
-import type { GlobalVariable } from '../../types/global-types.js';
-import { VmlLanguage } from './vml.js';
 import {
   RULE_CALL_PARAMETER,
   RULE_CALL_PARAMETERS,
@@ -29,6 +28,7 @@ import {
 } from './vml-constants.js';
 import { getVmlVariables } from './vml-tree-utils.js';
 import { LibrarySequenceMap } from './vml-types.js';
+import { VmlLanguage } from './vml.js';
 
 /**
  * Limitations
@@ -43,25 +43,24 @@ import { LibrarySequenceMap } from './vml-types.js';
 const MAX_PARSER_ERRORS = 10;
 
 export function vmlLinter(
+  view: EditorView,
   commandDictionary: CommandDictionary | null = null,
   librarySequenceMap: LibrarySequenceMap = {},
   globals: GlobalVariable[] = [],
-): Extension {
-  return linter(view => {
-    const diagnostics: Diagnostic[] = [];
-    const tree = syntaxTree(view.state);
-    const sequence = view.state.sliceDoc();
-    diagnostics.push(...validateParserErrors(tree, sequence, view.state.toText(sequence)));
-    if (!commandDictionary) {
-      return diagnostics;
-    }
-
-    const parsed = VmlLanguage.parser.parse(sequence);
-    diagnostics.push(...validateCommands(commandDictionary, librarySequenceMap, sequence, parsed));
-    diagnostics.push(...validateGlobals(sequence, tree, globals));
-
+): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+  const tree = syntaxTree(view.state);
+  const sequence = view.state.sliceDoc();
+  diagnostics.push(...validateParserErrors(tree, sequence, view.state.toText(sequence)));
+  if (!commandDictionary) {
     return diagnostics;
-  });
+  }
+
+  const parsed = VmlLanguage.parser.parse(sequence);
+  diagnostics.push(...validateCommands(commandDictionary, librarySequenceMap, sequence, parsed));
+  diagnostics.push(...validateGlobals(sequence, tree, globals));
+
+  return diagnostics;
 }
 
 function validateGlobals(input: string, tree: Tree, globals: GlobalVariable[]): Diagnostic[] {

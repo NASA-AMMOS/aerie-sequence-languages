@@ -1,7 +1,6 @@
-import type { EditorView } from 'codemirror';
+import type { EditorView } from '@codemirror/view';
 import { CommandInfoMapper } from './command-info-mapper.js';
 import type { LibrarySequenceSignature, PhoenixContext, UserSequence } from './phoenix.js';
-import type { Extension } from '@codemirror/state';
 
 /**
  * Base object properties for either input or output languages in Phoenix.
@@ -9,7 +8,7 @@ import type { Extension } from '@codemirror/state';
 export interface BaseLanguage {
   name: string;
   fileExtension: string;
-  editorExtension?: (context: PhoenixContext) => Extension[];
+  editorExtension?: (context: PhoenixContext) => any[];
 }
 
 /**

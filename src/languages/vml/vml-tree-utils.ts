@@ -8,7 +8,7 @@ import type {
   FswCommandArgumentRepeat,
   ParameterDictionary,
 } from '@nasa-jpl/aerie-ampcs';
-import type { EditorView } from 'codemirror';
+import type { EditorView } from '@codemirror/view';
 import type { ArgTextDef, TimeTagInfo } from '../../interfaces/command-info-mapper.js';
 import { filterEmpty } from '../../utils/generic.js';
 import { isFswCommandArgumentRepeat } from '../../utils/sequence-utils.js';

@@ -1,33 +1,37 @@
-import { syntaxTree } from '@codemirror/language';
-import { Decoration, ViewPlugin, type DecorationSet, type ViewUpdate } from '@codemirror/view';
+// import { syntaxTree } from '@codemirror/language';
+import { Decoration, type DecorationSet, type ViewUpdate } from '@codemirror/view';
 import type { SyntaxNode } from '@lezer/common';
 import { SEQN_NODES } from './seqn-grammar-constants.js';
 import { blockMark } from '../../themes/block.js';
 import { getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
 import { computeBlocks, isBlockCommand } from './custom-folder.js';
+import { PhoenixResources } from '../../interfaces/phoenix.js';
+import { syntaxTree } from '@codemirror/language';
 
-export const seqNBlockHighlighter = ViewPlugin.fromClass(
-  class {
-    decorations: DecorationSet;
-    constructor() {
-      this.decorations = Decoration.none;
-    }
-    update(viewUpdate: ViewUpdate): DecorationSet | null {
-      if (viewUpdate.selectionSet || viewUpdate.docChanged || viewUpdate.viewportChanged) {
-        const blocks = seqNHighlightBlock(viewUpdate);
-        this.decorations = Decoration.set(
-          // codemirror requires marks to be in sorted order
-          blocks.sort((a, b) => a.from - b.from).map(block => blockMark.range(block.from, block.to)),
-        );
-        return this.decorations;
+export function seqNBlockHighlighter(resources: PhoenixResources) {
+  return resources.ViewPlugin.fromClass(
+    class {
+      decorations: DecorationSet;
+      constructor() {
+        this.decorations = Decoration.none;
       }
-      return null;
-    }
-  },
-  {
-    decorations: viewPluginSpecification => viewPluginSpecification.decorations,
-  },
-);
+      update(viewUpdate: ViewUpdate): DecorationSet | null {
+        if (viewUpdate.selectionSet || viewUpdate.docChanged || viewUpdate.viewportChanged) {
+          const blocks = seqNHighlightBlock(viewUpdate);
+          this.decorations = Decoration.set(
+            // codemirror requires marks to be in sorted order
+            blocks.sort((a, b) => a.from - b.from).map(block => blockMark.range(block.from, block.to)),
+          );
+          return this.decorations;
+        }
+        return null;
+      }
+    },
+    {
+      decorations: viewPluginSpecification => viewPluginSpecification.decorations,
+    },
+  );
+}
 
 export function seqNHighlightBlock(viewUpdate: ViewUpdate): SyntaxNode[] {
   const tree = syntaxTree(viewUpdate.state);

@@ -1,14 +1,14 @@
 import { syntaxTree } from '@codemirror/language';
 import type { Extension } from '@codemirror/state';
-import { hoverTooltip, type EditorView, type Tooltip } from '@codemirror/view';
+import type { EditorView, Tooltip } from '@codemirror/view';
 import type { SyntaxNode } from '@lezer/common';
 import type { CommandDictionary, FswCommand, HwCommand } from '@nasa-jpl/aerie-ampcs';
-import { SEQN_NODES } from './seqn-grammar-constants.js';
-import { isFswCommandArgumentRepeat } from '../../utils/sequence-utils.js';
 import { PhoenixContext, PhoenixResources } from 'interfaces/phoenix.js';
 import { buildAmpcsArgumentTooltip, buildAmpcsCommandTooltip } from '../../utils/editor-utils.js';
+import { isFswCommandArgumentRepeat } from '../../utils/sequence-utils.js';
 import { getTokenPositionInLine } from '../../utils/tree-utils.js';
 import { SeqNCommandInfoMapper } from './seq-n-tree-utils.js';
+import { SEQN_NODES } from './seqn-grammar-constants.js';
 
 /**
  * Searches up through a node's ancestors to find a node by the given name.
@@ -34,7 +34,7 @@ export function seqnTooltip(
   phoenixContext: PhoenixContext,
   mapper: SeqNCommandInfoMapper,
 ): Extension {
-  return hoverTooltip((view, pos, side): Tooltip | null => {
+  return resources.hoverTooltip((view, pos, side): Tooltip | null => {
     const { from, to } = getTokenPositionInLine(view, pos);
 
     // First handle the case where the token is out of bounds.
