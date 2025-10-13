@@ -3,16 +3,17 @@ import { Tree } from '@lezer/common';
 import type { CommandDictionary, FswCommandArgument } from '@nasa-jpl/aerie-ampcs';
 import {
   getBalancedDuration,
+  getDurationTimeComponents,
   parseDurationString,
+  validateTime,
   TimeTypes,
-  validateTime
 } from '@nasa-jpl/aerie-time-utils';
-import { SATF_SASF_NODES } from '../languages/satf/constants/satf-sasf-constants.js';
+import { removeEscapedQuotes, removeQuote, unquoteUnescape } from '../utils/string.js';
 import { SatfLanguage } from '../languages/satf/grammar/satf-sasf.js';
+import { SATF_SASF_NODES } from '../languages/satf/constants/satf-sasf-constants.js';
 import { ParsedSatf, ParsedSeqn, ParseSasf, Seqn } from '../languages/satf/types/types.js';
 import { seqnParser } from '../languages/seq-n/seq-n.js';
 import { SEQN_NODES } from '../languages/seq-n/seqn-grammar-constants.js';
-import { removeEscapedQuotes, removeQuote, unquoteUnescape } from '../utils/string.js';
 import { parseVariables } from './seqnToSeqJson.js';
 /**
  * Asynchronously converts a parsed SeqN tree via lezer into a structured SATF representation.
@@ -293,7 +294,7 @@ function parseSeqNTime(
     }
 
     if (validateTime(timeValue, TimeTypes.DOY_TIME)) {
-      const balancedTime = getBalancedDuration(timeValue);
+      let balancedTime = getBalancedDuration(timeValue);
 
       return {
         tag: balancedTime,
@@ -419,10 +420,10 @@ function serializeSeqNArgs(args: any[]): string {
 }
 
 function getSatfVariableNames(seqnTree: Tree, text: string): string[] {
-  const types = [SEQN_NODES.PARAMETER_DECLARATION, SEQN_NODES.LOCAL_DECLARATION];
-  const names: string[] = [];
+  let types = [SEQN_NODES.PARAMETER_DECLARATION, SEQN_NODES.LOCAL_DECLARATION];
+  let names: string[] = [];
   for (let i = 0; i < types.length; i++) {
-    const variableContainer = seqnTree.topNode.getChild(types[i]);
+    let variableContainer = seqnTree.topNode.getChild(types[i]);
     if (!variableContainer) {
       continue;
     }
@@ -902,7 +903,7 @@ function parseTimeTagNode(timeValueNode: SyntaxNode | null, timeTagNode: SyntaxN
 }
 
 function parseComment(commentNode: SyntaxNode | null, text: string): string {
-  const comment = commentNode
+  let comment = commentNode
     ? `${text
         .slice(commentNode.from, commentNode.to)
         .split('\n')
