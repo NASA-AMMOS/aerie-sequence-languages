@@ -1,17 +1,16 @@
-import { indentService, LanguageSupport } from '@codemirror/language';
+import { LanguageSupport } from '@codemirror/language';
 import { debounce } from 'lodash-es';
-import type { PhoenixContext, PhoenixResources } from '../../interfaces/phoenix.js';
 import type { InputLanguage } from '../../interfaces/language.js';
-import { getSeqnLRLanguage } from './seq-n.js';
-import { seqNBlockHighlighter, seqNHighlightBlock } from './seq-n-highlighter.js';
-import { SeqNCommandInfoMapper, seqnToLibrarySequence } from './seq-n-tree-utils.js';
+import type { PhoenixContext, PhoenixResources } from '../../interfaces/phoenix.js';
+import { GlobalVariable } from '../../types/global-types.js';
 import { seqnAutoIndent } from './seq-n-autoindent.js';
-import { seqNFormat } from './seq-n-format.js';
 import { seqnCompletion } from './seq-n-completion.js';
+import { seqNFormat } from './seq-n-format.js';
+import { seqNBlockHighlighter, seqNHighlightBlock } from './seq-n-highlighter.js';
 import { seqnLinter } from './seq-n-linter.js';
 import { seqnTooltip } from './seq-n-tooltip.js';
-import { linter } from '@codemirror/lint';
-import { GlobalVariable } from '../../types/global-types.js';
+import { SeqNCommandInfoMapper, seqnToLibrarySequence } from './seq-n-tree-utils.js';
+import { getSeqnLRLanguage } from './seq-n.js';
 
 const debouncedSeqNHighlightBlock = debounce(seqNHighlightBlock, 250);
 
@@ -33,10 +32,10 @@ export function getSeqnExtensions(
         autocomplete: seqnCompletion(context, globals, mapper),
       }),
     ]),
-    linter: linter(view => seqnLinter(view, context, globals, mapper)),
+    linter: resources.linter(view => seqnLinter(view, context, globals, mapper)),
     tooltip: seqnTooltip(context.commandDictionary, resources, context, mapper),
-    indent: indentService.of(seqnAutoIndent()),
-    highlight: [resources.EditorView.updateListener.of(debouncedSeqNHighlightBlock), seqNBlockHighlighter],
+    indent: resources.indentService.of(seqnAutoIndent()),
+    highlight: [resources.EditorView.updateListener.of(debouncedSeqNHighlightBlock), seqNBlockHighlighter(resources)],
   };
 }
 

@@ -8,7 +8,7 @@ import type {
   FswCommandArgumentVarString,
   FswCommandArgumentFixedString,
 } from '@nasa-jpl/aerie-ampcs';
-import type { EditorView } from 'codemirror';
+import type { EditorView } from '@codemirror/view';
 import type { LibrarySequenceSignature, PhoenixContext } from './phoenix.js';
 
 export type TimeTagInfo = { node: SyntaxNode; text: string } | null | undefined;

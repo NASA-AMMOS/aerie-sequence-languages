@@ -1,15 +1,21 @@
 import { syntaxTree } from '@codemirror/language';
 import { type Diagnostic } from '@codemirror/lint';
-import { type EditorState } from '@codemirror/state';
+import { EditorState } from '@codemirror/state';
+import type { EditorView } from '@codemirror/view';
 import type { SyntaxNode, Tree } from '@lezer/common';
 import type { CommandDictionary, FswCommand, FswCommandArgument, HwCommand } from '@nasa-jpl/aerie-ampcs';
-import { closest, distance } from 'fastest-levenshtein';
-
-import { SEQN_NODES } from './seqn-grammar-constants.js';
+import {
+  convertIsoToUnixEpoch,
+  getBalancedDuration,
+  isTimeBalanced,
+  isTimeMax,
+  TimeTypes,
+  validateTime,
+} from '@nasa-jpl/aerie-time-utils';
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
-import type { EditorView } from 'codemirror';
-import { convertIsoToUnixEpoch, isTimeBalanced, isTimeMax, TimeTypes, validateTime } from '@nasa-jpl/aerie-time-utils';
-import { TOKEN_ERROR } from './seq-n-constants.js';
+import { closest, distance } from 'fastest-levenshtein';
+import type { PhoenixContext } from '../../interfaces/phoenix.js';
+import type { GlobalVariable } from '../../types/global-types.js';
 import {
   addDefaultArgs,
   addDefaultVariableArgs,
@@ -18,14 +24,13 @@ import {
   parseNumericArg,
 } from '../../utils/sequence-utils.js';
 import { quoteEscape } from '../../utils/string.js';
-import { getChildrenNode, getDeepestNode, getFromAndTo } from '../../utils/tree-utils.js';
 import { pluralize } from '../../utils/text.js';
-import { getBalancedDuration } from '@nasa-jpl/aerie-time-utils';
 import { getDoyTime } from '../../utils/time.js';
-import type { PhoenixContext } from '../../interfaces/phoenix.js';
+import { getChildrenNode, getDeepestNode, getFromAndTo } from '../../utils/tree-utils.js';
 import { closeSuggestion, computeBlocks, openSuggestion } from './custom-folder.js';
-import type { GlobalVariable } from '../../types/global-types.js';
+import { TOKEN_ERROR } from './seq-n-constants.js';
 import { SeqNCommandInfoMapper } from './seq-n-tree-utils.js';
+import { SEQN_NODES } from './seqn-grammar-constants.js';
 
 const KNOWN_DIRECTIVES = [
   'LOAD_AND_GO',

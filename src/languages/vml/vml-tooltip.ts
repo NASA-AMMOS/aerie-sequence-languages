@@ -1,5 +1,6 @@
 import { syntaxTree } from '@codemirror/language';
 import type { Extension } from '@codemirror/state';
+import type { EditorView } from '@codemirror/view';
 import { hoverTooltip, type Tooltip } from '@codemirror/view';
 import type { SyntaxNode } from '@lezer/common';
 import type {
@@ -8,11 +9,11 @@ import type {
   FswCommandArgument,
   FswCommandArgumentInteger,
 } from '@nasa-jpl/aerie-ampcs';
-import type { EditorView } from 'codemirror';
+import { buildAmpcsArgumentTooltip, buildAmpcsCommandTooltip } from 'utils/editor-utils.js';
+import type { CreateTooltip, LibrarySequenceSignature, PhoenixResources } from '../../interfaces/phoenix.js';
 import { decodeInt32Array } from '../../utils/sequence-utils.js';
 import { unquoteUnescape } from '../../utils/string.js';
 import { checkContainment, getNearestAncestorNodeOfType, getTokenPositionInLine } from '../../utils/tree-utils.js';
-import type { CreateTooltip, LibrarySequenceSignature, PhoenixResources } from '../../interfaces/phoenix.js';
 import { librarySequenceToFswCommand } from './vml-block-library.js';
 import {
   RULE_BYTE_ARRAY,
@@ -31,7 +32,6 @@ import {
   TOKEN_INT_CONST,
 } from './vml-constants.js';
 import { getVmlNameNode } from './vml-tree-utils.js';
-import { buildAmpcsArgumentTooltip, buildAmpcsCommandTooltip } from 'utils/editor-utils.js';
 
 const sequenceEngineArgument: FswCommandArgumentInteger = {
   arg_type: 'integer',

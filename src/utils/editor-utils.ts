@@ -22,7 +22,7 @@ export function buildAmpcsArgumentTooltip(
   dictionary: CommandDictionary | null,
   maxEnumsToDisplay: number = 20,
 ): string[] {
-  let displayLines: string[] = [`Name: ${arg.name}`, `Type: ${arg.arg_type}`, `Description: ${arg.description}`];
+  const displayLines: string[] = [`Name: ${arg.name}`, `Type: ${arg.arg_type}`, `Description: ${arg.description}`];
 
   // TODO replace all these big if statements with waterfalling switch/case
   if (

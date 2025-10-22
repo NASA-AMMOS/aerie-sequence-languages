@@ -1,8 +1,8 @@
 import { syntaxTree } from '@codemirror/language';
 import type { EditorState } from '@codemirror/state';
 import type { SyntaxNode } from '@lezer/common';
-import { SEQN_NODES } from './seqn-grammar-constants.js';
 import { getFromAndTo } from '../../utils/tree-utils.js';
+import { SEQN_NODES } from './seqn-grammar-constants.js';
 
 export function customFoldInside(node: SyntaxNode, state: EditorState): { from: number; to: number } | null {
   switch (node.name) {

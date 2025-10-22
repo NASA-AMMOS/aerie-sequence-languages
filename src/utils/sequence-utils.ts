@@ -17,7 +17,7 @@ import type {
 } from '@nasa-jpl/aerie-ampcs';
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
 import { CommandInfoMapper } from '../interfaces/command-info-mapper.js';
-import type { EditorView } from 'codemirror';
+import type { EditorView } from '@codemirror/view';
 
 /**
  * Return a default argument for a given argument definition.

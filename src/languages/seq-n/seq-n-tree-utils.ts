@@ -8,7 +8,7 @@ import type {
 } from '@nasa-jpl/aerie-ampcs';
 import { SEQN_NODES } from './seqn-grammar-constants.js';
 import { parseVariables } from '../../converters/seqnToSeqJson.js';
-import type { EditorView } from 'codemirror';
+import type { EditorView } from '@codemirror/view';
 import type { UserSequence, LibrarySequenceSignature, PhoenixContext } from '../../interfaces/phoenix.js';
 import type { ArgTextDef, TimeTagInfo } from '../../interfaces/command-info-mapper.js';
 import { fswCommandArgDefault, isFswCommandArgumentRepeat } from '../../utils/sequence-utils.js';
@@ -175,12 +175,7 @@ export class SeqNCommandInfoMapper implements CommandInfoMapper {
         }
 
         if (commandDef && argDef) {
-          argDef = this.getArgumentDef(
-            commandDef?.stem,
-            argDef,
-            precedingArgValues,
-            phoenixContext,
-          );
+          argDef = this.getArgumentDef(commandDef?.stem, argDef, precedingArgValues, phoenixContext);
         }
 
         let children: ArgTextDef[] | undefined = undefined;

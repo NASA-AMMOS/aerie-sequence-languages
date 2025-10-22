@@ -1,7 +1,8 @@
+import type { indentService, LRLanguage } from '@codemirror/language';
+import type { linter } from '@codemirror/lint';
+import type { EditorView, hoverTooltip, Tooltip, ViewPlugin } from '@codemirror/view';
 import type { ChannelDictionary, CommandDictionary, ParameterDictionary } from '@nasa-jpl/aerie-ampcs';
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
-import type { EditorView, Tooltip } from '@codemirror/view';
-import type { LRLanguage } from '@codemirror/language';
 
 export type UserSequence = {
   definition: string;
@@ -20,8 +21,12 @@ export type CreateTooltip = (text: string[], from: number, to?: number) => Toolt
 
 export interface PhoenixResources {
   createTooltip: CreateTooltip;
+  indentService: typeof indentService;
+  linter: typeof linter;
+  hoverTooltip: typeof hoverTooltip;
   EditorView: typeof EditorView;
   LRLanguage: typeof LRLanguage;
+  ViewPlugin: typeof ViewPlugin;
 }
 
 /**

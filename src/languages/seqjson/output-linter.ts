@@ -1,24 +1,15 @@
-import { linter, type Diagnostic } from '@codemirror/lint';
+import { type Diagnostic } from '@codemirror/lint';
 import type { Extension, Text } from '@codemirror/state';
+import type { EditorView } from '@codemirror/view';
 import type { CommandDictionary } from '@nasa-jpl/aerie-ampcs';
-import type { EditorView } from 'codemirror';
 import { parse as jsonSourceMapParse } from 'json-source-map';
+import { PhoenixResources } from '../../interfaces/phoenix';
 
-type JsonSourceMapPointerPosition = {
-  column: number;
-  line: number;
-  pos: number;
-};
-
-type JsonSourceMapPointer = {
-  key: JsonSourceMapPointerPosition;
-  keyEnd: JsonSourceMapPointerPosition;
-  value: JsonSourceMapPointerPosition;
-  valueEnd: JsonSourceMapPointerPosition;
-};
-
-export function outputLinter(commandDictionary: CommandDictionary | null = null): Extension {
-  return linter(view => seqJsonLinter(view, commandDictionary));
+export function outputLinter(
+  resources: PhoenixResources,
+  commandDictionary: CommandDictionary | null = null,
+): Extension {
+  return resources.linter(view => seqJsonLinter(view, commandDictionary));
 }
 
 // TODO do we really need a SeqJSON linter?

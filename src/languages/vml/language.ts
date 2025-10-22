@@ -1,12 +1,12 @@
 import { debounce } from 'lodash-es';
-import type { PhoenixContext, PhoenixResources } from '../../interfaces/phoenix.js';
 import { InputLanguage } from '../../interfaces/language.js';
-import { setupVmlLanguageSupport, vmlBlockHighlighter, vmlHighlightBlock } from './vml.js';
+import type { PhoenixContext, PhoenixResources } from '../../interfaces/phoenix.js';
 import { parseFunctionSignatures, vmlAutoComplete } from './vml-adaptation.js';
 import { vmlFormat } from './vml-formatter.js';
 import { vmlLinter } from './vml-linter.js';
 import { vmlTooltip } from './vml-tooltip.js';
 import { VmlCommandInfoMapper } from './vml-tree-utils.js';
+import { setupVmlLanguageSupport, vmlBlockHighlighter, vmlHighlightBlock } from './vml.js';
 
 const debouncedVmlHighlightBlock = debounce(vmlHighlightBlock, 250);
 
@@ -20,10 +20,13 @@ const getEditorExtension = (context: PhoenixContext, resources: PhoenixResources
         librarySequenceMap,
       ),
     ),
-    vmlLinter(
-      context.commandDictionary,
-      librarySequenceMap,
-      [], // TODO: globals?
+    resources.linter(view =>
+      vmlLinter(
+        view,
+        context.commandDictionary,
+        librarySequenceMap,
+        [], // TODO: globals?
+      ),
     ),
     vmlTooltip(context.commandDictionary, librarySequenceMap, resources),
     // indentService.of(adaptation.autoIndent()) // VML doesn't seem to have an indenter???

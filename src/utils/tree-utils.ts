@@ -1,7 +1,7 @@
 /**
  * Ported from `tree-utils.ts` in aerie-ui
  */
-import { EditorView } from '@codemirror/view';
+import type { EditorView } from '@codemirror/view';
 import type { SyntaxNode, TreeCursor } from '@lezer/common';
 
 export function numberOfChildren(node: SyntaxNode): number {

@@ -1,7 +1,7 @@
 import { syntaxTree } from '@codemirror/language';
 import type { ChangeSpec, EditorState } from '@codemirror/state';
+import type { EditorView } from '@codemirror/view';
 import type { SyntaxNode } from '@lezer/common';
-import type { EditorView } from 'codemirror';
 import { filterEmpty } from '../../utils/generic.js';
 import {
   RULE_ASSIGNMENT,
