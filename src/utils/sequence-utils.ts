@@ -39,7 +39,7 @@ export function fswCommandArgDefault(fswCommandArg: FswCommandArgument, enumMap:
     case 'enum': {
       const enumArg = fswCommandArg as FswCommandArgumentEnum;
       const enumSymbolValue =
-        enumMap[enumArg.enum_name]?.values[0]?.symbol ?? fswCommandArg.default_value ?? fswCommandArg.name;
+        fswCommandArg.default_value ?? enumMap[enumArg.enum_name]?.values[0]?.symbol ?? fswCommandArg.name;
       return enumSymbolValue ? `"${enumSymbolValue}"` : 'UNKNOWN_ENUM';
     }
     case 'fill':
