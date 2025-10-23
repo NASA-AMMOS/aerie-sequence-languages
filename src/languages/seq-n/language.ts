@@ -39,13 +39,11 @@ export function getSeqnExtensions(
   };
 }
 
-export function getSeqnLanguage(resources: PhoenixResources): InputLanguage {
-  return {
-    name: 'SeqN',
-    fileExtension: '.seqN.txt',
-    editorExtension: (context: PhoenixContext) => Object.values(getSeqnExtensions(resources, context)),
-    commandInfoMapper: new SeqNCommandInfoMapper(),
-    format: seqNFormat,
-    getLibrarySequences: sequence => [seqnToLibrarySequence(sequence)],
-  };
-}
+export const seqnLanguage: InputLanguage = {
+  name: 'SeqN',
+  fileExtension: '.seqN.txt',
+  getEditorExtension: (context, resources) => Object.values(getSeqnExtensions(resources, context)),
+  commandInfoMapper: new SeqNCommandInfoMapper(),
+  format: seqNFormat,
+  getLibrarySequences: sequence => [seqnToLibrarySequence(sequence)],
+};

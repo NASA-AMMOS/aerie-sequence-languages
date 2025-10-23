@@ -44,13 +44,11 @@ function getSeqnHandlebarsExtensions(
   return extensions;
 }
 
-export function getSeqnHandlebarsLanguage(resources: PhoenixResources): InputLanguage {
-  return {
-    name: 'SeqN (Template)',
-    fileExtension: '.template.seqN.txt',
-    editorExtension: context => Object.values(getSeqnHandlebarsExtensions(resources, context)),
-    commandInfoMapper: new SeqNCommandInfoMapper(),
-    format: seqNFormat,
-    getLibrarySequences: sequence => [seqnToLibrarySequence(sequence)],
-  };
-}
+export const seqnHandlebarsLanguage: InputLanguage = {
+  name: 'SeqN (Template)',
+  fileExtension: '.template.seqN.txt',
+  getEditorExtension: (context, resources) => Object.values(getSeqnHandlebarsExtensions(resources, context)),
+  commandInfoMapper: new SeqNCommandInfoMapper(),
+  format: seqNFormat,
+  getLibrarySequences: sequence => [seqnToLibrarySequence(sequence)],
+};

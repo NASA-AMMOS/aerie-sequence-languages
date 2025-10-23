@@ -34,13 +34,11 @@ const getEditorExtension = (context: PhoenixContext, resources: PhoenixResources
   ];
 };
 
-export function getVmlLanguage(resources: PhoenixResources): InputLanguage {
-  return {
-    name: 'VML',
-    fileExtension: '.vml',
-    editorExtension: context => getEditorExtension(context, resources),
-    commandInfoMapper: new VmlCommandInfoMapper(),
-    format: vmlFormat,
-    getLibrarySequences: sequence => parseFunctionSignatures(sequence.definition),
-  };
-}
+export const vmlLanguage: InputLanguage = {
+  name: 'VML',
+  fileExtension: '.vml',
+  getEditorExtension,
+  commandInfoMapper: new VmlCommandInfoMapper(),
+  format: vmlFormat,
+  getLibrarySequences: sequence => parseFunctionSignatures(sequence.definition),
+};

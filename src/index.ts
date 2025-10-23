@@ -2,7 +2,7 @@ export { seqJsonToSeqn } from './converters/seqJsonToSeqn.js';
 export { seqnToSeqJson, parseVariables } from './converters/seqnToSeqJson.js';
 export { seqnParser } from './languages/seq-n/seq-n.js';
 export { SEQN_NODES } from './languages/seq-n/seqn-grammar-constants.js';
-export { getSeqnLanguage, getSeqnExtensions } from './languages/seq-n/language.js';
+export { seqnLanguage, getSeqnExtensions } from './languages/seq-n/language.js';
 export { seqnLinter } from './languages/seq-n/seq-n-linter.js';
 export { seqNFormat } from './languages/seq-n/seq-n-format.js';
 export { SeqNCommandInfoMapper, seqnToLibrarySequence } from './languages/seq-n/seq-n-tree-utils.js';
@@ -26,7 +26,7 @@ export type {
 
 export type { BaseLanguage, InputLanguage, OutputLanguage } from './interfaces/language.js';
 
-export type { PhoenixAdaptation, PhoenixLanguages } from './interfaces/adaptation.js';
+export type { PhoenixAdaptation } from './interfaces/adaptation.js';
 
 export type { TimeTagInfo, StringArg, ArgTextDef, CommandInfoMapper } from './interfaces/command-info-mapper.js';
 
