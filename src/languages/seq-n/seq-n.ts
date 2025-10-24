@@ -1,4 +1,4 @@
-import { delimitedIndent, foldNodeProp, indentNodeProp, LRLanguage } from '@codemirror/language';
+import { delimitedIndent, foldNodeProp, indentNodeProp } from '@codemirror/language';
 import { styleTags, tags as t } from '@lezer/highlight';
 import { parser } from './seq-n.grammar.js';
 import { customFoldInside } from './custom-folder.js';

@@ -1,5 +1,6 @@
-import { foldInside, foldNodeProp, indentNodeProp, LRLanguage } from '@codemirror/language';
+import { foldInside, foldNodeProp, indentNodeProp } from '@codemirror/language';
 import { parser } from './handlebars.grammar.js';
+import { PhoenixResources } from 'interfaces/phoenix.js';
 
 const mixedParser = parser.configure({
   props: [
@@ -14,4 +15,6 @@ const mixedParser = parser.configure({
   ],
 });
 
-export const handlebarsLanguage = LRLanguage.define({ parser: mixedParser });
+export function getHandlebarsLanguage(resources: PhoenixResources) {
+  return resources.LRLanguage.define({ parser: mixedParser });
+}

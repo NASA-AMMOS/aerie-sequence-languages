@@ -5,10 +5,10 @@ import type { InputLanguage } from '../../interfaces/language.js';
 import { SeqNCommandInfoMapper, seqnToLibrarySequence } from '../seq-n/seq-n-tree-utils.js';
 import { seqNFormat } from '../seq-n/seq-n-format.js';
 import { seqnCompletion } from '../seq-n/seq-n-completion.js';
-import { HandlebarsOverSeqLanguage } from './seq-n-handlebars.js';
+import { getHandlebarsOverSeqLanguage } from './seq-n-handlebars.js';
 import { getSeqnExtensions } from 'languages/seq-n/language.js';
 import { getSeqnLRLanguage } from 'languages/seq-n/seq-n.js';
-import { handlebarsLanguage } from 'languages/handlebars/handlebars.js';
+import { getHandlebarsLanguage } from 'languages/handlebars/handlebars.js';
 import { GlobalVariable } from 'types/global-types.js';
 
 const handlebarsCompletions = [
@@ -32,14 +32,16 @@ function getSeqnHandlebarsExtensions(
 ) {
   globals = globals ?? [];
   mapper = mapper ?? new SeqNCommandInfoMapper(globals);
+  const handlebarsLanguage = getHandlebarsLanguage(resources);
   const extensions = getSeqnExtensions(resources, context, globals, mapper);
   const seqnLRLanguage = getSeqnLRLanguage(resources);
-  extensions.languageSupport = new LanguageSupport(HandlebarsOverSeqLanguage, [
+  const handlebarsOverSeqLanguage = getHandlebarsOverSeqLanguage(resources);
+  extensions.languageSupport = new LanguageSupport(handlebarsOverSeqLanguage, [
     seqnLRLanguage.data.of({
       autocomplete: seqnCompletion(context, globals, mapper),
     }),
     handlebarsLanguage.extension,
-    HandlebarsOverSeqLanguage.data.of({ autocomplete: completeFromList(handlebarsCompletions) }),
+    handlebarsOverSeqLanguage.data.of({ autocomplete: completeFromList(handlebarsCompletions) }),
   ]);
   return extensions;
 }

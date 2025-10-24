@@ -16,7 +16,7 @@ import type {
 import type { VariableDeclaration } from '@nasa-jpl/seq-json-schema/types';
 import { filterEmpty } from '../../utils/generic.js';
 import type { LibrarySequenceSignature } from '../../interfaces/phoenix.js';
-import { VmlLanguage } from './vml.js';
+import { vmlParser } from './vml.js';
 import {
   RULE_BLOCK,
   RULE_COMMENT,
@@ -49,7 +49,7 @@ import {
 } from './vml-constants.js';
 
 export function vmlBlockLibraryToCommandDictionary(vml: string, id?: string, path?: string): CommandDictionary {
-  const parsed = VmlLanguage.parser.parse(vml);
+  const parsed = vmlParser.parse(vml);
 
   const enums: Enum[] = [];
   const hwCommands: HwCommand[] = [];

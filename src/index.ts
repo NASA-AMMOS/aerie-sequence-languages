@@ -9,7 +9,7 @@ export { SeqNCommandInfoMapper, seqnToLibrarySequence } from './languages/seq-n/
 
 export type { ParsedSeqn, Seqn, ParsedSatf, ParseSasf } from './languages/satf/types/types.js';
 export { seqnToSATF, seqnToSASF, satfToSeqn, sasfToSeqn } from './converters/satf-sasf-utils.js';
-export { SatfSasfParser, SatfLanguage } from './languages/satf/grammar/satf-sasf.js';
+export { SatfSasfParser } from './languages/satf/grammar/satf-sasf.js';
 export { SATF_SASF_NODES } from './languages/satf/constants/satf-sasf-constants.js';
 
 export { isQuoted, unquoteUnescape, quoteEscape, removeQuote, removeEscapedQuotes } from './utils/string.js';

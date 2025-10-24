@@ -9,7 +9,7 @@ import {
   TimeTypes,
 } from '@nasa-jpl/aerie-time-utils';
 import { removeEscapedQuotes, removeQuote, unquoteUnescape } from '../utils/string.js';
-import { SatfLanguage } from '../languages/satf/grammar/satf-sasf.js';
+import { SatfSasfParser } from '../languages/satf/grammar/satf-sasf.js';
 import { SATF_SASF_NODES } from '../languages/satf/constants/satf-sasf-constants.js';
 import { ParsedSatf, ParsedSeqn, ParseSasf, Seqn } from '../languages/satf/types/types.js';
 import { seqnParser } from '../languages/seq-n/seq-n.js';
@@ -574,7 +574,7 @@ function sasfRequestFromSeqN(
  * it resolves with a default empty ParsedSequence object (e.g., { header: "", sequences: [] }).
  */
 export async function satfToSeqn(satf: string, globalVariables?: string[]): Promise<ParsedSeqn> {
-  const base = SatfLanguage.parser.parse(satf).topNode;
+  const base = SatfSasfParser.parse(satf).topNode;
 
   const satfNode = base.getChild(SATF_SASF_NODES.SATF);
 
@@ -588,7 +588,7 @@ export async function satfToSeqn(satf: string, globalVariables?: string[]): Prom
 }
 
 export async function sasfToSeqn(sasf: string, globalVariables?: string[]): Promise<ParsedSeqn> {
-  const base = SatfLanguage.parser.parse(sasf).topNode;
+  const base = SatfSasfParser.parse(sasf).topNode;
 
   const sasfNode = base.getChild(SATF_SASF_NODES.SASF);
 

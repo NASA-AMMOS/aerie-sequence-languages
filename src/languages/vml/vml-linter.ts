@@ -28,7 +28,7 @@ import {
 } from './vml-constants.js';
 import { getVmlVariables } from './vml-tree-utils.js';
 import { LibrarySequenceMap } from './vml-types.js';
-import { VmlLanguage } from './vml.js';
+import { vmlParser } from './vml.js';
 
 /**
  * Limitations
@@ -56,7 +56,7 @@ export function vmlLinter(
     return diagnostics;
   }
 
-  const parsed = VmlLanguage.parser.parse(sequence);
+  const parsed = vmlParser.parse(sequence);
   diagnostics.push(...validateCommands(commandDictionary, librarySequenceMap, sequence, parsed));
   diagnostics.push(...validateGlobals(sequence, tree, globals));
 

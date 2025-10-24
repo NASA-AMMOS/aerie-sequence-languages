@@ -1,5 +1,5 @@
 import type { CompletionContext, CompletionResult } from '@codemirror/autocomplete';
-import { LRLanguage, LanguageSupport, foldInside, foldNodeProp, syntaxTree } from '@codemirror/language';
+import { LanguageSupport, foldInside, foldNodeProp, syntaxTree } from '@codemirror/language';
 import { Decoration, ViewPlugin, type DecorationSet, type ViewUpdate } from '@codemirror/view';
 import type { SyntaxNode } from '@lezer/common';
 import { styleTags, tags as t } from '@lezer/highlight';
@@ -26,6 +26,7 @@ import {
 } from './vml-constants.js';
 import { computeBlocks, isBlockCommand, vmlBlockFolder } from './vml-folder.js';
 import { parser } from './vml.grammar.js';
+import { PhoenixResources } from 'interfaces/phoenix.js';
 
 const VML_LANGUAGE_NAME = 'vml';
 
@@ -37,90 +38,96 @@ const FoldBehavior: {
   VML_HEADER: foldInside,
 };
 
-export const VmlLanguage = LRLanguage.define({
-  languageData: {
-    commentTokens: { line: ';' },
-  },
-  name: VML_LANGUAGE_NAME,
-  parser: parser.configure({
-    props: [
-      foldNodeProp.add(FoldBehavior),
-      styleTags({
-        ABSOLUTE_SEQUENCE: t.macroName,
-        ADD: t.arithmeticOperator,
-        ASSIGNMENT: t.updateOperator,
-        BLOCK: t.namespace,
-        BODY: t.namespace,
-        Comment: t.comment,
-        DAY_TIME_CONST: t.className,
-        DECLARE: t.keyword,
-        DELAY_BY: t.keyword,
-        DIVIDE: t.arithmeticOperator,
-        DOUBLE_CONST: t.number,
-        END_BODY: t.namespace,
-        END_MODULE: t.namespace,
-        EXTERNAL_CALL: t.controlKeyword,
-        FLAGS: t.namespace,
-        FULL_TIME_CONST: t.className,
-        HEX_CONST: t.number,
-        INPUT: t.keyword,
-        INT_CONST: t.number,
-        ISSUE: t.controlKeyword,
-        ISSUE_DYNAMIC: t.controlKeyword,
-        MODULE: t.namespace,
-        MODULO: t.arithmeticOperator,
-        MULTIPLY: t.arithmeticOperator,
-        POWER: t.arithmeticOperator,
-        RELATIVE_SEQUENCE: t.macroName,
-        RETURN: t.keyword,
-        SEQUENCE: t.macroName,
-        SHORT_TIME_CONST: t.className,
-        SPACECRAFT_TIME_CONST: t.className,
-        SPAWN: t.controlKeyword,
-        STRING_CONST: t.string,
-        SUBTRACT: t.arithmeticOperator,
-        TIMEOUT: t.keyword,
-        UINT_CONST: t.number,
-        VML_EOF: t.docComment,
-        VML_HEADER: t.docComment,
-        Variable_name: t.variableName,
-        WAIT: t.keyword,
-        ...Object.fromEntries(
-          [
-            TOKEN_EXTERNAL_CALL,
-            TOKEN_CALL,
-            TOKEN_SPAWN,
-            TOKEN_ISSUE,
-            // conditionals
-            TOKEN_IF,
-            TOKEN_THEN,
-            TOKEN_ELSE_IF,
-            TOKEN_ELSE,
-            TOKEN_END_IF,
-            // for
-            TOKEN_FOR,
-            TOKEN_TO,
-            TOKEN_STEP,
-            TOKEN_DO,
-            TOKEN_END_FOR,
-            // while
-            TOKEN_WHILE,
-            TOKEN_END_WHILE,
-          ].map(token => [token, t.controlKeyword]),
-        ),
-      }),
-    ],
-  }),
-});
+export const vmlParser = parser;
+
+export function getVmlLRLanguage(resources: PhoenixResources) {
+  return resources.LRLanguage.define({
+    languageData: {
+      commentTokens: { line: ';' },
+    },
+    name: VML_LANGUAGE_NAME,
+    parser: parser.configure({
+      props: [
+        foldNodeProp.add(FoldBehavior),
+        styleTags({
+          ABSOLUTE_SEQUENCE: t.macroName,
+          ADD: t.arithmeticOperator,
+          ASSIGNMENT: t.updateOperator,
+          BLOCK: t.namespace,
+          BODY: t.namespace,
+          Comment: t.comment,
+          DAY_TIME_CONST: t.className,
+          DECLARE: t.keyword,
+          DELAY_BY: t.keyword,
+          DIVIDE: t.arithmeticOperator,
+          DOUBLE_CONST: t.number,
+          END_BODY: t.namespace,
+          END_MODULE: t.namespace,
+          EXTERNAL_CALL: t.controlKeyword,
+          FLAGS: t.namespace,
+          FULL_TIME_CONST: t.className,
+          HEX_CONST: t.number,
+          INPUT: t.keyword,
+          INT_CONST: t.number,
+          ISSUE: t.controlKeyword,
+          ISSUE_DYNAMIC: t.controlKeyword,
+          MODULE: t.namespace,
+          MODULO: t.arithmeticOperator,
+          MULTIPLY: t.arithmeticOperator,
+          POWER: t.arithmeticOperator,
+          RELATIVE_SEQUENCE: t.macroName,
+          RETURN: t.keyword,
+          SEQUENCE: t.macroName,
+          SHORT_TIME_CONST: t.className,
+          SPACECRAFT_TIME_CONST: t.className,
+          SPAWN: t.controlKeyword,
+          STRING_CONST: t.string,
+          SUBTRACT: t.arithmeticOperator,
+          TIMEOUT: t.keyword,
+          UINT_CONST: t.number,
+          VML_EOF: t.docComment,
+          VML_HEADER: t.docComment,
+          Variable_name: t.variableName,
+          WAIT: t.keyword,
+          ...Object.fromEntries(
+            [
+              TOKEN_EXTERNAL_CALL,
+              TOKEN_CALL,
+              TOKEN_SPAWN,
+              TOKEN_ISSUE,
+              // conditionals
+              TOKEN_IF,
+              TOKEN_THEN,
+              TOKEN_ELSE_IF,
+              TOKEN_ELSE,
+              TOKEN_END_IF,
+              // for
+              TOKEN_FOR,
+              TOKEN_TO,
+              TOKEN_STEP,
+              TOKEN_DO,
+              TOKEN_END_FOR,
+              // while
+              TOKEN_WHILE,
+              TOKEN_END_WHILE,
+            ].map(token => [token, t.controlKeyword]),
+          ),
+        }),
+      ],
+    }),
+  });
+}
 
 export function setupVmlLanguageSupport(
+  resources: PhoenixResources,
   autocomplete?: (context: CompletionContext) => CompletionResult | null,
 ): LanguageSupport {
+  const VmlLRLanguage = getVmlLRLanguage(resources);
   if (autocomplete) {
-    const autocompleteExtension = VmlLanguage.data.of({ autocomplete });
-    return new LanguageSupport(VmlLanguage, [vmlBlockFolder, autocompleteExtension]);
+    const autocompleteExtension = VmlLRLanguage.data.of({ autocomplete });
+    return new LanguageSupport(VmlLRLanguage, [vmlBlockFolder, autocompleteExtension]);
   } else {
-    return new LanguageSupport(VmlLanguage, [vmlBlockFolder]);
+    return new LanguageSupport(VmlLRLanguage, [vmlBlockFolder]);
   }
 }
 

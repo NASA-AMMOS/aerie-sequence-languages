@@ -14,6 +14,7 @@ const getEditorExtension = (context: PhoenixContext, resources: PhoenixResources
   const librarySequenceMap = Object.fromEntries(context.librarySequences.map(seq => [seq.name, seq]));
   return [
     setupVmlLanguageSupport(
+      resources,
       vmlAutoComplete(
         context.commandDictionary,
         [], // TODO: Globals?
