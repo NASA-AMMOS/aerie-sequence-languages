@@ -5,7 +5,7 @@ import { PhoenixResources } from 'interfaces/phoenix.js';
 
 export const SatfSasfParser = parser;
 
-export function getSatfLanguage(resources: PhoenixResources) {
+export function getSatfLRLanguage(resources: PhoenixResources) {
   return resources.LRLanguage.define({
     languageData: {
       commentTokens: { line: '#' },

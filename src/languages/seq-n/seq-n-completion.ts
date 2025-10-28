@@ -5,7 +5,7 @@ import { SEQN_NODES } from './seqn-grammar-constants.js';
 import { fswCommandArgDefault } from '../../utils/sequence-utils.js';
 import { getDefaultVariableArgs } from '../../utils/sequence-utils.js';
 import { getFromAndTo, getNearestAncestorNodeOfType } from '../../utils/tree-utils.js';
-import { getDoyTime } from '../../utils/time.js';
+import { isoFromJSDate } from '@nasa-jpl/aerie-time-utils';
 import type { PhoenixContext } from '../../interfaces/phoenix.js';
 import type { GlobalVariable } from '../../types/global-types.js';
 import { seqnParser } from './seq-n.js';
@@ -161,7 +161,7 @@ export function seqnCompletion(
           date.setMilliseconds(0);
           timeTagCompletions.push(
             {
-              apply: `A${getDoyTime(date)} `,
+              apply: `A${isoFromJSDate(date)} `,
               info: 'Execute command at an absolute time',
               label: `A (absolute)`,
               section: 'Time Tags',
@@ -245,9 +245,7 @@ export function seqnCompletion(
       // If TimeTag has not been entered by the user wait for 2 characters before showing the command completions list
       // If TimeTag has been entered show the completion list when 1 character has been entered
       if (word.text.length > (cursor.isAfterTimeTag || cursor.isBeforeImmedOrHDWCommands === false ? 0 : 1)) {
-        fswCommandsCompletions.push(
-          ...generateCommandCompletions(cursor, phoenixContext, mapper),
-        );
+        fswCommandsCompletions.push(...generateCommandCompletions(cursor, phoenixContext, mapper));
 
         //add load, activate, ground_block, and ground_event commands
         fswCommandsCompletions.push(...generateStepCompletion(cursor));

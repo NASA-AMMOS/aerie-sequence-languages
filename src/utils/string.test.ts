@@ -1,4 +1,4 @@
-import { isQuoted, quoteEscape, removeEscapedQuotes, unquoteUnescape } from './string.js';
+import { isQuoted, pluralize, quoteEscape, removeEscapedQuotes, unquoteUnescape } from './string.js';
 import { describe, expect, it } from 'vitest';
 
 describe(`'Escaped quotes' from input`, () => {
@@ -80,5 +80,11 @@ describe('quoteEscape', () => {
       expect(unquoteUnescape('"hello')).toBe('"hello');
       expect(unquoteUnescape('hello"')).toBe('hello"');
     });
+  });
+
+  it('pluralize', () => {
+    expect(pluralize(0)).toBe('s');
+    expect(pluralize(1)).toBe('');
+    expect(pluralize(10)).toBe('s');
   });
 });

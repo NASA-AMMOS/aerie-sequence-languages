@@ -23,9 +23,9 @@ import {
   isHexValue,
   parseNumericArg,
 } from '../../utils/sequence-utils.js';
-import { quoteEscape } from '../../utils/string.js';
-import { pluralize } from '../../utils/text.js';
-import { getDoyTime } from '../../utils/time.js';
+import { pluralize, quoteEscape } from '../../utils/string.js';
+
+import { isoFromJSDate } from '@nasa-jpl/aerie-time-utils';
 import { getChildrenNode, getDeepestNode, getFromAndTo } from '../../utils/tree-utils.js';
 import { closeSuggestion, computeBlocks, openSuggestion } from './custom-folder.js';
 import { TOKEN_ERROR } from './seq-n-constants.js';
@@ -773,7 +773,7 @@ function validateTimeTags(command: SyntaxNode, text: string): Diagnostic[] {
             diagnostics.push({
               actions: [],
               from: timeTagAbsoluteNode.from,
-              message: ERROR_MESSAGES.UNBALANCED_TIME + getDoyTime(new Date(convertIsoToUnixEpoch(absoluteText))),
+              message: ERROR_MESSAGES.UNBALANCED_TIME + isoFromJSDate(new Date(convertIsoToUnixEpoch(absoluteText))),
               severity: 'warning',
               to: timeTagAbsoluteNode.to,
             });
