@@ -8,8 +8,8 @@ import {
   validateTime,
   TimeTypes,
 } from '@nasa-jpl/aerie-time-utils';
-import { removeEscapedQuotes, removeQuote, unquoteUnescape } from '../utils/string.js';
 import { SatfSasfParser } from '../languages/satf/grammar/satf-sasf.js';
+import { quoteEscape, removeEscapedQuotes, removeQuote, unquoteUnescape } from '../utils/string.js';
 import { SATF_SASF_NODES } from '../languages/satf/constants/satf-sasf-constants.js';
 import { ParsedSatf, ParsedSeqn, ParseSasf, Seqn } from '../languages/satf/types/types.js';
 import { seqnParser } from '../languages/seq-n/seq-n.js';
@@ -189,7 +189,7 @@ function parseSeqNCommand(
     `${metadata ? `\n${'\t'.repeat(2)}${metadata},` : ''}` +
     `${description ? `\n${'\t'.repeat(2)}COMMENT,\\${description}\\,` : ''}` +
     `${models ? `\n${'\t'.repeat(2)}ASSUMED_MODEL_VALUES,\\${models}\\,` : ''}` +
-    `\n${'\t'.repeat(2)}${stem}${args.length !== 0 ? `(${serializeSeqNArgs(args)})` : ''}` +
+    `\n${'\t'.repeat(2)}${stem}${args.length !== 0 ? `(${serializeSeqNArgs(args)})` : '()'}` +
     `\n${'\t'}),`
   );
 }
@@ -251,15 +251,19 @@ function parseSeqNTime(
     | 'GROUND_EPOCH'
     | 'FROM_REQUEST_START';
 } {
-  const tag = '00:00:01';
+  const tag = '00:00:00'; // need this for command completes as their start time in satf is 00:00:00
   const timeTagNode = commandNode.getChild('TimeTag');
   if (timeTagNode === null) {
-    return { tag: '00:00:00', type: 'UNKNOWN' };
+    throw new Error(
+      `No time found for command ${sequence.slice(commandNode.from, commandNode.to).trim()}. Aborting Seqn -> SATF/SASF conversion...`,
+    );
   }
 
   const time = timeTagNode.firstChild;
   if (time === null) {
-    return { tag, type: 'UNKNOWN' };
+    throw new Error(
+      `Invalid time found for command ${sequence.slice(commandNode.from, commandNode.to).trim()}. Aborting Seqn -> SATF/SASF conversion...`,
+    );
   }
 
   const timeValue = sequence.slice(time.from + 1, time.to).trim();
@@ -295,7 +299,9 @@ function parseSeqNTime(
 
     if (validateTime(timeValue, TimeTypes.DOY_TIME)) {
       let balancedTime = getBalancedDuration(timeValue);
-
+      if (parseDurationString(balancedTime, 'seconds').milliseconds === 0) {
+        balancedTime = balancedTime.slice(0, -4);
+      }
       return {
         tag: balancedTime,
         type,
@@ -309,7 +315,9 @@ function parseSeqNTime(
       return { tag: balancedTime, type };
     }
   }
-  return { tag, type: 'UNKNOWN' };
+  throw new Error(
+    `Invalid time tag found for command ${sequence.slice(commandNode.from, commandNode.to).trim()}. Aborting Seqn -> SATF/SASF conversion...`,
+  );
 }
 
 function parseSeqNDescription(node: SyntaxNode, text: string): string | undefined {
@@ -391,11 +399,10 @@ function parseSeqNArg(
       };
     }
     case SEQN_NODES.NUMBER: {
-      const decimalCount = nodeValue.slice(nodeValue.indexOf('.') + 1).length;
       return {
         name: dictionaryArg ? dictionaryArg.name : undefined,
         type: 'number',
-        value: parseFloat(nodeValue).toFixed(decimalCount),
+        value: nodeValue,
       };
     }
     case SEQN_NODES.STRING: {
@@ -494,28 +501,20 @@ function satfVariablesFromSeqn(
     return undefined;
   }
 
-  const serializedVariables = variables
-    ?.map(variable => {
-      return (
-        `\t${variable.name}` +
-        `(\n\t\tTYPE,${variable.type}${variable.enum_name ? `,\n\t\t\ENUM_NAME,${variable.enum_name}` : ''}` +
-        `${
-          variable.allowable_ranges
-            ? `,${variable.allowable_ranges
-                .map(range => {
-                  return `\n\t\tRANGE,\\${range.min}...${range.max}\\`;
-                })
-                .join(',')}`
-            : ''
-        }` +
-        `${variable.allowable_values ? `,\n\t\tRANGE,\\${variable.allowable_values}\\` : ''}` +
-        `${variable.sc_name ? `,\n\t\tSC_NAME,${variable.sc_name}` : ''}` +
-        `\n\t)`
-      );
-    })
-    .join(',\n');
+  const serializedVariables = variables?.map(variable => {
+    const tags = [];
+    tags.push(`\tTYPE,${variable.type}`);
+    if (variable.enum_name) tags.push(`\tENUM_NAME,\\${variable.enum_name}\\`);
+    variable.allowable_ranges &&
+      variable.allowable_ranges.forEach(range => {
+        tags.push(`\tRANGE,\\${range.min}...${range.max}\\`);
+      });
+    if (variable.allowable_values) tags.push(`\tRANGE,\\${variable.allowable_values}\\`);
+    if (variable.sc_name) tags.push(`\tSC_NAME,\\${variable.sc_name}\\`);
+    return `${variable.name}(\n` + tags.join(',\n') + `\n)`;
+  });
 
-  return `${type.toUpperCase()},\n ${serializedVariables},\nend,\n`;
+  return `${type.toUpperCase()},\n\t` + serializedVariables.join(',\n').replaceAll('\n', '\n\t') + `,\nend`;
 }
 
 function sasfRequestFromSeqN(
@@ -561,19 +560,17 @@ function sasfRequestFromSeqN(
 
 /**
  * Parses a SATF formatted string asynchronously to extract header information and sequence data.
- * It utilizes the SatfLanguage parser to generate SeqN parts.
+ * It utilizes the SatfSasfParser to generate SeqN parts.
  *
  * @async
  * @function satfToSeqn
- * @param {string} satf - The SATF or SASF formatted string content to parse.
- * @param {string[]} [globalVariables] - Optional. A list of predefined global variable names to be used
- * during the parsing of steps
- * @returns {Promise<ParsedSequence>} A Promise that resolves to an object containing the parsed header
+ * @param {string} satf - The SATF formatted string content to parse.
+ * @returns {Promise<ParsedSeqn>} A Promise that resolves to an object containing the parsed header
  * and an array of sequence objects.
  * If the input string does not contain a top-level SATF structure recognized by the parser,
  * it resolves with a default empty ParsedSequence object (e.g., { header: "", sequences: [] }).
  */
-export async function satfToSeqn(satf: string, globalVariables?: string[]): Promise<ParsedSeqn> {
+export async function satfToSeqn(satf: string): Promise<ParsedSeqn> {
   const base = SatfSasfParser.parse(satf).topNode;
 
   const satfNode = base.getChild(SATF_SASF_NODES.SATF);
@@ -583,11 +580,23 @@ export async function satfToSeqn(satf: string, globalVariables?: string[]): Prom
   }
 
   const metadata = parseHeader(satfNode.getChild(SATF_SASF_NODES.HEADER), satf);
-  const sequences = parseBody(satfNode.getChild(SATF_SASF_NODES.BODY), globalVariables, satf);
+  const sequences = parseBody(satfNode.getChild(SATF_SASF_NODES.BODY), satf);
   return { metadata, sequences };
 }
 
-export async function sasfToSeqn(sasf: string, globalVariables?: string[]): Promise<ParsedSeqn> {
+/**
+ * Parses a SASF formatted string asynchronously to extract header information and sequence data.
+ * It utilizes the SatfSasfParser to generate SeqN parts.
+ *
+ * @async
+ * @function sasfToSeqn
+ * @param {string} satf - The SASF formatted string content to parse.
+ * @returns {Promise<ParsedSeqn>} A Promise that resolves to an object containing the parsed header
+ * and an array of sequence objects.
+ * If the input string does not contain a top-level SASF structure recognized by the parser,
+ * it resolves with a default empty ParsedSequence object (e.g., { header: "", sequences: [] }).
+ */
+export async function sasfToSeqn(sasf: string): Promise<ParsedSeqn> {
   const base = SatfSasfParser.parse(sasf).topNode;
 
   const sasfNode = base.getChild(SATF_SASF_NODES.SASF);
@@ -597,7 +606,7 @@ export async function sasfToSeqn(sasf: string, globalVariables?: string[]): Prom
   }
 
   const metadata = parseHeader(sasfNode.getChild(SATF_SASF_NODES.HEADER), sasf);
-  const sequences = parseBody(sasfNode.getChild(SATF_SASF_NODES.BODY), globalVariables, sasf);
+  const sequences = parseBody(sasfNode.getChild(SATF_SASF_NODES.BODY), sasf);
   return { metadata, sequences };
 }
 
@@ -631,7 +640,7 @@ function parseHeader(headerNode: SyntaxNode | null, text: string): string {
     })
     .join('\n');
 }
-function parseBody(bodyNode: SyntaxNode | null, globalVariables: string[] = [], text: string): Seqn[] {
+function parseBody(bodyNode: SyntaxNode | null, text: string): Seqn[] {
   if (!bodyNode) {
     return [];
   }
@@ -674,15 +683,7 @@ function parseBody(bodyNode: SyntaxNode | null, globalVariables: string[] = [], 
       }
       metadata = metadata.trimEnd();
 
-      const steps = parseSteps(
-        group.getChild(SATF_SASF_NODES.STEPS),
-        [
-          ...parseVariableName(group.getChild(SATF_SASF_NODES.PARAMETERS), text),
-          ...parseVariableName(group.getChild(SATF_SASF_NODES.VARIABLES), text),
-          ...globalVariables,
-        ],
-        text,
-      );
+      const steps = parseSteps(group.getChild(SATF_SASF_NODES.STEPS), text);
 
       return {
         name: sequenceName,
@@ -712,7 +713,7 @@ function parseBody(bodyNode: SyntaxNode | null, globalVariables: string[] = [], 
         text,
       );
       requests += `@REQUEST_BEGIN("${sequenceName}")\n`;
-      requests += parseSteps(group.getChild(SATF_SASF_NODES.STEPS), globalVariables, text)
+      requests += parseSteps(group.getChild(SATF_SASF_NODES.STEPS), text)
         .split('\n')
         .map(line => ' '.repeat(2) + line)
         .join('\n');
@@ -798,6 +799,7 @@ function parseParameters(
           case SATF_SASF_NODES.PARAM_QUOTED_STRING:
             type = SEQN_NODES.VAR_STRING;
             break;
+          case SATF_SASF_NODES.PARAM_FLOAT:
           case SATF_SASF_NODES.PARAM_ENGINEERING:
             type = SEQN_NODES.VAR_FLOAT;
             break;
@@ -841,7 +843,7 @@ function parseParameters(
   return '';
 }
 
-function parseSteps(stepNode: SyntaxNode | null, variableNames: string[], text: string): string {
+function parseSteps(stepNode: SyntaxNode | null, text: string): string {
   const step = '';
   if (!stepNode) {
     return step;
@@ -854,7 +856,7 @@ function parseSteps(stepNode: SyntaxNode | null, variableNames: string[], text: 
       const time = parseTimeNode(command.getChild(SATF_SASF_NODES.SCHEDULED_TIME), text);
       const stem = parseStem(command.getChild(SATF_SASF_NODES.STEM), text);
       const comment = parseComment(command.getChild(SATF_SASF_NODES.COMMENT), text);
-      const args = parseArgsNode(command.getChild(SATF_SASF_NODES.ARGS), variableNames, text);
+      const args = parseArgsNode(command.getChild(SATF_SASF_NODES.ARGS), text);
       const models = parseModel(command.getChild(SATF_SASF_NODES.ASSUMED_MODEL_VALUES), text);
       const metadata = parseSatfCommandMetadata(command, text);
 
@@ -878,7 +880,7 @@ function parseTimeTagNode(timeValueNode: SyntaxNode | null, timeTagNode: SyntaxN
   if (timeValueNode && !timeTagNode) {
     return `A${text.slice(timeValueNode.from, timeValueNode.to)} `;
   } else if (!timeValueNode || !timeTagNode) {
-    return `R00:00:00`;
+    throw new Error(`No time found in SATF/SASF. Aborting SATF/SASF -> Seqn conversion...`);
   }
 
   const time = text.slice(timeValueNode.from, timeValueNode.to);
@@ -898,7 +900,9 @@ function parseTimeTagNode(timeValueNode: SyntaxNode | null, timeTagNode: SyntaxN
     case 'GROUND_EPOCH':
       return `G${time} `;
     default:
-      return 'error';
+      throw new Error(
+        `Invalid Time Tag '${timeTag.trim()}' found in SATF/SASF. Aborting SATF/SASF -> Seqn conversion...`,
+      );
   }
 }
 
@@ -915,35 +919,31 @@ function parseComment(commentNode: SyntaxNode | null, text: string): string {
   if (comment.length === 0) {
     return comment;
   }
-  return `# ${removeQuote(comment)}`;
+  return `# ${comment}`;
 }
 
 function parseStem(stemNode: SyntaxNode | null, text: string): string {
   return stemNode ? text.slice(stemNode.from, stemNode.to) : '';
 }
 
-function parseArgsNode(argsNode: SyntaxNode | null, variableNames: string[], text: string): string {
+function parseArgsNode(argsNode: SyntaxNode | null, text: string): string {
   if (!argsNode) {
     return '';
   }
   let argNode = argsNode.firstChild;
   const args = [];
   while (argNode) {
-    args.push(`${parseArgNode(argNode, variableNames, text)}`);
+    args.push(`${parseArgNode(argNode, text)}`);
     argNode = argNode?.nextSibling;
   }
   return args.join(' ');
 }
 
-function parseArgNode(argNode: SyntaxNode, variableNames: string[], text: string): string {
+function parseArgNode(argNode: SyntaxNode, text: string): string {
   if (!argNode) {
     return '';
   }
   const argValue = removeQuote(text.slice(argNode.from, argNode.to));
-
-  if (variableNames.includes(argValue)) {
-    return argValue;
-  }
 
   switch (argNode.name) {
     case SATF_SASF_NODES.STRING:
@@ -951,7 +951,6 @@ function parseArgNode(argNode: SyntaxNode, variableNames: string[], text: string
     case SATF_SASF_NODES.NUMBER:
     case SATF_SASF_NODES.BOOLEAN:
     case SATF_SASF_NODES.ENUM:
-    case SATF_SASF_NODES.GLOBAL:
       return `${argValue}`;
     case SATF_SASF_NODES.ARITHMETICAL:
       return `(${argValue})`;
@@ -1012,15 +1011,15 @@ function parseSatfCommandMetadata(commandNode: SyntaxNode | null, text: string) 
   const nTextNode = commandNode.getChild(SATF_SASF_NODES.NTEXT);
 
   if (inclusionNode) {
-    metadata += `@METADATA "INCLUSION_CONDITION" "${removeQuote(text.slice(inclusionNode.from, inclusionNode.to))}"\n`;
+    metadata += `@METADATA "INCLUSION_CONDITION" ${quoteEscape(text.slice(inclusionNode.from, inclusionNode.to))}\n`;
   }
 
   if (drawNode) {
-    metadata += `@METADATA "DRAW" "${removeQuote(text.slice(drawNode.from, drawNode.to))}"\n`;
+    metadata += `@METADATA "DRAW" ${quoteEscape(text.slice(drawNode.from, drawNode.to))}\n`;
   }
 
   if (nTextNode) {
-    metadata += `@METADATA "NTEXT" "${removeQuote(text.slice(nTextNode.from, nTextNode.to))}"\n`;
+    metadata += `@METADATA "NTEXT" ${quoteEscape(text.slice(nTextNode.from, nTextNode.to))}\n`;
   }
   return metadata.slice(0, -1);
 }
@@ -1030,34 +1029,60 @@ function parseModel(modelNode: SyntaxNode | null, text: string): string {
     return '';
   }
   const modelsNode = modelNode.getChildren(SATF_SASF_NODES.MODEL);
+  const durationNodes = modelNode.getChildren(SATF_SASF_NODES.MODEL_DURATION);
+
+  // Talking with Shaheer and Carter here is the mismatch logic between models and duration
+  // 1. No duration present -> apply 00:00:00 across all modeling variables
+  // 2. Multiple model variables but only 1 duration -> apply the 1 duration across all variables
+  // 3. Matching number of model variables and durations -> apply each duration to its corresponding variable
+  // 4. Mis-matched number of models/durations not covered by cases 1 or 2 -> throw error
+
+  if (
+    modelsNode.length != durationNodes.length &&
+    ((modelsNode.length > 2 && durationNodes.length > 1) || modelsNode.length < durationNodes.length)
+  ) {
+    throw new Error(`Mismatch of models to durations`);
+  }
+
+  let durationTime;
   return modelsNode
-    .map(model => {
+    .map((model, idx) => {
       const keyNode = model.getChild(SATF_SASF_NODES.KEY);
       const valueNode = model.getChild(SATF_SASF_NODES.VALUE);
+      if (modelsNode.length != 0 && durationNodes.length == 1) {
+        durationTime = text.slice(durationNodes[0].from, durationNodes[0].to);
+      } else if (modelsNode.length === durationNodes.length) {
+        durationTime = text.slice(durationNodes[idx].from, durationNodes[idx].to);
+      } else {
+        durationTime = '00:00:00';
+      }
+
       if (!keyNode || !valueNode) {
         return null;
       }
-      return `@MODEL "${text.slice(keyNode.from, keyNode.to)}" ${text.slice(valueNode.from, valueNode.to)} "00:00:00"`;
+      return `@MODEL "${text.slice(keyNode.from, keyNode.to)}" ${text.slice(valueNode.from, valueNode.to)} "${durationTime}"`;
     })
     .filter(model => model !== null)
     .join('\n');
 }
 
 function parseSeqNModel(node: SyntaxNode, text: string): string | undefined {
-  const modelContainer = node.getChild('Models');
+  const modelContainer = node.getChild(SEQN_NODES.MODELS);
   if (!modelContainer) {
     return undefined;
   }
 
-  const modelNodes = modelContainer.getChildren('Model');
+  const modelNodes = modelContainer.getChildren(SEQN_NODES.MODEL_ENTRY);
   if (!modelNodes || modelNodes.length === 0) {
     return undefined;
   }
 
   const models = [];
+  const duration = [];
   for (const modelNode of modelNodes) {
-    const variableNode = modelNode.getChild('Variable');
-    const valueNode = modelNode.getChild('Value');
+    const variableNode = modelNode.getChild(SEQN_NODES.VARIABLE);
+    const valueNode = modelNode.getChild(SEQN_NODES.VALUE);
+    const offsetNode = modelNode.getChild('Offset');
 
     const variable = variableNode ? unquoteUnescape(text.slice(variableNode.from, variableNode.to)) : 'UNKNOWN';
 
@@ -1075,7 +1100,8 @@ function parseSeqNModel(node: SyntaxNode, text: string): string | undefined {
       }
     }
     models.push(`${variable}=${value}`);
+    duration.push(offsetNode ? unquoteUnescape(text.slice(offsetNode.from, offsetNode.to)) : '');
   }
 
-  return models.join(',');
+  return [...models, ...duration].join(',');
 }

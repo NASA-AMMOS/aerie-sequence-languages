@@ -175,7 +175,7 @@ Enum { identifier }
 Stem { !stemStart identifier }
 
 @tokens {
-  identifier { @asciiLetter (@asciiLetter| @digit | "_" | "-")* }
+  identifier { @asciiLetter (@asciiLetter| @digit | "_" | "-" | "::")* }
 
   timeHhmmss { @digit@digit":"@digit@digit":"@digit@digit("."@digit+)? }
 
