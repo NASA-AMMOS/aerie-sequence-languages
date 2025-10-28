@@ -1,7 +1,7 @@
 import type { SyntaxNode } from '@lezer/common';
 import { describe, expect, test } from 'vitest';
 import { filterNodes, nodeContents } from '../../utils/tree-utils.js';
-import { VmlLanguage } from './vml.js';
+import { vmlParser } from './vml.js';
 import { RULE_CALL_PARAMETERS, RULE_FUNCTION_NAME, RULE_TIME_TAGGED_STATEMENT } from './vml-constants.js';
 import { getArgumentPosition, VmlCommandInfoMapper } from './vml-tree-utils.js';
 
@@ -22,7 +22,7 @@ R00:01:00 CALL pay_spawn "seis_pwr_on_r01_1"
 END_BODY
 END_MODULE
 `;
-  const parsed = VmlLanguage.parser.parse(input);
+  const parsed = vmlParser.parse(input);
   const vmlCommandInfoMapper = new VmlCommandInfoMapper();
   const timeTaggedNodes: SyntaxNode[] = Array.from(
     filterNodes(parsed.cursor(), (node: SyntaxNode) => node.name === RULE_TIME_TAGGED_STATEMENT),
@@ -122,7 +122,7 @@ END_MODULE
     `;
 
     const moduleVariables = ['partial_product', 'file_base'];
-    const parsed = VmlLanguage.parser.parse(input);
+    const parsed = vmlParser.parse(input);
     const vmlCommandInfoMapper = new VmlCommandInfoMapper();
     const variableNames = vmlCommandInfoMapper.getVariables(input, parsed, input.indexOf('CMD_002'));
     expect(variableNames).toEqual([...moduleVariables, 'delay_time', 'mode', 'i', 'value', 'mask', 'file_name', 'str']);

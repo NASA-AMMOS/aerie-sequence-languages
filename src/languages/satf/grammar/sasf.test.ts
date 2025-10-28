@@ -1,6 +1,6 @@
 import { testTree } from '@lezer/generator/test';
 import { describe, expect, test } from 'vitest';
-import { SatfLanguage } from './satf-sasf.js';
+import { SatfSasfParser } from './satf-sasf.js';
 
 const tests = [
   [
@@ -101,6 +101,6 @@ describe.each([['parse tree structure', tests]])('grammar tests - %s', (_name: s
 
     testTree will throw if there's a mismatch between the returned actual and expected trees, it returns
     undefined when they match. */
-    expect(testTree(SatfLanguage.parser.parse(input), expected, undefined)).toBeUndefined();
+    expect(testTree(SatfSasfParser.parse(input), expected, undefined)).toBeUndefined();
   });
 });

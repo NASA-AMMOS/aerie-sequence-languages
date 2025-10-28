@@ -2,7 +2,7 @@ import type { SyntaxNode } from '@lezer/common';
 import type { FswCommandArgumentInteger } from '@nasa-jpl/aerie-ampcs';
 import { assert, describe, expect, it } from 'vitest';
 import { filterNodes, nodeContents } from '../../utils/tree-utils.js';
-import { VmlLanguage } from './vml.js';
+import { vmlParser } from './vml.js';
 import { vmlBlockLibraryToCommandDictionary } from './vml-block-library.js';
 import {
   GROUP_STATEMENT_SUB as GROUP_STATEMENT_SUBTYPES,
@@ -79,7 +79,7 @@ END_MODULE
 `;
     assertNoErrorNodes(input);
 
-    const tree = VmlLanguage.parser.parse(input);
+    const tree = vmlParser.parse(input);
     expect(tree.topNode.name).toBe(RULE_TEXT_FILE);
 
     const functionsNode = tree.topNode.getChild(RULE_FUNCTIONS);
@@ -327,7 +327,7 @@ END_BODY
 
 END_MODULE`;
     assertNoErrorNodes(input, true);
-    const parsed = VmlLanguage.parser.parse(input);
+    const parsed = vmlParser.parse(input);
     const functionNodes = parsed.topNode.getChild(RULE_FUNCTIONS)?.getChildren(RULE_FUNCTION);
     expect(functionNodes).toBeDefined();
     expect(functionNodes?.length).toEqual(2);
@@ -449,7 +449,7 @@ END_MODULE
 
 describe('standalone statements', () => {
   const timeTaggedConfig = { top: RULE_TEST_TIME_TAGGED_STATEMENT };
-  const timeTaggedParser = VmlLanguage.parser.configure(timeTaggedConfig);
+  const timeTaggedParser = vmlParser.configure(timeTaggedConfig);
 
   it('spacecraft command with assignment', () => {
     const input = `R00:00:01.00 END_TIME := spacecraft_time()\n`;
@@ -477,7 +477,7 @@ describe('standalone statements', () => {
 describe('partial documents', () => {
   it('module fragment', () => {
     const input = '\n\nMOD\n\n';
-    const tree = VmlLanguage.parser.parse(input);
+    const tree = vmlParser.parse(input);
     expect(tree.topNode.getChild(TOKEN_MODULE)).toBeNull();
   });
 
@@ -491,7 +491,7 @@ R00:00:00.00 ISS
 END_BODY
 END_MODULE
     `;
-    const tree = VmlLanguage.parser.parse(input);
+    const tree = vmlParser.parse(input);
     const seqNode = tree.topNode.getChild(RULE_FUNCTIONS)?.getChild(RULE_FUNCTION)?.getChild(RULE_SEQUENCE);
     expect(seqNode).toBeTruthy();
     const bodyNode = seqNode?.getChild(RULE_COMMON_FUNCTION)?.getChild(RULE_BODY);
@@ -507,7 +507,7 @@ END_BODY
 A
 END_MODULE`;
     const aPosition = input.indexOf('A\n', input.lastIndexOf(TOKEN_END_BODY));
-    const aToken = VmlLanguage.parser.parse(input).resolveInner(aPosition, 1);
+    const aToken = vmlParser.parse(input).resolveInner(aPosition, 1);
     expect(aToken.name).toBe(TOKEN_SYMBOL_CONST);
     expect(aToken.parent?.name).toBe(TOKEN_ERROR);
   });
@@ -520,14 +520,14 @@ BODY
 R0
 END_BODY
 END_MODULE`;
-    const r0Token = VmlLanguage.parser.parse(input).resolveInner(input.indexOf('R0'), 1);
+    const r0Token = vmlParser.parse(input).resolveInner(input.indexOf('R0'), 1);
     expect(r0Token.name).toBe(TOKEN_SYMBOL_CONST);
     expect(r0Token.parent?.name).toBe(TOKEN_ERROR);
   });
 });
 
 function printNodes(input: string): void {
-  for (const node of filterNodes(VmlLanguage.parser.parse(input).cursor())) {
+  for (const node of filterNodes(vmlParser.parse(input).cursor())) {
     printNode(input, node);
   }
 }
@@ -554,8 +554,7 @@ END_MODULE
 }
 
 export function assertNoErrorNodes(input: string, printPrefix?: boolean): void {
-  const parser = VmlLanguage.parser;
-  const cursor = parser.parse(input).cursor();
+  const cursor = vmlParser.parse(input).cursor();
   do {
     const { node } = cursor;
     if (printPrefix) {
