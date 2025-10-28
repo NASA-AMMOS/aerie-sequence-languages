@@ -8,11 +8,11 @@ import {
   validateTime,
   TimeTypes,
 } from '@nasa-jpl/aerie-time-utils';
+import { SatfSasfParser } from '../languages/satf/grammar/satf-sasf.js';
 import { quoteEscape, removeEscapedQuotes, removeQuote, unquoteUnescape } from '../utils/string.js';
-import { SatfLanguage } from '../languages/satf/grammar/satf-sasf.js';
 import { SATF_SASF_NODES } from '../languages/satf/constants/satf-sasf-constants.js';
 import { ParsedSatf, ParsedSeqn, ParseSasf, Seqn } from '../languages/satf/types/types.js';
-import { SeqnParser } from '../languages/seq-n/seq-n.js';
+import { seqnParser } from '../languages/seq-n/seq-n.js';
 import { SEQN_NODES } from '../languages/seq-n/seqn-grammar-constants.js';
 import { parseVariables } from './seqnToSeqJson.js';
 /**
@@ -33,7 +33,7 @@ export async function seqnToSATF(
   globalVariables?: string[],
   commandDictionary?: CommandDictionary,
 ): Promise<ParsedSatf> {
-  const seqnTree = SeqnParser.parse(seqn);
+  const seqnTree = seqnParser.parse(seqn);
   const header = parseHeaderfromSeqn(seqnTree, seqn);
   const parameters = satfVariablesFromSeqn(seqnTree, seqn);
   const variables = satfVariablesFromSeqn(seqnTree, seqn, 'Variables');
@@ -71,7 +71,7 @@ export async function seqnToSASF(
   globalVariables?: string[],
   commandDictionary?: CommandDictionary,
 ): Promise<ParseSasf> {
-  const seqnTree = SeqnParser.parse(seqn);
+  const seqnTree = seqnParser.parse(seqn);
   const header = parseHeaderfromSeqn(seqnTree, seqn);
 
   // TODO: I don't think sasf have varaibles or parameters:
@@ -560,18 +560,18 @@ function sasfRequestFromSeqN(
 
 /**
  * Parses a SATF formatted string asynchronously to extract header information and sequence data.
- * It utilizes the SatfLanguage parser to generate SeqN parts.
+ * It utilizes the SatfSasfParser to generate SeqN parts.
  *
  * @async
  * @function satfToSeqn
  * @param {string} satf - The SATF formatted string content to parse.
- * @returns {Promise<ParsedSequence>} A Promise that resolves to an object containing the parsed header
+ * @returns {Promise<ParsedSeqn>} A Promise that resolves to an object containing the parsed header
  * and an array of sequence objects.
  * If the input string does not contain a top-level SATF structure recognized by the parser,
  * it resolves with a default empty ParsedSequence object (e.g., { header: "", sequences: [] }).
  */
 export async function satfToSeqn(satf: string): Promise<ParsedSeqn> {
-  const base = SatfLanguage.parser.parse(satf).topNode;
+  const base = SatfSasfParser.parse(satf).topNode;
 
   const satfNode = base.getChild(SATF_SASF_NODES.SATF);
 
@@ -586,18 +586,18 @@ export async function satfToSeqn(satf: string): Promise<ParsedSeqn> {
 
 /**
  * Parses a SASF formatted string asynchronously to extract header information and sequence data.
- * It utilizes the SatfLanguage parser to generate SeqN parts.
+ * It utilizes the SatfSasfParser to generate SeqN parts.
  *
  * @async
- * @function satfToSeqn
+ * @function sasfToSeqn
  * @param {string} satf - The SASF formatted string content to parse.
- * @returns {Promise<ParsedSequence>} A Promise that resolves to an object containing the parsed header
+ * @returns {Promise<ParsedSeqn>} A Promise that resolves to an object containing the parsed header
  * and an array of sequence objects.
  * If the input string does not contain a top-level SASF structure recognized by the parser,
  * it resolves with a default empty ParsedSequence object (e.g., { header: "", sequences: [] }).
  */
 export async function sasfToSeqn(sasf: string): Promise<ParsedSeqn> {
-  const base = SatfLanguage.parser.parse(sasf).topNode;
+  const base = SatfSasfParser.parse(sasf).topNode;
 
   const sasfNode = base.getChild(SATF_SASF_NODES.SASF);
 

@@ -20,6 +20,10 @@ export function removeQuote(s: string) {
   return s;
 }
 
+export function pluralize(count: number): string {
+  return count === 1 ? '' : 's';
+}
+
 export function removeEscapedQuotes(text: string): string;
 export function removeEscapedQuotes(text: number): number;
 export function removeEscapedQuotes(text: boolean): boolean;
