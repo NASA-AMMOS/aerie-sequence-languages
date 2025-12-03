@@ -1,27 +1,45 @@
 @top Load {
-    TimeBlock*
+    (
+        commentLine
+    )*
+    (
+        TimeBlock
+    )*
+}
+
+commentLine {
+    LineComment
 }
 
 TimeBlock {
     (CommandTimeExact | CommandTimeOffset)
-    (newLine?)
     Command
+    ~commentLine
 }
 
 Command {
     CommandName
-    CommandArgs
+    ~commentLine
+    (
+        CommandArg
+        ~commentLine
+    )*
 }
 
 CommandTimeExact {
-    (WaitUntil)
-    (whiteSpace)?
-    DateTime
+    WaitUntil
+    (DateTime | VariableTime)
+}
+
+VariableTime {
+    identifier
+    ("+" | "-")
+    "\\"?
+    TimeOffset
 }
 
 CommandTimeOffset {
-    (Wait)
-    (whiteSpace)?
+    Wait
     Number
 }
 
@@ -30,8 +48,9 @@ CommandName {
     identifier
 }
 
-CommandArgs {
-    ((whiteSpace | newLine) (KeywordArg | PositionalArg))* whiteSpace?
+CommandArg {
+    KeywordArg { ArgName "=" ArgValue } |
+    PositionalArg { ArgValue }
 }
 
 ArgName {
@@ -42,38 +61,22 @@ ArgValue {
     arg
 }
 
-KeywordArg {
-    ArgName commandAssignment ArgValue
-}
-
-PositionalArg {
-    ArgValue
-}
-
-RepeatArg {
-    "[" (whiteSpace? arg)* whiteSpace? "]"
-}
-
 arg[@isGroup=Arguments] { Number | String | Boolean }
 
-optSpace {
-    (newLine | whiteSpace)?
-}
-
-
 @tokens {
-    identifier { @asciiLetter (@asciiLetter | @digit | "_" | "-")* }
+    identifier { @asciiLetter (@asciiLetter | @digit | "_" )* }
     Activity { 'ACTIVITY' }
     ATSTable { 'ATS_TABLE' }
     ATSTableLastCommand { 'ATS_TABLE LAST_COMMAND' }
     ATSTableStartCommand { 'ATS_TABLE START_COMMAND' }
+    AssignmentOperator { '=' }
     RTSTable { 'RTS_TABLE' }
     RTSTableStartCommand { 'RTS_TABLE START_COMMAND' }
     RTSTableLastCommand { 'RTS_TABLE LAST_COMMAND' }
     Cmdn { 'CMDN' }
     DateTime { @digit@digit@digit@digit"-"@digit@digit@digit"-"@digit@digit":"@digit@digit":"@digit@digit("."@digit@digit@digit)? }
+    TimeOffset { @digit@digit":"@digit@digit":"@digit@digit }
     commandDeclaration { '/' }
-    commandAssignment { '=' }
     Event { 'EVENT' }
     Export { 'EXPORT' }
     Expression { 'EXPRESSION' }
@@ -106,6 +109,7 @@ optSpace {
     }
 
     hex { @digit | $[A-F] }
+    LineComment { ";"![\n\r]* }
 
     TRUE { 'TRUE' | 'true' }
     FALSE { 'FALSE' | 'false' }
@@ -122,17 +126,23 @@ optSpace {
 
     String { '"' (!["\\] | "\\" _)* '"' }
     whiteSpace { $[ \t]+ }
-    newLine { ($[ \t]* "\n")+ $[ \t]* |  (whiteSpace? @eof) }
-
-    @precedence { newLine, whiteSpace }
-
-    @precedence { optSpace, newLine }
+    newLine { ($[ \t]* "\n")+ $[ \t]* }
+    space { @whitespace+ }
 
     @precedence { Boolean, identifier }
 
     @precedence {
-        WaitUntil
-        Wait
+        WaitUntil,
+        Wait,
         identifier
     }
+
+    @precedence {
+        String,
+        Number,
+        identifier
+    }
+
 }
+
+@skip { space }
