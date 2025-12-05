@@ -20,7 +20,10 @@
     "src/languages/satf/grammar/satf-sasf.grammar.js",
     "src/languages/satf/grammar/satf-sasf.grammar.terms.js",
     "src/languages/seq-n/seq-n.grammar.js",
-    "src/languages/seq-n/seq-n.grammar.terms.js"
+    "src/languages/seq-n/seq-n.grammar.terms.js",
+    "src/languages/stol/stol-linter.ts",
+    "src/langauges/stol/stol.grammar.js",
+    "src/languages/stol/stol.grammar.terms.js"
   ],
   "exclude": ["./node_modules","./dist","**/*.test.ts"]
 }

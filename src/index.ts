@@ -7,6 +7,8 @@ export { seqnLinter } from './languages/seq-n/seq-n-linter.js';
 export { seqNFormat } from './languages/seq-n/seq-n-format.js';
 export { SeqNCommandInfoMapper, seqnToLibrarySequence } from './languages/seq-n/seq-n-tree-utils.js';
 
+export { stolLanguage } from './languages/stol/language.js';
+
 export type { ParsedSeqn, Seqn, ParsedSatf, ParseSasf } from './languages/satf/types/types.js';
 export { seqnToSATF, seqnToSASF, satfToSeqn, sasfToSeqn } from './converters/satf-sasf-utils.js';
 export { SatfSasfParser } from './languages/satf/grammar/satf-sasf.js';
