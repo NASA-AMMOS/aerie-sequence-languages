@@ -1251,6 +1251,54 @@ G+3 "GroundEpochName" @REQUEST_BEGIN("request2.name")
       expect(seqJson1).toEqual(seqJson2);
     });
   });
+
+  describe('control character escaping', () => {
+    it('should handle control characters in @ID', async () => {
+      // Test with a tab character (0x09) embedded in the ID string
+      const seq = `
+      @ID "id_with\x09tab"
+      C CMD_0`;
+      const actual = seqnToSeqJson(seqnParser.parse(seq), seq, commandBanana, 'fallback');
+      expect(actual.id).toBe('id_with\ttab');
+    });
+
+    it('should handle control characters in string arguments', async () => {
+      // Test with various control characters in a string argument
+      const seq = `
+      @ID "control_chars_test"
+      C ECHO "line1\x0aline2\x0dcarriage\x09tab"`;
+      const actual = seqnToSeqJson(seqnParser.parse(seq), seq, commandBanana, 'fallback');
+      expect(actual.steps).toBeDefined();
+      expect(actual.steps![0]).toMatchObject({
+        stem: 'ECHO',
+        type: 'command',
+        args: [
+          {
+            type: 'string',
+            value: 'line1\nline2\rcarriage\ttab',
+            name: 'echo_string',
+          },
+        ],
+      });
+    });
+
+    it('should handle null and other low control characters', async () => {
+      // Test with null (0x00) and bell (0x07) characters
+      const seq = `
+      @ID "test"
+      C ECHO "before\x00null\x07bell"`;
+      const actual = seqnToSeqJson(seqnParser.parse(seq), seq, commandBanana, 'fallback');
+      expect(actual.steps).toBeDefined();
+      expect(actual.steps![0]).toMatchObject({
+        args: [
+          {
+            type: 'string',
+            value: 'before\x00null\x07bell',
+          },
+        ],
+      });
+    });
+  });
 });
 
 it('should serialize a boolean arg', async () => {
