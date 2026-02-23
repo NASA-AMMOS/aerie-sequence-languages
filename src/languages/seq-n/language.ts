@@ -1,4 +1,5 @@
 import { LanguageSupport } from '@codemirror/language';
+import { ViewPlugin } from "@codemirror/view";
 import { debounce } from 'lodash-es';
 import type { InputLanguage } from '../../interfaces/language.js';
 import type { PhoenixContext, PhoenixResources } from '../../interfaces/phoenix.js';
@@ -11,8 +12,30 @@ import { seqnLinter } from './seq-n-linter.js';
 import { seqnTooltip } from './seq-n-tooltip.js';
 import { SeqNCommandInfoMapper, seqnToLibrarySequence } from './seq-n-tree-utils.js';
 import { getSeqnLRLanguage } from './seq-n.js';
+import type { Extension } from "@codemirror/state";
+import { Transaction } from "@codemirror/state";
 
 const debouncedSeqNHighlightBlock = debounce(seqNHighlightBlock, 250);
+
+
+const sanitizeSmartQuotes = (s: string) =>
+  s.replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
+
+export const sanitizeSeqN = ViewPlugin.fromClass(class {
+  constructor(view: any) {
+    const text = view.state.doc.toString();
+    const cleanText = sanitizeSmartQuotes(text);
+    if (cleanText !== text) {
+      setTimeout(() => {
+        console.warn("Sanitized document, replaced curly quotes with standard ASCII quotes");
+        view.dispatch({
+          changes: { from: 0, to: view.state.doc.length, insert: cleanText },
+          annotations: Transaction.userEvent.of("sanitize.smartQuotes")
+        });
+      }, 0);
+    }
+  }
+});
 
 /**
  * Get keyed object for SeqN editor extensions to more easily replace/extend components.
@@ -22,7 +45,7 @@ export function getSeqnExtensions(
   context: PhoenixContext,
   globals?: GlobalVariable[],
   mapper?: SeqNCommandInfoMapper,
-) {
+): {[key: string]: Extension} {
   globals = globals ?? [];
   mapper = mapper ?? new SeqNCommandInfoMapper();
   const seqnLRLanguage = getSeqnLRLanguage(resources);
@@ -36,6 +59,7 @@ export function getSeqnExtensions(
     tooltip: seqnTooltip(context.commandDictionary, resources, context, mapper),
     indent: resources.indentService.of(seqnAutoIndent()),
     highlight: [resources.EditorView.updateListener.of(debouncedSeqNHighlightBlock), seqNBlockHighlighter(resources)],
+    sanitize: sanitizeSeqN
   };
 }
 
