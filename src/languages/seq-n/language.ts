@@ -1,5 +1,5 @@
 import { LanguageSupport } from '@codemirror/language';
-import { ViewPlugin } from "@codemirror/view";
+import { EditorView, ViewPlugin } from "@codemirror/view";
 import { debounce } from 'lodash-es';
 import type { InputLanguage } from '../../interfaces/language.js';
 import type { PhoenixContext, PhoenixResources } from '../../interfaces/phoenix.js';
@@ -17,11 +17,10 @@ import { Transaction } from "@codemirror/state";
 
 const debouncedSeqNHighlightBlock = debounce(seqNHighlightBlock, 250);
 
-
-const sanitizeSmartQuotes = (s: string) =>
+export const sanitizeSmartQuotes = (s: string) =>
   s.replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
 
-export const sanitizeSeqN = ViewPlugin.fromClass(class {
+export const sanitizeOnInitExtension = ViewPlugin.fromClass(class {
   constructor(view: any) {
     const text = view.state.doc.toString();
     const cleanText = sanitizeSmartQuotes(text);
@@ -35,6 +34,23 @@ export const sanitizeSeqN = ViewPlugin.fromClass(class {
       }, 0);
     }
   }
+});
+
+export const formatOnPasteExtension = EditorView.domEventHandlers({
+  paste(event, view) {
+    const text = event.clipboardData?.getData('text/plain');
+    if (!text) { return; }
+    // Replace curly quotes and apostrophes with straight ones
+    const cleanText = sanitizeSmartQuotes(text);
+    if(cleanText !== text) {
+      // Prevent default paste and manually insert sanitized text
+      event.preventDefault();
+      view.dispatch({
+        ...view.state.replaceSelection(cleanText),
+        annotations: Transaction.userEvent.of("sanitize.smartQuotes")
+      });
+    }
+  },
 });
 
 /**
@@ -59,7 +75,8 @@ export function getSeqnExtensions(
     tooltip: seqnTooltip(context.commandDictionary, resources, context, mapper),
     indent: resources.indentService.of(seqnAutoIndent()),
     highlight: [resources.EditorView.updateListener.of(debouncedSeqNHighlightBlock), seqNBlockHighlighter(resources)],
-    sanitize: sanitizeSeqN
+    sanitize: sanitizeOnInitExtension,
+    paste: formatOnPasteExtension
   };
 }
 
