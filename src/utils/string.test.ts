@@ -122,10 +122,17 @@ describe('escapeControlCharsInJsonStringLiterals', () => {
     expect(out).toBe(input);
   });
 
-  it('does not get confused by escaped quotes', () => {
-    const input = '{"a":"he said: \\"yo\\"","b":"ok"}';
+  it('does not get confused by multiple single quotes or escaped double quotes', () => {
+    const input1 = '"he said: \"i said \'hi\' but you didn\'t say \'hi\' back\" - \"why?\""';
+    expect(escapeControlCharsInJsonStringLiterals(input1)).toBe(input1);
+    const input2 = '{"a":"he said: \"i said \'hi\' but you didn\'t say \'hi\' back\" - \"why?\""}';
+    expect(escapeControlCharsInJsonStringLiterals(input2)).toBe(input2);
+  });
+
+  it('escapes literal tabs/newlines inside multiple levels of quotes', () => {
+    const input = '{\n\t"a\tb":"\t or \\"\t\\" or \'\t\' or \'\\"\t\\"\'"\n}';
     const out = escapeControlCharsInJsonStringLiterals(input);
-    expect(out).toBe(input);
+    expect(out).toBe('{\n\t"a\\tb":"\\t or \\"\\t\\" or \'\\t\' or \'\\"\\t\\"\'"\n}'); // literal tab becomes two chars: \ and t
   });
 
   it('repairs control chars in keys too', () => {
