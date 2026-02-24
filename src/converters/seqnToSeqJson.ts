@@ -35,8 +35,8 @@ import {
   TimeTypes,
   validateTime,
 } from '@nasa-jpl/aerie-time-utils';
-import { logInfo } from '../logger.js';
-import { removeEscapedQuotes, unquoteUnescape } from '../utils/string.js';
+import { logError, logInfo } from '../logger.js';
+import { removeEscapedQuotes, safeParseJsonString, unquoteUnescape } from '../utils/string.js';
 
 /**
  * Returns a minimal valid Seq JSON object.
@@ -346,7 +346,7 @@ function parseArg(
       return numberArg;
     }
   } else if (node.name === 'String') {
-    const value = JSON.parse(nodeValue);
+    const value = safeParseJsonString(nodeValue) as string;
     const arg: StringArgument = { type: 'string', value };
     if (dictionaryArg) {
       arg.name = dictionaryArg.name;
@@ -838,7 +838,7 @@ function parseId(node: SyntaxNode, text: string, sequenceName: string): string {
     return sequenceName.split('.')[0];
   }
 
-  const id = JSON.parse(text.slice(stringNode.from, stringNode.to));
+  const id = safeParseJsonString(text.slice(stringNode.from, stringNode.to)) as string;
   return id;
 }
 
@@ -866,9 +866,10 @@ function parseMetadata(node: SyntaxNode, text: string): Metadata | undefined {
 
     let value = text.slice(valueNode.from, valueNode.to);
     try {
-      value = JSON.parse(value);
+      value = safeParseJsonString(value) as string;
     } catch (e) {
-      logInfo(`Malformed metadata ${value}`);
+      logError(`Malformed metadata ${value}`);
+      throw e;
     }
 
     obj[keyText] = value;

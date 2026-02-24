@@ -1438,6 +1438,9 @@ function validateArgument(
           severity: 'error',
           to: argNode.to,
         });
+      } else {
+        // lint strings for bad escape chars like "\a"
+        diagnostics.push(...lintBadStringEscapes(argText, argNode.from));
       }
       break;
     case 'repeat':
@@ -1752,5 +1755,33 @@ function validateModel(commandNode: SyntaxNode): Diagnostic[] {
     }
   });
 
+  return diagnostics;
+}
+
+/* Individual linter helper functions */
+
+// Backslashes in seqN have the same meaning as JS literal strings, they are for escape characters
+// like \t (tab) or \u1234 (unicode). literal backslashes must be represented as "\\".
+// Only some are valid, eg. "\a" isn't a real escaped character and throws error when JSON.parse'd.
+// This RegExp searches string literals for invalid escape characters and warns if found
+// - `(?<!\\)(?:\\\\)*\\` - find backslash that is *not itself* escaped (even # of preceding \s)
+// - `(?![\\'"bfnrtv\n\r]|` - & that is not followed by one of these *valid* escape chars
+// - the rest - allow "\u1234" (unicode) and "\x0F" (hex byte) as valid escapes
+const BAD_ESCAPE_REGEXP =
+  /(?<!\\)(?:\\\\)*\\(?![\\'"bfnrtv\n\r]|u\{[0-9a-fA-F]+}|u[0-9a-fA-F]{4}|x[0-9a-fA-F]{2})(.)/gs;
+
+export function lintBadStringEscapes(argText: string, baseArgFrom: number): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+
+  for (const match of argText.matchAll(BAD_ESCAPE_REGEXP)) {
+    const badChar = `\\${match[1]}`;
+    const backslashIndex = match.index + match[0].lastIndexOf('\\');
+    diagnostics.push({
+      message: `Bad escape character: '${badChar}'. Use '\\\\' if you want a literal single backslash`,
+      severity: 'error',
+      from: baseArgFrom + backslashIndex,
+      to: baseArgFrom + backslashIndex + 2,
+    });
+  }
   return diagnostics;
 }
