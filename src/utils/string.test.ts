@@ -123,9 +123,9 @@ describe('escapeControlCharsInJsonStringLiterals', () => {
   });
 
   it('does not get confused by multiple single quotes or escaped double quotes', () => {
-    const input1 = '"he said: \"i said \'hi\' but you didn\'t say \'hi\' back\" - \"why?\""';
+    const input1 = '"he said: \\"i said \'hi\' but you didn\'t say \'hi\' back\\" - \\"why?\\""';
     expect(escapeControlCharsInJsonStringLiterals(input1)).toBe(input1);
-    const input2 = '{"a":"he said: \"i said \'hi\' but you didn\'t say \'hi\' back\" - \"why?\""}';
+    const input2 = '{"a":"he said: \\"i said \'hi\' but you didn\'t say \'hi\' back\\" - \\"why?\\""}';
     expect(escapeControlCharsInJsonStringLiterals(input2)).toBe(input2);
   });
 
