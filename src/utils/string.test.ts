@@ -171,4 +171,3 @@ describe('safeParseJsonString', () => {
     expect(() => safeParseJsonString('{"a": "ok", }')).toThrow();
   });
 });
-
