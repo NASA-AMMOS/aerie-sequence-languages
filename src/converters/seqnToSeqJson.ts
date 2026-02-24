@@ -35,7 +35,7 @@ import {
   TimeTypes,
   validateTime,
 } from '@nasa-jpl/aerie-time-utils';
-import {logError, logInfo} from '../logger.js';
+import { logInfo } from '../logger.js';
 import { removeEscapedQuotes, unquoteUnescape } from '../utils/string.js';
 
 /**
@@ -868,8 +868,7 @@ function parseMetadata(node: SyntaxNode, text: string): Metadata | undefined {
     try {
       value = JSON.parse(value);
     } catch (e) {
-      logError(`Malformed metadata ${value}`);
-      throw e;
+      logInfo(`Malformed metadata ${value}`);
     }
 
     obj[keyText] = value;
