@@ -1,5 +1,5 @@
-import type {SyntaxNode, Tree} from '@lezer/common';
-import type {CommandDictionary, FswCommandArgument, FswCommandArgumentRepeat} from '@nasa-jpl/aerie-ampcs';
+import type { SyntaxNode, Tree } from '@lezer/common';
+import type { CommandDictionary, FswCommandArgument, FswCommandArgumentRepeat } from '@nasa-jpl/aerie-ampcs';
 import type {
   Activate,
   Args,
@@ -27,7 +27,7 @@ import type {
   Time,
   VariableDeclaration,
 } from '@nasa-jpl/seq-json-schema/types';
-import {SEQN_NODES} from '../languages/seq-n/seqn-grammar-constants.js';
+import { SEQN_NODES } from '../languages/seq-n/seqn-grammar-constants.js';
 import {
   getBalancedDuration,
   getDurationTimeComponents,
@@ -35,8 +35,8 @@ import {
   TimeTypes,
   validateTime,
 } from '@nasa-jpl/aerie-time-utils';
-import {logInfo} from '../logger.js';
-import {removeEscapedQuotes, safeParseJsonString, unquoteUnescape} from '../utils/string.js';
+import { logInfo } from '../logger.js';
+import { removeEscapedQuotes, safeParseJsonString, unquoteUnescape } from '../utils/string.js';
 
 /**
  * Returns a minimal valid Seq JSON object.
