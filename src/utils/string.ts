@@ -33,3 +33,24 @@ export function removeEscapedQuotes(text: string | number | boolean): string | n
   }
   return text;
 }
+
+/**
+ * Safely parses a JSON string by escaping raw control characters (U+0000 to U+001F)
+ * before passing to JSON.parse. This handles cases where input contains unescaped
+ * control characters that would otherwise cause JSON.parse to throw.
+ *
+ * Common control characters (\t, \n, \r) are escaped to their readable forms,
+ * while other control characters are escaped to \uXXXX unicode format.
+ *
+ * @param s - A JSON string that may contain raw control characters
+ * @returns The parsed JSON value
+ * @throws {SyntaxError} If the string is not valid JSON after escaping
+ */
+export function safeParseJsonString(s: string): unknown {
+  const controlCharMap: Record<string, string> = {'\t': '\\t', '\n': '\\n', '\r': '\\r'};
+  // eslint-disable-next-line no-control-regex
+  const escaped = s.replace(/[\u0000-\u001f]/g, c => {
+    return controlCharMap[c] ?? `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`;
+  });
+  return JSON.parse(escaped);
+}

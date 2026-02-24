@@ -9,7 +9,7 @@ import {
   TimeTypes,
 } from '@nasa-jpl/aerie-time-utils';
 import { SatfSasfParser } from '../languages/satf/grammar/satf-sasf.js';
-import { quoteEscape, removeEscapedQuotes, removeQuote, unquoteUnescape } from '../utils/string.js';
+import {quoteEscape, removeEscapedQuotes, removeQuote, safeParseJsonString, unquoteUnescape} from '../utils/string.js';
 import { SATF_SASF_NODES } from '../languages/satf/constants/satf-sasf-constants.js';
 import { ParsedSatf, ParsedSeqn, ParseSasf, Seqn } from '../languages/satf/types/types.js';
 import { seqnParser } from '../languages/seq-n/seq-n.js';
@@ -181,7 +181,7 @@ function parseSeqNCommand(
   const argsNode = commandNode.getChild(SEQN_NODES.ARGS);
   const args = argsNode ? parseSeqNArgs(argsNode, sequence, commandDictionary, variables, stem) : [];
   const description = parseSeqNDescription(commandNode, sequence);
-  const metadata = parsSeqNMetadata(commandNode, sequence, [SEQN_NODES.NTEXT]);
+  const metadata = parseSeqNMetadata(commandNode, sequence, [SEQN_NODES.NTEXT]);
   const models = parseSeqNModel(commandNode, sequence);
   return (
     `${'\t'}command(${order},` +
@@ -532,9 +532,9 @@ function sasfRequestFromSeqN(
       const nameNode = requestNode.getChild(SEQN_NODES.REQUEST_NAME);
       const name = nameNode ? unquoteUnescape(sequence.slice(nameNode.from, nameNode.to)) : 'UNKNOWN';
       const parsedTime = parseSeqNTime(requestNode, sequence);
-      const requester = parsSeqNMetadata(requestNode, sequence, ['REQUESTOR']);
-      const processor = parsSeqNMetadata(requestNode, sequence, ['PROCESSOR']);
-      const key = parsSeqNMetadata(requestNode, sequence, ['KEY']);
+      const requester = parseSeqNMetadata(requestNode, sequence, ['REQUESTOR']);
+      const processor = parseSeqNMetadata(requestNode, sequence, ['PROCESSOR']);
+      const key = parseSeqNMetadata(requestNode, sequence, ['KEY']);
       const request =
         `request(${name},` +
         `\n\tSTART_TIME, ${parsedTime.tag},${parsedTime.type}` +
@@ -961,7 +961,7 @@ function parseArgNode(argNode: SyntaxNode, text: string): string {
   }
 }
 
-function parsSeqNMetadata(node: SyntaxNode, text: string, filter: string[]): string | undefined {
+function parseSeqNMetadata(node: SyntaxNode, text: string, filter: string[]): string | undefined {
   const metadataNode = node.getChild('Metadata');
   if (!metadataNode) {
     return undefined;
@@ -988,7 +988,7 @@ function parsSeqNMetadata(node: SyntaxNode, text: string, filter: string[]): str
 
     let value = text.slice(valueNode.from, valueNode.to);
     try {
-      value = JSON.parse(value);
+      value = safeParseJsonString(value) as string;
     } catch (e) {
       console.log(`Malformed metadata ${value}`);
     }
