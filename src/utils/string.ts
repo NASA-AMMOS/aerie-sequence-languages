@@ -53,6 +53,7 @@ export function safeParseJsonString(jsonText: string): unknown {
 // regex to find string literals (things in quotes, keys or values) in a JSON string
 const JSON_STRING_RE = /"(?:\\.|[^"\\])*"/g;
 // regex to find all control characers in a string
+// eslint-disable-next-line no-control-regex
 const CONTROL_CHAR_RE = /[\u0000-\u001f]/g;
 // map of common control characters to their readable escaped versions
 const CONTROL_CHAR_MAP: Record<string, string> = {
