@@ -1,4 +1,12 @@
-import { isQuoted, pluralize, quoteEscape, removeEscapedQuotes, unquoteUnescape } from './string.js';
+import {
+  escapeControlCharsInJsonStringLiterals,
+  isQuoted,
+  pluralize,
+  quoteEscape,
+  removeEscapedQuotes,
+  safeParseJsonString,
+  unquoteUnescape,
+} from './string.js';
 import { describe, expect, it } from 'vitest';
 
 describe(`'Escaped quotes' from input`, () => {
@@ -86,5 +94,73 @@ describe('quoteEscape', () => {
     expect(pluralize(0)).toBe('s');
     expect(pluralize(1)).toBe('');
     expect(pluralize(10)).toBe('s');
+  });
+});
+
+describe('escapeControlCharsInJsonStringLiterals', () => {
+  it('leaves pretty-printed whitespace outside strings unchanged', () => {
+    const input = '{\n\t"thing": "OK"\n}\n';
+    const out = escapeControlCharsInJsonStringLiterals(input);
+    expect(out).toBe(input);
+  });
+
+  it('escapes literal tabs/newlines inside a string value', () => {
+    const input = '{"a":"x\ty"}';
+    const out = escapeControlCharsInJsonStringLiterals(input);
+    expect(out).toBe('{"a":"x\\ty"}'); // literal tab becomes two chars: \ and t
+  });
+
+  it('escapes other control chars to unicode form', () => {
+    const input = `{"a":"x${String.fromCharCode(0x01)}y"}`;
+    const out = escapeControlCharsInJsonStringLiterals(input);
+    expect(out).toBe('{"a":"x\\u0001y"}');
+  });
+
+  it('does not double-escape already-escaped sequences', () => {
+    const input = '{"a":"x\\ty"}'; // characters: x \ t y
+    const out = escapeControlCharsInJsonStringLiterals(input);
+    expect(out).toBe(input);
+  });
+
+  it('does not get confused by escaped quotes', () => {
+    const input = '{"a":"he said: \\"yo\\"","b":"ok"}';
+    const out = escapeControlCharsInJsonStringLiterals(input);
+    expect(out).toBe(input);
+  });
+
+  it('repairs control chars in keys too', () => {
+    const input = `{"a\tb": 1}`;
+    const out = escapeControlCharsInJsonStringLiterals(input);
+    expect(out).toBe('{"a\\tb": 1}');
+  });
+
+  it('handles nested objects/arrays and only escapes inside string literals', () => {
+    const input =
+      '{\n' + '\t"arr": ["ok", "x\ty", {"k": "m\nn"}],\n' + '\t"obj": {"inner": ["a", "b", "c\rd"]}\n' + '}\n';
+
+    const out = escapeControlCharsInJsonStringLiterals(input);
+
+    const expected =
+      '{\n' + '\t"arr": ["ok", "x\\ty", {"k": "m\\nn"}],\n' + '\t"obj": {"inner": ["a", "b", "c\\rd"]}\n' + '}\n';
+
+    expect(out).toBe(expected);
+  });
+});
+
+describe('safeParseJsonString', () => {
+  it('parses normal json unchanged', () => {
+    expect(safeParseJsonString('{"a":1,"b":"ok"}')).toEqual({ a: 1, b: 'ok' });
+  });
+
+  it('parses and repairs values containing literal control chars', () => {
+    expect(safeParseJsonString('{"a":"x\ty","b":"m\nn","c":"p\rr"}')).toEqual({
+      a: 'x\ty',
+      b: 'm\nn',
+      c: 'p\rr',
+    });
+  });
+
+  it('throws if json is still invalid after escaping', () => {
+    expect(() => safeParseJsonString('{"a": "ok", }')).toThrow();
   });
 });
