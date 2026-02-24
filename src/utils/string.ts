@@ -47,7 +47,7 @@ export function removeEscapedQuotes(text: string | number | boolean): string | n
  * @throws {SyntaxError} If the string is not valid JSON after escaping
  */
 export function safeParseJsonString(s: string): unknown {
-  const controlCharMap: Record<string, string> = {'\t': '\\t', '\n': '\\n', '\r': '\\r'};
+  const controlCharMap: Record<string, string> = { '\t': '\\t', '\n': '\\n', '\r': '\\r' };
   // eslint-disable-next-line no-control-regex
   const escaped = s.replace(/[\u0000-\u001f]/g, c => {
     return controlCharMap[c] ?? `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`;

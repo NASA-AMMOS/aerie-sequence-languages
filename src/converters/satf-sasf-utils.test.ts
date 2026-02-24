@@ -239,11 +239,10 @@ describe('satfToSeqn', () => {
         )
       $$EOF
     `;
-      const result = await satfToSeqn(satf);
-      expect(result).toHaveProperty('sequences');
-      expect(result.sequences[0].name).toStrictEqual('test');
-      expect(result.sequences[0].steps)
-        .toStrictEqual(`E00:01:00 CMD
+    const result = await satfToSeqn(satf);
+    expect(result).toHaveProperty('sequences');
+    expect(result.sequences[0].name).toStrictEqual('test');
+    expect(result.sequences[0].steps).toStrictEqual(`E00:01:00 CMD
 @MODEL "a" 1 "00:00:01"
 @MODEL "GLOBAL::b" 1.1 "00:00:02"`);
   });
@@ -262,11 +261,10 @@ describe('satfToSeqn', () => {
         )
       $$EOF
     `;
-      const result = await satfToSeqn(satf);
-      expect(result).toHaveProperty('sequences');
-      expect(result.sequences[0].name).toStrictEqual('test');
-      expect(result.sequences[0].steps)
-        .toStrictEqual(`E00:01:00 CMD
+    const result = await satfToSeqn(satf);
+    expect(result).toHaveProperty('sequences');
+    expect(result.sequences[0].name).toStrictEqual('test');
+    expect(result.sequences[0].steps).toStrictEqual(`E00:01:00 CMD
 @MODEL "a" 1 "00:00:01"
 @MODEL "GLOBAL::b" 1.1 "00:00:02"
 @MODEL "c" "abc" "00:00:03"`);

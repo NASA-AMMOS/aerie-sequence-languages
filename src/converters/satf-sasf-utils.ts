@@ -9,7 +9,13 @@ import {
   TimeTypes,
 } from '@nasa-jpl/aerie-time-utils';
 import { SatfSasfParser } from '../languages/satf/grammar/satf-sasf.js';
-import {quoteEscape, removeEscapedQuotes, removeQuote, safeParseJsonString, unquoteUnescape} from '../utils/string.js';
+import {
+  quoteEscape,
+  removeEscapedQuotes,
+  removeQuote,
+  safeParseJsonString,
+  unquoteUnescape,
+} from '../utils/string.js';
 import { SATF_SASF_NODES } from '../languages/satf/constants/satf-sasf-constants.js';
 import { ParsedSatf, ParsedSeqn, ParseSasf, Seqn } from '../languages/satf/types/types.js';
 import { seqnParser } from '../languages/seq-n/seq-n.js';
