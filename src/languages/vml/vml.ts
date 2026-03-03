@@ -175,25 +175,27 @@ export function vmlHighlightBlock(viewUpdate: ViewUpdate): SyntaxNode[] {
   return matchedNodes;
 }
 
-export const vmlBlockHighlighter = ViewPlugin.fromClass(
-  class {
-    decorations: DecorationSet;
-    constructor() {
-      this.decorations = Decoration.none;
-    }
-    update(viewUpdate: ViewUpdate): DecorationSet | null {
-      if (viewUpdate.selectionSet || viewUpdate.docChanged || viewUpdate.viewportChanged) {
-        const blocks = vmlHighlightBlock(viewUpdate);
-        this.decorations = Decoration.set(
-          // codemirror requires marks to be in sorted order
-          blocks.sort((a, b) => a.from - b.from).map(block => blockMark.range(block.from, block.to)),
-        );
-        return this.decorations;
+export function vmlBlockHighlighter(resources: PhoenixResources) {
+  return resources.ViewPlugin.fromClass(
+    class {
+      decorations: DecorationSet;
+      constructor() {
+        this.decorations = Decoration.none;
       }
-      return null;
-    }
-  },
-  {
-    decorations: viewPluginSpecification => viewPluginSpecification.decorations,
-  },
-);
+      update(viewUpdate: ViewUpdate): DecorationSet | null {
+        if (viewUpdate.selectionSet || viewUpdate.docChanged || viewUpdate.viewportChanged) {
+          const blocks = vmlHighlightBlock(viewUpdate);
+          this.decorations = Decoration.set(
+            // codemirror requires marks to be in sorted order
+            blocks.sort((a, b) => a.from - b.from).map(block => blockMark.range(block.from, block.to)),
+          );
+          return this.decorations;
+        }
+        return null;
+      }
+    },
+    {
+      decorations: viewPluginSpecification => viewPluginSpecification.decorations,
+    },
+  );
+}
