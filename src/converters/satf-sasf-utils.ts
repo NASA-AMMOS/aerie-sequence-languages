@@ -1,13 +1,7 @@
 import type { SyntaxNode } from '@lezer/common';
 import { Tree } from '@lezer/common';
 import type { CommandDictionary, FswCommandArgument } from '@nasa-jpl/aerie-ampcs';
-import {
-  getBalancedDuration,
-  getDurationTimeComponents,
-  parseDurationString,
-  validateTime,
-  TimeTypes,
-} from '@nasa-jpl/aerie-time-utils';
+import { getBalancedDuration, parseDurationString, validateTime, TimeTypes } from '@nasa-jpl/aerie-time-utils';
 import { SatfSasfParser } from '../languages/satf/grammar/satf-sasf.js';
 import {
   quoteEscape,
@@ -22,23 +16,22 @@ import { seqnParser } from '../languages/seq-n/seq-n.js';
 import { SEQN_NODES } from '../languages/seq-n/seqn-grammar-constants.js';
 import { parseVariables } from './seqnToSeqJson.js';
 /**
- * Asynchronously converts a parsed SeqN tree via lezer into a structured SATF representation.
+ * Converts a parsed SeqN tree via lezer into a structured SATF representation.
  *
  * Parse different sections (metadata, variables, steps) of the SeqN tree and
  * assemble them into a `ParsedSatf` object containing the corresponding SATF sections.
  *
- * @async
  * @param {string} sequence - The original SeqN source text corresponding to the `seqnTree`.
  * @param {string[]} [globalVariables] - Optional. A list of predefined global variable names to be used
  * @param {CommandDictionary} [commandDictionary] - Optional. A dictionary containing command definitions.
- * @returns {Promise<ParsedSatf>} A Promise that resolves to an object containing the generated
- * SATF `header`, `parameters , `variables`, and `steps` block strings (or undefined if a section is empty/not generated).
+ * @returns {ParsedSatf} An object containing the generated SATF `header`, `parameters , `variables`,
+ * and `steps` block strings (or undefined if a section is empty/not generated).
  */
-export async function seqnToSATF(
+export function seqnToSATF(
   seqn: string,
   globalVariables?: string[],
   commandDictionary?: CommandDictionary,
-): Promise<ParsedSatf> {
+): ParsedSatf {
   const seqnTree = seqnParser.parse(seqn);
   const header = parseHeaderfromSeqn(seqnTree, seqn);
   const parameters = satfVariablesFromSeqn(seqnTree, seqn);
@@ -59,24 +52,19 @@ export async function seqnToSATF(
 }
 
 /**
- * Asynchronously converts a parsed SeqN tree via lezer into a structured SASF representation.
+ * Converts a parsed SeqN tree via lezer into a structured SASF representation.
  *
  * Parse the metadata section and generate SASF request blocks from the SeqN tree.
  * It then combines these into a `ParsedSasf` object.
  *
- * @async
  * @param {string} sequence - The original SeqN source text corresponding to the `seqnTree`.
  * @param {string[]} [globalVariables] - Optional. A list of predefined global variable names to be used
  *
  * @param {CommandDictionary} [commandDictionary] - Optional. A dictionary containing command definitions,
- * @returns {Promise<ParsedSasf>} A Promise that resolves to an object containing the generated
- * SASF `metadata` string and the concatenated `requests` string (or undefined if a section is empty/not generated).
+ * @returns {ParseSasf} An object containing the generated SASF `metadata` string
+ * and the concatenated `requests` string (or undefined if a section is empty/not generated).
  */
-export async function seqnToSASF(
-  seqn: string,
-  globalVariables?: string[],
-  commandDictionary?: CommandDictionary,
-): Promise<ParseSasf> {
+export function seqnToSASF(seqn: string, globalVariables?: string[], commandDictionary?: CommandDictionary): ParseSasf {
   const seqnTree = seqnParser.parse(seqn);
   const header = parseHeaderfromSeqn(seqnTree, seqn);
 
@@ -433,10 +421,10 @@ function serializeSeqNArgs(args: any[]): string {
 }
 
 function getSatfVariableNames(seqnTree: Tree, text: string): string[] {
-  let types = [SEQN_NODES.PARAMETER_DECLARATION, SEQN_NODES.LOCAL_DECLARATION];
-  let names: string[] = [];
+  const types = [SEQN_NODES.PARAMETER_DECLARATION, SEQN_NODES.LOCAL_DECLARATION];
+  const names: string[] = [];
   for (let i = 0; i < types.length; i++) {
-    let variableContainer = seqnTree.topNode.getChild(types[i]);
+    const variableContainer = seqnTree.topNode.getChild(types[i]);
     if (!variableContainer) {
       continue;
     }
@@ -510,13 +498,19 @@ function satfVariablesFromSeqn(
   const serializedVariables = variables?.map(variable => {
     const tags = [];
     tags.push(`\tTYPE,${variable.type}`);
-    if (variable.enum_name) tags.push(`\tENUM_NAME,\\${variable.enum_name}\\`);
+    if (variable.enum_name) {
+      tags.push(`\tENUM_NAME,\\${variable.enum_name}\\`);
+    }
     variable.allowable_ranges &&
       variable.allowable_ranges.forEach(range => {
         tags.push(`\tRANGE,\\${range.min}...${range.max}\\`);
       });
-    if (variable.allowable_values) tags.push(`\tRANGE,\\${variable.allowable_values}\\`);
-    if (variable.sc_name) tags.push(`\tSC_NAME,\\${variable.sc_name}\\`);
+    if (variable.allowable_values) {
+      tags.push(`\tRANGE,\\${variable.allowable_values}\\`);
+    }
+    if (variable.sc_name) {
+      tags.push(`\tSC_NAME,\\${variable.sc_name}\\`);
+    }
     return `${variable.name}(\n` + tags.join(',\n') + `\n)`;
   });
 
@@ -544,9 +538,9 @@ function sasfRequestFromSeqN(
       const request =
         `request(${name},` +
         `\n\tSTART_TIME, ${parsedTime.tag},${parsedTime.type}` +
-        `${requester ? `,\n\t${requester.replaceAll('\\', '\"')}` : ''}` +
-        `${processor ? `,\n\t${processor.replaceAll('\\', '\"')}` : ''}` +
-        `${key ? `,\n\t${key.replaceAll('\\', '\"')}` : ''})`;
+        `${requester ? `,\n\t${requester.replaceAll('\\', '"')}` : ''}` +
+        `${processor ? `,\n\t${processor.replaceAll('\\', '"')}` : ''}` +
+        `${key ? `,\n\t${key.replaceAll('\\', '"')}` : ''})`;
       `\n\n`;
       let order = 1;
       let child = requestNode?.getChild(SEQN_NODES.STEPS)?.firstChild;
@@ -565,18 +559,16 @@ function sasfRequestFromSeqN(
 }
 
 /**
- * Parses a SATF formatted string asynchronously to extract header information and sequence data.
+ * Parses a SATF formatted string to extract header information and sequence data.
  * It utilizes the SatfSasfParser to generate SeqN parts.
  *
- * @async
  * @function satfToSeqn
  * @param {string} satf - The SATF formatted string content to parse.
- * @returns {Promise<ParsedSeqn>} A Promise that resolves to an object containing the parsed header
- * and an array of sequence objects.
+ * @returns {ParsedSeqn} An object containing the parsed header and an array of sequence objects.
  * If the input string does not contain a top-level SATF structure recognized by the parser,
- * it resolves with a default empty ParsedSequence object (e.g., { header: "", sequences: [] }).
+ * it returns a default empty ParsedSequence object (e.g., { header: "", sequences: [] }).
  */
-export async function satfToSeqn(satf: string): Promise<ParsedSeqn> {
+export function satfToSeqn(satf: string): ParsedSeqn {
   const base = SatfSasfParser.parse(satf).topNode;
 
   const satfNode = base.getChild(SATF_SASF_NODES.SATF);
@@ -591,18 +583,16 @@ export async function satfToSeqn(satf: string): Promise<ParsedSeqn> {
 }
 
 /**
- * Parses a SASF formatted string asynchronously to extract header information and sequence data.
+ * Parses a SASF formatted string to extract header information and sequence data.
  * It utilizes the SatfSasfParser to generate SeqN parts.
  *
- * @async
  * @function sasfToSeqn
  * @param {string} satf - The SASF formatted string content to parse.
- * @returns {Promise<ParsedSeqn>} A Promise that resolves to an object containing the parsed header
- * and an array of sequence objects.
+ * @returns {ParsedSeqn} An object containing the parsed header and an array of sequence objects.
  * If the input string does not contain a top-level SASF structure recognized by the parser,
- * it resolves with a default empty ParsedSequence object (e.g., { header: "", sequences: [] }).
+ * it returns a default empty ParsedSequence object (e.g., { header: "", sequences: [] }).
  */
-export async function sasfToSeqn(sasf: string): Promise<ParsedSeqn> {
+export function sasfToSeqn(sasf: string): ParsedSeqn {
   const base = SatfSasfParser.parse(sasf).topNode;
 
   const sasfNode = base.getChild(SATF_SASF_NODES.SASF);
@@ -739,21 +729,6 @@ function parseBody(bodyNode: SyntaxNode | null, text: string): Seqn[] {
   }
 
   return [];
-}
-
-function parseVariableName(parameterNode: SyntaxNode | null, text: string): string[] {
-  if (!parameterNode) {
-    return [];
-  }
-  const entries = parameterNode.getChildren(SATF_SASF_NODES.ENTRY);
-  if (!entries || entries.length == 0) {
-    return [];
-  }
-
-  return entries.map(param => {
-    const nameNode = param.getChild(SATF_SASF_NODES.NAME);
-    return nameNode ? `${text.slice(nameNode.from, nameNode.to)}` : '';
-  });
 }
 
 /** Mapping between SATF and SeqN from Taifun
@@ -913,7 +888,7 @@ function parseTimeTagNode(timeValueNode: SyntaxNode | null, timeTagNode: SyntaxN
 }
 
 function parseComment(commentNode: SyntaxNode | null, text: string): string {
-  let comment = commentNode
+  const comment = commentNode
     ? `${text
         .slice(commentNode.from, commentNode.to)
         .split('\n')
@@ -1044,7 +1019,7 @@ function parseModel(modelNode: SyntaxNode | null, text: string): string {
   // 4. Mis-matched number of models/durations not covered by cases 1 or 2 -> throw error
 
   if (
-    modelsNode.length != durationNodes.length &&
+    modelsNode.length !== durationNodes.length &&
     ((modelsNode.length > 2 && durationNodes.length > 1) || modelsNode.length < durationNodes.length)
   ) {
     throw new Error(`Mismatch of models to durations`);
@@ -1055,7 +1030,7 @@ function parseModel(modelNode: SyntaxNode | null, text: string): string {
     .map((model, idx) => {
       const keyNode = model.getChild(SATF_SASF_NODES.KEY);
       const valueNode = model.getChild(SATF_SASF_NODES.VALUE);
-      if (modelsNode.length != 0 && durationNodes.length == 1) {
+      if (modelsNode.length !== 0 && durationNodes.length === 1) {
         durationTime = text.slice(durationNodes[0].from, durationNodes[0].to);
       } else if (modelsNode.length === durationNodes.length) {
         durationTime = text.slice(durationNodes[idx].from, durationNodes[idx].to);
