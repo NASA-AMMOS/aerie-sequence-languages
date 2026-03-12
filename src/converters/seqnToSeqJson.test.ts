@@ -69,8 +69,8 @@ const commandDictionary: CommandDictionary = {
 
 const commandBanana = parse(readFileSync('tests/dictionary/command_banananation.xml', 'utf-8'));
 
-describe('convert a sequence to seq json', async () => {
-  it('hardware command', async () => {
+describe('convert a sequence to seq json', () => {
+  it('hardware command', () => {
     const seq = `@HARDWARE
 HDW_CMD`;
     const id = 'test';
@@ -87,7 +87,7 @@ HDW_CMD`;
     expect(actual).toEqual(expectedJson);
   });
 
-  it('immediate command', async () => {
+  it('immediate command', () => {
     const seq = `@IMMEDIATE
 ECHO "hello"
 # activate sequences
@@ -130,7 +130,7 @@ ECHO "hello"
     expect(actual).toEqual(expectedJson);
   });
 
-  it('multiple hardware commands', async () => {
+  it('multiple hardware commands', () => {
     const seq = `@HARDWARE
 HDW_CMD_1
 # comment
@@ -153,7 +153,7 @@ HDW_CMD_2
     expect(actual).toEqual(expectedJson);
   });
 
-  it('load and go with commands', async () => {
+  it('load and go with commands', () => {
     const seq = `@LOAD_AND_GO
 C FSW_CMD_1 1e3 2.34
 # comment
@@ -211,7 +211,7 @@ C FSW_CMD_1 0.123 -2.34 # inline description
     expect(actual).toEqual(expectedJson);
   });
 
-  it('command dictionary file', async () => {
+  it('command dictionary file', () => {
     const id = 'test.sequence';
     const seq = `
 @ID "test.inline"
@@ -276,7 +276,7 @@ R71 ECHO    L02STR
     expect(actual).toEqual(expectedJson);
   });
 
-  it('repeat args', async () => {
+  it('repeat args', () => {
     const id = 'test.sequence';
     const seq = `@ID "test.inline"
 
@@ -338,7 +338,7 @@ R10 PACKAGE_BANANA     2      [    "bundle1"    5 "bundle2" 10]
     expect(actual).toEqual(expectedJson);
   });
 
-  it('local variables', async () => {
+  it('local variables', () => {
     const id = 'test.sequence';
     const seq = `@ID "test.inline"
 @LOCALS L00STR
@@ -404,7 +404,7 @@ C ECHO L01STR
     expect(actual).toEqual(expectedJson);
   });
 
-  it('local and parameter block', async () => {
+  it('local and parameter block', () => {
     const id = 'test.sequence';
     const seq = `@ID "test.inline"
 @LOCALS_BEGIN
@@ -512,7 +512,7 @@ C ECHO SIZE
     expect(actual).toEqual(expectedJson);
   });
 
-  it('header ordering', async () => {
+  it('header ordering', () => {
     function allPermutations(inputArr: string[]) {
       const result: string[][] = [];
       function permute(arr: string[], m: string[] = []) {
@@ -575,7 +575,7 @@ C ECHO SIZE
     }
   });
 
-  it('Convert quoted strings', async () => {
+  it('Convert quoted strings', () => {
     const seq = `@ID "escaped_quotes"
 
     R1 ECHO "Can this handle \\"Escaped\\" quotes??" # and this "too"`;
@@ -606,7 +606,7 @@ C ECHO SIZE
     expect(actual).toEqual(JSON.parse(expected));
   });
 
-  it('Convert quoted metadata and models', async () => {
+  it('Convert quoted metadata and models', () => {
     const seq = `@ID "escaped_metadata"
 
 R00:00:01 ECHO "Can this handle \\"Escaped\\" quotes??" # and this "too"
@@ -678,7 +678,7 @@ R00:00:01 ECHO "Can this handle \\"Escaped\\" quotes??" # and this "too"
     expect(actual).toEqual(JSON.parse(expected));
   });
 
-  it('should generate loads, activates, ground blocks', async () => {
+  it('should generate loads, activates, ground blocks', () => {
     const id = 'test.sequence';
     const seq = `@ID "${id}"
 A2024-123T12:34:56 @ACTIVATE("activate.name") # No Args
@@ -820,7 +820,7 @@ R123T12:34:56 @ACTIVATE("act2.name") "foo" 1 2 3  # Comment text
     expect(actual).toEqual(expectedJson);
   });
 
-  it('should serialize a request with nested metadata', async () => {
+  it('should serialize a request with nested metadata', () => {
     const input = `
 A2024-123T12:34:56 @REQUEST_BEGIN("request.name") # Description Text
   C CMD_0 1 2 3
@@ -898,7 +898,7 @@ A2024-123T12:34:56 @REQUEST_BEGIN("request.name") # Description Text
     expect(actual).toEqual(expected);
   });
 
-  it('should serialize a request with simple metadata', async () => {
+  it('should serialize a request with simple metadata', () => {
     const input = `
 G+03:00:00 "GroundEpochName" @REQUEST_BEGIN("request2.name")
   C CMD_0 1 2 3
@@ -973,7 +973,7 @@ G+03:00:00 "GroundEpochName" @REQUEST_BEGIN("request2.name")
     expect(actual).toEqual(expected);
   });
 
-  it('should serialize multiple requests', async () => {
+  it('should serialize multiple requests', () => {
     const input = `
 A2024-123T12:34:56 @REQUEST_BEGIN("request.name") # Description Text
   C CMD_0 1 2 3
@@ -1115,7 +1115,7 @@ G03:00:00 "GroundEpochName" @REQUEST_BEGIN("request2.name")
     expect(actual).toEqual(expected);
   });
 
-  it('should handle all time tag types', async () => {
+  it('should handle all time tag types', () => {
     const seq = `A2029-365T23:20:50 BAKE_BREAD
 A2029-365T23:21:51.123 BAKE_BREAD
 R00:00:30 BAKE_BREAD
@@ -1208,7 +1208,7 @@ E-00:06:40.333 BAKE_BREAD`;
   });
 
   describe('round trip', () => {
-    it('should round trip commands', async () => {
+    it('should round trip commands', () => {
       const input = `
   @ID "test.seq"
   C FSW_CMD_1 1e3 2.34
@@ -1221,7 +1221,7 @@ E-00:06:40.333 BAKE_BREAD`;
       expect(seqJson1).toEqual(seqJson2);
     });
 
-    it('should round trip activates, loads, etc', async () => {
+    it('should round trip activates, loads, etc', () => {
       const input = `
 @ID "test.seq"
 C FSW_CMD_1 1e3 2.34
@@ -1253,7 +1253,7 @@ G+3 "GroundEpochName" @REQUEST_BEGIN("request2.name")
   });
 
   describe('control character escaping', () => {
-    it('should handle control characters in @ID', async () => {
+    it('should handle control characters in @ID', () => {
       // Test with a tab character (0x09) embedded in the ID string
       const seq = `
       @ID "id_with\x09tab"
@@ -1262,7 +1262,7 @@ G+3 "GroundEpochName" @REQUEST_BEGIN("request2.name")
       expect(actual.id).toBe('id_with\ttab');
     });
 
-    it('should handle control characters in string arguments', async () => {
+    it('should handle control characters in string arguments', () => {
       // Test with various control characters in a string argument
       const seq = `
       @ID "control_chars_test"
@@ -1282,7 +1282,7 @@ G+3 "GroundEpochName" @REQUEST_BEGIN("request2.name")
       });
     });
 
-    it('should handle null and other low control characters', async () => {
+    it('should handle null and other low control characters', () => {
       // Test with null (0x00) and bell (0x07) characters
       const seq = `
       @ID "test"
@@ -1301,7 +1301,7 @@ G+3 "GroundEpochName" @REQUEST_BEGIN("request2.name")
   });
 });
 
-it('should serialize a boolean arg', async () => {
+it('should serialize a boolean arg', () => {
   const input = `
 
 C CMD_0 true false [ false true ]

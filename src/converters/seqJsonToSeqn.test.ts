@@ -2,8 +2,8 @@ import type { SeqJson } from '@nasa-jpl/seq-json-schema/types';
 import { seqJsonToSeqn } from './seqJsonToSeqn.js';
 import { describe, expect, it } from 'vitest';
 
-describe('from-seq-json.ts', async () => {
-  it('converts a seq json id and metadata to sequence', async () => {
+describe('from-seq-json.ts', () => {
+  it('converts a seq json id and metadata to sequence', () => {
     const seqJson: SeqJson = {
       id: 'test',
       metadata: {
@@ -21,7 +21,7 @@ describe('from-seq-json.ts', async () => {
     expect(sequence).toEqual(expectedSequence);
   });
 
-  it('Symbols should not be quoted', async () => {
+  it('Symbols should not be quoted', () => {
     const seqJson: SeqJson = {
       id: 'testSymbol',
       locals: [
@@ -93,7 +93,7 @@ C DDM_BANANA L00INT L01INT
     expect(sequence).toEqual(expectedSequence);
   });
 
-  it('converts a seq json LGO to sequence', async () => {
+  it('converts a seq json LGO to sequence', () => {
     const seqJson: SeqJson = {
       id: 'test',
       metadata: {
@@ -125,7 +125,7 @@ C FSW_CMD_3
     expect(sequence).toEqual(expectedSequence);
   });
 
-  it('converts a seq json variables to sequence', async () => {
+  it('converts a seq json variables to sequence', () => {
     const seqJson: SeqJson = {
       id: 'testVariable',
 
@@ -197,7 +197,7 @@ L01ENUM ENUM
     expect(sequence).toEqual(expectedSequence);
   });
 
-  it('converts a seq json file to a correct sequence', async () => {
+  it('converts a seq json file to a correct sequence', () => {
     const seqJson: SeqJson = {
       id: '42',
       metadata: {},
@@ -308,7 +308,7 @@ C FSW_CMD_3
     expect(sequence).toEqual(expectedSequence);
   });
 
-  it('converts a seq json command model and metadata to sequence', async () => {
+  it('converts a seq json command model and metadata to sequence', () => {
     const seqJson: SeqJson = {
       id: 'testCommandModeling',
       metadata: {
@@ -371,7 +371,7 @@ C ECHO "test"
     expect(sequence).toEqual(expectedSequence);
   });
 
-  it('converts a seq json description to sequence', async () => {
+  it('converts a seq json description to sequence', () => {
     const seqJson: SeqJson = {
       id: 'testDescription',
       metadata: {},
@@ -448,7 +448,7 @@ C FSW_CMD_2 10 "ENUM" # fsw cmd 2 description
     expect(sequence).toEqual(expectedSequence);
   });
 
-  it('converts a seq json immediate commands to sequence', async () => {
+  it('converts a seq json immediate commands to sequence', () => {
     const seqJson: SeqJson = {
       id: 'testImmediate',
       immediate_commands: [
@@ -512,7 +512,7 @@ NOOP # noop command, no arguments
     expect(sequence).toEqual(expectedSequence);
   });
 
-  it('converts a seq json hardware commands to sequence', async () => {
+  it('converts a seq json hardware commands to sequence', () => {
     const seqJson: SeqJson = {
       hardware_commands: [
         {
@@ -547,7 +547,7 @@ HWC3
     expect(sequence).toEqual(expectedSequence);
   });
 
-  it('converts a seq json time tags to sequence', async () => {
+  it('converts a seq json time tags to sequence', () => {
     const seqJson: SeqJson = {
       id: 'testTime',
       metadata: {},
@@ -595,7 +595,7 @@ E-00:00:01.000 FSE_CMD 10 "ENUM"
     expect(sequence).toEqual(expectedSequence);
   });
 
-  it('should convert activate', async () => {
+  it('should convert activate', () => {
     const seqJson: SeqJson = {
       id: 'id',
       metadata: {},
@@ -626,7 +626,7 @@ A2024-123T12:34:56 @ACTIVATE("activate.name") # No Args
     expect(sequence.trim()).toEqual(expectedSequence.trim());
   });
 
-  it('should convert load', async () => {
+  it('should convert load', () => {
     const seqJson: SeqJson = {
       id: 'id',
       metadata: {},
@@ -656,7 +656,7 @@ A2024-123T12:34:56 @LOAD("load.name")
     expect(sequence.trim()).toEqual(expectedSequence.trim());
   });
 
-  it('should convert ground event', async () => {
+  it('should convert ground event', () => {
     const seqJson: SeqJson = {
       id: 'id',
       metadata: {},
@@ -700,7 +700,7 @@ R123T11:55:33 @GROUND_EVENT("ground_event.name") "foo" 1 2 3
     expect(sequence.trim()).toEqual(expectedSequence.trim());
   });
 
-  it('converts a seq json empty repeat args to sequence', async () => {
+  it('converts a seq json empty repeat args to sequence', () => {
     const seqJson: SeqJson = {
       id: 'testRepeat',
       metadata: {},
@@ -760,7 +760,7 @@ C FSA_CMD 10 [] "USA" ["96707-898" "92604-623"]
     expect(sequence).toEqual(expectedSequence);
   });
 
-  it('should convert requests to seq format', async () => {
+  it('should convert requests to seq format', () => {
     const seqJson: SeqJson = {
       id: 'id',
       metadata: {},
@@ -834,7 +834,7 @@ C FSA_CMD 10 [] "USA" ["96707-898" "92604-623"]
     expect(normalizeWhitespace(sequence)).toEqual(normalizeWhitespace(expectedSequence));
   });
 
-  it('converts a quoted string', async () => {
+  it('converts a quoted string', () => {
     const seqJson: SeqJson = {
       id: 'escaped_quotes',
       metadata: {},
@@ -879,7 +879,7 @@ C ECHO2 "\\"Can\\" this handle leading and trailing Escaped\\" quotes??\\"" # "C
     expect(sequence).toEqual(expectedSequence);
   });
 
-  it('BooleanArguments to sequence', async () => {
+  it('BooleanArguments to sequence', () => {
     const seqJson: SeqJson = {
       id: 'test',
       metadata: {},
