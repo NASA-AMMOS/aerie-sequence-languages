@@ -77,6 +77,7 @@
     "@codemirror/commands": "6.9.0",
     "@codemirror/language": "6.11.0",
     "@codemirror/lint": "6.8.5",
+    "@codemirror/state": "6.5.2",
     "@codemirror/view": "6.38.2",
     "@lezer/common": "1.2.3",
     "@lezer/lr": "1.4.2",
@@ -92,9 +93,36 @@
     "@codemirror/commands": "6.9.0",
     "@codemirror/language": "6.11.0",
     "@codemirror/lint": "6.8.5",
+    "@codemirror/state": "6.5.2",
     "@codemirror/view": "6.38.2",
     "@lezer/common": "1.2.3",
     "@lezer/lr": "1.4.2"
+  },
+  "peerDependenciesMeta": {
+    "@codemirror/autocomplete": {
+      "optional": true
+    },
+    "@codemirror/commands": {
+      "optional": true
+    },
+    "@codemirror/language": {
+      "optional": true
+    },
+    "@codemirror/lint": {
+      "optional": true
+    },
+    "@codemirror/state": {
+      "optional": true
+    },
+    "@codemirror/view": {
+      "optional": true
+    },
+    "@lezer/common": {
+      "optional": true
+    },
+    "@lezer/lr": {
+      "optional": true
+    }
   },
   "publishConfig": {
     "access": "public"
