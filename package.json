@@ -94,8 +94,7 @@
     "@codemirror/lint": "6.8.5",
     "@codemirror/view": "6.38.2",
     "@lezer/common": "1.2.3",
-    "@lezer/lr": "1.4.2",
-    "codemirror": "5.65.12"
+    "@lezer/lr": "1.4.2"
   },
   "publishConfig": {
     "access": "public"
