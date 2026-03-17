@@ -138,7 +138,7 @@ END STEM
 
 `;
 
-describe('cdl parse tests', async () => {
+describe('cdl parse tests', () => {
   test('inline definition', () => {
     const cdlDictionary = parseCdlDictionary(cdlString);
     expect(cdlDictionary.header.mission_name).toBe('Unit_test');

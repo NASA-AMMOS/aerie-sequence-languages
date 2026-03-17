@@ -4,20 +4,20 @@ import { ParsedSatf, ParsedSeqn } from '../languages/satf/types/types.js';
 
 //-- SATF to Seqn Test---
 describe('satfToSeqn', () => {
-  it('should return empty header and sequences for empty SATF string', async () => {
+  it('should return empty header and sequences for empty SATF string', () => {
     const satf = '';
-    const result = await satfToSeqn(satf);
+    const result = satfToSeqn(satf);
     expect(result).toEqual({ metadata: '', sequences: [] });
   });
 
-  it('should return empty for invalid SATF string', async () => {
+  it('should return empty for invalid SATF string', () => {
     const satf = ' invalid satf string ';
 
-    const result = await satfToSeqn(satf);
+    const result = satfToSeqn(satf);
     expect(result).toEqual({ metadata: '', sequences: [] } as ParsedSeqn);
   });
 
-  it('should parse valid SATF string with header and sequences', async () => {
+  it('should parse valid SATF string with header and sequences', () => {
     const satf = `
       CCS3ZF0000100000001NJPL3KS0L015$$MARK$$;
       MISSION_NAME = TEST;
@@ -34,13 +34,13 @@ describe('satfToSeqn', () => {
       absolute(temp,\\temp\\)
       $$EOF
     `;
-    const result = await satfToSeqn(satf);
+    const result = satfToSeqn(satf);
     expect(result).toHaveProperty('metadata');
     expect(result).toHaveProperty('sequences');
     expect(result.sequences).toBeInstanceOf(Array);
   });
 
-  it('should return empty sequences for SATF string with missing sequences', async () => {
+  it('should return empty sequences for SATF string with missing sequences', () => {
     const satf = `
       CCS3ZF0000100000001NJPL3KS0L015$$MARK$$;
       MISSION_NAME = TEST;
@@ -56,23 +56,23 @@ describe('satfToSeqn', () => {
       $$EOH
       $$EOF
     `;
-    const result = await satfToSeqn(satf);
+    const result = satfToSeqn(satf);
     expect(result).toHaveProperty('metadata');
     expect(result.sequences).toEqual([]);
   });
 
-  it('should return empty header for SATF string with missing header', async () => {
+  it('should return empty header for SATF string with missing header', () => {
     const satf = `
       $$EOH
       absolute(temp,\\temp\\)
       $$EOF
     `;
-    const result = await satfToSeqn(satf);
+    const result = satfToSeqn(satf);
     expect(result).toHaveProperty('sequences');
     expect(result.metadata).toEqual('');
   });
 
-  it('should return valid sequence with models', async () => {
+  it('should return valid sequence with models', () => {
     const satf = `
       $$EOH
       ABSOLUTE_SEQUENCE(test,\\testv01\\,
@@ -87,7 +87,7 @@ describe('satfToSeqn', () => {
         )
       $$EOF
     `;
-    const result = await satfToSeqn(satf);
+    const result = satfToSeqn(satf);
     expect(result).toHaveProperty('sequences');
     expect(result.sequences[0].name).toStrictEqual('test');
     expect(result.sequences[0].steps)
@@ -99,7 +99,7 @@ describe('satfToSeqn', () => {
 @MODEL "y" "abc" "00:00:00"`);
   });
 
-  it('should throw for invalid time tag', async () => {
+  it('should throw for invalid time tag', () => {
     const satf = `
       $$EOH
       ABSOLUTE_SEQUENCE(test,\\testv01\\,
@@ -115,15 +115,15 @@ describe('satfToSeqn', () => {
       $$EOF
     `;
     try {
-      await satfToSeqn(satf);
+      satfToSeqn(satf);
     } catch (error) {
-      expect(error.message).toStrictEqual(
+      expect((error as Error).message).toStrictEqual(
         "Invalid Time Tag 'MARS_TIME' found in SATF/SASF. Aborting SATF/SASF -> Seqn conversion...",
       );
     }
   });
 
-  it('should throw for no time', async () => {
+  it('should throw for no time', () => {
     const satf = `
       $$EOH
       ABSOLUTE_SEQUENCE(test,\\testv01\\,
@@ -139,13 +139,15 @@ describe('satfToSeqn', () => {
       $$EOF
     `;
     try {
-      await satfToSeqn(satf);
+      satfToSeqn(satf);
     } catch (error) {
-      expect(error.message).toStrictEqual('No time found in SATF/SASF. Aborting SATF/SASF -> Seqn conversion...');
+      expect((error as Error).message).toStrictEqual(
+        'No time found in SATF/SASF. Aborting SATF/SASF -> Seqn conversion...',
+      );
     }
   });
 
-  it('should return valid sequence and models times with 00:00:00 for durations', async () => {
+  it('should return valid sequence and models times with 00:00:00 for durations', () => {
     const satf = `
       $$EOH
       ABSOLUTE_SEQUENCE(test,\\testv01\\,
@@ -160,7 +162,7 @@ describe('satfToSeqn', () => {
         )
       $$EOF
     `;
-    const result = await satfToSeqn(satf);
+    const result = satfToSeqn(satf);
     expect(result).toHaveProperty('sequences');
     expect(result.sequences[0].name).toStrictEqual('test');
     expect(result.sequences[0].steps)
@@ -172,7 +174,7 @@ describe('satfToSeqn', () => {
 @MODEL "c" "abc" "00:00:00"`);
   });
 
-  it('should return valid sequence and models times with single duration spread across all models', async () => {
+  it('should return valid sequence and models times with single duration spread across all models', () => {
     const satf = `
       $$EOH
       ABSOLUTE_SEQUENCE(test,\\testv01\\,
@@ -188,7 +190,7 @@ describe('satfToSeqn', () => {
       $$EOF
     `;
     try {
-      const result = await satfToSeqn(satf);
+      const result = satfToSeqn(satf);
       expect(result).toHaveProperty('sequences');
       expect(result.sequences[0].name).toStrictEqual('test');
       expect(result.sequences[0].steps)
@@ -203,7 +205,7 @@ describe('satfToSeqn', () => {
     }
   });
 
-  it('should return an error of mismatch modeling times', async () => {
+  it('should return an error of mismatch modeling times', () => {
     const satf = `
       $$EOH
       ABSOLUTE_SEQUENCE(test,\\testv01\\,
@@ -219,19 +221,19 @@ describe('satfToSeqn', () => {
       $$EOF
     `;
     try {
-      await satfToSeqn(satf);
+      satfToSeqn(satf);
     } catch (error) {
-      expect(error.message).toStrictEqual('Mismatch of models to durations');
+      expect((error as Error).message).toStrictEqual('Mismatch of models to durations');
     }
   });
 
-  it('should return valid sequence and model times with one duration per variable with two variables', async () => {
+  it('should return valid sequence and model times with one duration per variable with two variables', () => {
     const satf = `
       $$EOH
       ABSOLUTE_SEQUENCE(test,\\testv01\\,
           STEPS,
           command (
-            0, SCHEDULED_TIME, \\00:01:00\\, EPOCH, 
+            0, SCHEDULED_TIME, \\00:01:00\\, EPOCH,
             ASSUMED_MODEL_VALUES,\\a=1,GLOBAL::b=1.1,00:00:01,00:00:02\\,
             CMD (),
             PROCESSORS, "PRI", end),
@@ -239,7 +241,7 @@ describe('satfToSeqn', () => {
         )
       $$EOF
     `;
-    const result = await satfToSeqn(satf);
+    const result = satfToSeqn(satf);
     expect(result).toHaveProperty('sequences');
     expect(result.sequences[0].name).toStrictEqual('test');
     expect(result.sequences[0].steps).toStrictEqual(`E00:01:00 CMD
@@ -247,13 +249,13 @@ describe('satfToSeqn', () => {
 @MODEL "GLOBAL::b" 1.1 "00:00:02"`);
   });
 
-  it('should return valid sequence and model times with one duration per variable with three variables', async () => {
+  it('should return valid sequence and model times with one duration per variable with three variables', () => {
     const satf = `
       $$EOH
       ABSOLUTE_SEQUENCE(test,\\testv01\\,
           STEPS,
           command (
-            0, SCHEDULED_TIME, \\00:01:00\\, EPOCH, 
+            0, SCHEDULED_TIME, \\00:01:00\\, EPOCH,
             ASSUMED_MODEL_VALUES,\\a=1,GLOBAL::b=1.1,c="abc",00:00:01,00:00:02,00:00:03\\,
             CMD (),
             PROCESSORS, "PRI", end),
@@ -261,7 +263,7 @@ describe('satfToSeqn', () => {
         )
       $$EOF
     `;
-    const result = await satfToSeqn(satf);
+    const result = satfToSeqn(satf);
     expect(result).toHaveProperty('sequences');
     expect(result.sequences[0].name).toStrictEqual('test');
     expect(result.sequences[0].steps).toStrictEqual(`E00:01:00 CMD
@@ -270,13 +272,13 @@ describe('satfToSeqn', () => {
 @MODEL "c" "abc" "00:00:03"`);
   });
 
-  it('should handle multiline comments', async () => {
+  it('should handle multiline comments', () => {
     const satf = `
     $$EOH
     ABSOLUTE_SEQUENCE(test,\\testv01\\,
         STEPS,
         command (
-          1, SCHEDULED_TIME, \\00:01:00\\, FROM_PREVIOUS_START, 
+          1, SCHEDULED_TIME, \\00:01:00\\, FROM_PREVIOUS_START,
           COMMENT,\\"hi  : bye",
                  "A   : pickup shoe",
                  "B: put on shoe",
@@ -287,7 +289,7 @@ describe('satfToSeqn', () => {
       )
     $$EOF
   `;
-    const result = await satfToSeqn(satf);
+    const result = satfToSeqn(satf);
     expect(result).toHaveProperty('sequences');
     expect(result.sequences[0].name).toStrictEqual('test');
     expect(result.sequences[0].steps).toStrictEqual(
@@ -295,7 +297,7 @@ describe('satfToSeqn', () => {
     );
   });
 
-  it('should return multiple sequence with models', async () => {
+  it('should return multiple sequence with models', () => {
     const satf = `
       $$EOH
       ABSOLUTE_SEQUENCE(test,\\testv01\\,
@@ -328,7 +330,7 @@ describe('satfToSeqn', () => {
         )
       $$EOF
     `;
-    const result = await satfToSeqn(satf);
+    const result = satfToSeqn(satf);
     expect(result).toHaveProperty('sequences');
     expect(result.sequences.length).toBe(2);
     expect(result.sequences[0].name).toStrictEqual('test');
@@ -353,7 +355,7 @@ describe('satfToSeqn', () => {
 @MODEL "y" "abc" "00:00:00"`);
   });
 
-  it('should use globals', async () => {
+  it('should use globals', () => {
     const sasf = `
       $$EOH
       RT_on_board_block(test,\\testv01\\,
@@ -366,13 +368,13 @@ describe('satfToSeqn', () => {
         )
       $$EOF
     `;
-    const result = await satfToSeqn(sasf);
+    const result = satfToSeqn(sasf);
     expect(result).toHaveProperty('sequences');
     expect(result.sequences[0].name).toStrictEqual('test');
     expect(result.sequences[0].steps).toStrictEqual(`R00:01:00 ECHO "GLOBAL::GlobalG" 10 "NOGLOBAL"`);
   });
 
-  it('Parameters', async () => {
+  it('Parameters', () => {
     const satf = `
       $$EOH
       RT_on_board_block(/start.txt,\\start\\,
@@ -438,7 +440,7 @@ describe('satfToSeqn', () => {
         )
       $$EOF
     `;
-    const result = await satfToSeqn(satf);
+    const result = satfToSeqn(satf);
     expect(result).toHaveProperty('sequences');
     expect(result.sequences[0].name).toStrictEqual('start.txt');
     expect(result.sequences[0].inputParameters).toStrictEqual(`@INPUT_PARAMS_BEGIN
@@ -459,7 +461,7 @@ true UINT
     expect(result.sequences[0].steps).toStrictEqual(`B00:01:00 NOOP`);
   });
 
-  it('Quoted Parameters', async () => {
+  it('Quoted Parameters', () => {
     const satf = `
       $$EOH
       RT_on_board_block(/start.txt,\\start\\,
@@ -478,7 +480,7 @@ true UINT
         )
       $$EOF
     `;
-    const result = await satfToSeqn(satf);
+    const result = satfToSeqn(satf);
     expect(result).toHaveProperty('sequences');
     expect(result.sequences[0].name).toStrictEqual('start.txt');
     expect(result.sequences[0].inputParameters).toStrictEqual(`@INPUT_PARAMS_BEGIN
@@ -489,7 +491,7 @@ attitude_spec ENUM STORE_NAME "" "BOB_HARDWARE, SALLY_FARM, TIM_FLOWERS"
 @METADATA "INCLUSION_CONDITION" "param_rate == receive_rate"`);
   });
 
-  it('Verify Time types', async () => {
+  it('Verify Time types', () => {
     const satf = `
       $$EOH
       RT_on_board_block(/start.txt,\\start\\,
@@ -526,7 +528,7 @@ attitude_spec ENUM STORE_NAME "" "BOB_HARDWARE, SALLY_FARM, TIM_FLOWERS"
       )
       $$EOF
     `;
-    const result = await satfToSeqn(satf);
+    const result = satfToSeqn(satf);
     expect(result).toHaveProperty('sequences');
     expect(result.sequences[0].name).toStrictEqual('start.txt');
     expect(result.sequences[0].inputParameters).toStrictEqual('');
@@ -543,20 +545,20 @@ C CMD`);
 
 //--- SASF To Seqn Test ----
 describe('sasfToSeqn', () => {
-  it('should return empty header and sequences for empty SATF string', async () => {
+  it('should return empty header and sequences for empty SATF string', () => {
     const sasf = '';
-    const result = await sasfToSeqn(sasf);
+    const result = sasfToSeqn(sasf);
     expect(result).toEqual({ metadata: '', sequences: [] } as ParsedSeqn);
   });
 
-  it('should return empty invalid SATF string', async () => {
+  it('should return empty invalid SATF string', () => {
     const sasf = ' invalid satf string ';
 
-    const result = await sasfToSeqn(sasf);
+    const result = sasfToSeqn(sasf);
     expect(result).toEqual({ metadata: '', sequences: [] } as ParsedSeqn);
   });
 
-  it('should parse valid SASF string with header and sequences', async () => {
+  it('should parse valid SASF string with header and sequences', () => {
     const sasf = `
       $$EOH
       CCS3ZF0000100000001NJPL3KS0L015$$MARK$$;
@@ -574,13 +576,13 @@ describe('sasfToSeqn', () => {
       $$EOD
       $$EOF
     `;
-    const result = await sasfToSeqn(sasf);
+    const result = sasfToSeqn(sasf);
     expect(result).toHaveProperty('metadata');
     expect(result).toHaveProperty('sequences');
     expect(result.sequences).toBeInstanceOf(Array);
   });
 
-  it('should return valid request with models', async () => {
+  it('should return valid request with models', () => {
     const sasf = `
       $$EOH
       $$EOD
@@ -603,7 +605,7 @@ describe('sasfToSeqn', () => {
         end;
       $$EOF
     `;
-    const result = await sasfToSeqn(sasf);
+    const result = sasfToSeqn(sasf);
     expect(result).toHaveProperty('sequences');
     expect(result.sequences[0].name).toStrictEqual('VFT2_REQUEST_01');
     expect(result.sequences[0].requests).toStrictEqual(
@@ -618,7 +620,7 @@ describe('sasfToSeqn', () => {
     );
   });
 
-  it('should return valid G time type', async () => {
+  it('should return valid G time type', () => {
     const sasf = `
       $$EOH
       $$EOD
@@ -651,7 +653,7 @@ describe('sasfToSeqn', () => {
       end;
       $$EOF
     `;
-    const result = await sasfToSeqn(sasf);
+    const result = sasfToSeqn(sasf);
     expect(result).toHaveProperty('sequences');
     expect(result.sequences[0].name).toStrictEqual('name');
     expect(result.sequences[0].requests).toStrictEqual(
@@ -670,13 +672,13 @@ describe('sasfToSeqn', () => {
 
 //--- Seqn to SATF Test ----
 describe('seqnToSatf', () => {
-  it('should return empty header and empty SATF string', async () => {
-    const result = await seqnToSATF('');
+  it('should return empty header and empty SATF string', () => {
+    const result = seqnToSATF('');
     expect(result).toEqual({ header: {} } as ParsedSatf);
   });
 
-  it('should have headers and empty SATF string', async () => {
-    const result = await seqnToSATF(`
+  it('should have headers and empty SATF string', () => {
+    const result = seqnToSATF(`
 @METADATA "DATA_SET_ID" "SPACECRAFT_ACTIVITY_TYPE"
 @METADATA "MISSION_NAME" "BANANNA"
 @METADATA "SPACECRAFT_NAME" "BANANNA_BOT"
@@ -701,8 +703,8 @@ describe('seqnToSatf', () => {
     } as ParsedSatf);
   });
 
-  it('should return commented metadata', async () => {
-    const result = await seqnToSATF(
+  it('should return commented metadata', () => {
+    const result = seqnToSATF(
       `# username=rrgoetz
 # name=test.seq
 
@@ -715,8 +717,8 @@ C ECHO "HI"
     });
   });
 
-  it('should return variables', async () => {
-    const result = await seqnToSATF(`
+  it('should return variables', () => {
+    const result = seqnToSATF(`
     @LOCALS_BEGIN
     time UINT
     alpha STRING
@@ -762,8 +764,8 @@ end`,
     } as ParsedSatf);
   });
 
-  it('should return Parameters', async () => {
-    const result = await seqnToSATF(`
+  it('should return Parameters', () => {
+    const result = seqnToSATF(`
     @INPUT_PARAMS_BEGIN
     time UINT
     alpha STRING
@@ -805,8 +807,8 @@ end`,
     } as ParsedSatf);
   });
 
-  it('should return satf steps', async () => {
-    const result = await seqnToSATF(`
+  it('should return satf steps', () => {
+    const result = seqnToSATF(`
     R00:00:01.000 CMD true 1.45
     R00:00:01.000 CMD "OFF"
     R00:00:01.000 CMD .01`);
@@ -826,8 +828,8 @@ end`,
 end`);
   });
 
-  it('should return satf steps with comments', async () => {
-    const result = await seqnToSATF(`
+  it('should return satf steps with comments', () => {
+    const result = seqnToSATF(`
     R00:00:01.000 CMD true 1 #I am a description`);
     expect(result.steps).toEqual(`STEPS,
 	command(1,
@@ -838,8 +840,8 @@ end`);
 end`);
   });
 
-  it('should return satf steps with variables as args', async () => {
-    const result = await seqnToSATF(`
+  it('should return satf steps with variables as args', () => {
+    const result = seqnToSATF(`
     @INPUT_PARAMS_BEGIN
       temperature STRING
     @INPUT_PARAMS_END
@@ -858,8 +860,8 @@ end`);
 end`);
   });
 
-  it('should return satf steps with global as args and user_seq command', async () => {
-    const result = await seqnToSATF(
+  it('should return satf steps with global as args and user_seq command', () => {
+    const result = seqnToSATF(
       `
     @INPUT_PARAMS_BEGIN
       temperature STRING
@@ -884,8 +886,8 @@ end`);
 end`);
   });
 
-  it('should return supported metadata NTEXT', async () => {
-    const result = await seqnToSATF(`
+  it('should return supported metadata NTEXT', () => {
+    const result = seqnToSATF(`
     C NO_OP #NTEXT is supported "metadata"
     @METADATA "NTEXT" "this is a place for notes"`);
 
@@ -899,8 +901,8 @@ end`);
 end`);
   });
 
-  it('should return supported modeling time', async () => {
-    const result = await seqnToSATF(`
+  it('should return supported modeling time', () => {
+    const result = seqnToSATF(`
     C NO_OP #NTEXT is supported "metadata"
     @METADATA "NTEXT" "this is a place for notes"
     @MODEL "x" 1 "00:00:00"
@@ -919,40 +921,40 @@ end`);
 end`);
   });
 
-  it('Throw error for no time found', async () => {
+  it('Throw error for no time found', () => {
     try {
-      const result = await seqnToSATF(`
+      seqnToSATF(`
     CMD true 1.45`);
-    } catch (error) {
-      expect(error.message).toStrictEqual(
+    } catch (error: any) {
+      expect((error as Error).message).toStrictEqual(
         'No time found for command CMD true 1.45. Aborting Seqn -> SATF/SASF conversion...',
       );
     }
   });
 
-  it('Throw error for invalid time found', async () => {
+  it('Throw error for invalid time found', () => {
     try {
-      const result = await seqnToSATF(`
+      seqnToSATF(`
     R0:1:0 CMD true 1.45`);
-    } catch (error) {
-      expect(error.message).toStrictEqual(
+    } catch (error: any) {
+      expect((error as Error).message).toStrictEqual(
         'No time found for command R0:1:0 CMD true 1.45. Aborting Seqn -> SATF/SASF conversion...',
       );
     }
   });
 
-  it('Throw error for invalid time tag found', async () => {
+  it('Throw error for invalid time tag found', () => {
     try {
-      const result = await seqnToSATF(`
+      seqnToSATF(`
     Z00:00:00 CMD true 1.45`);
-    } catch (error) {
-      expect(error.message).toStrictEqual(
+    } catch (error: any) {
+      expect((error as Error).message).toStrictEqual(
         'No time found for command Z00:00:00 CMD true 1.45. Aborting Seqn -> SATF/SASF conversion...',
       );
     }
   });
 
-  it('should round trip a satf', async () => {
+  it('should round trip a satf', () => {
     const satf = `
   $$EOH
 
@@ -985,8 +987,8 @@ end`);
       end,
   )
   $$EOF`;
-    const seqn = await satfToSeqn(satf);
-    const result = await seqnToSATF(`${seqn.sequences[0].inputParameters}\n${seqn.sequences[0].steps}`);
+    const seqn = satfToSeqn(satf);
+    const result = seqnToSATF(`${seqn.sequences[0].inputParameters}\n${seqn.sequences[0].steps}`);
     expect(result.parameters?.trimEnd()).toEqual(
       `PARAMETERS,
 	status(
@@ -1016,8 +1018,8 @@ end`,
 end`,
     );
   });
-  it('should return valid satf times', async () => {
-    const result = await seqnToSATF(`
+  it('should return valid satf times', () => {
+    const result = seqnToSATF(`
     A2025-001T10:00:00 CMD
     R10:00:00 CMD
     R500 CMD
@@ -1060,8 +1062,8 @@ end`);
 
 //--- Seqn to SASF Test
 describe('seqnToSasf', () => {
-  it('Should return a barebone sasf', async () => {
-    const result = await seqnToSASF(`
+  it('Should return a barebone sasf', () => {
+    const result = seqnToSASF(`
     C @REQUEST_BEGIN("request1")
     @REQUEST_END
     @METADATA "REQUESTOR" "me"
@@ -1079,8 +1081,8 @@ end;`,
     );
   });
 
-  it('Should round trip an sasf', async () => {
-    const seqN = await sasfToSeqn(
+  it('Should round trip an sasf', () => {
+    const seqN = sasfToSeqn(
       `CCSD3ZF0000100000001NJPL3KS0L015$$MARK$$;
       DATA_SET_ID = SPACECRAFT_ACTIVITY_SEQUENCE;
       CCSD3RE00000$$MARK$$NJPL3IF0M00500000001;
@@ -1088,7 +1090,7 @@ end;`,
       $$EOD
 
       # I am a comment inside a sasf
-      
+
       request(ep_atr_testing_setup,
           REQUESTOR, "me",
           PROCESSOR, "VC2AB",
@@ -1108,7 +1110,7 @@ end;`,
               ),
       end;`,
     );
-    const result = await seqnToSASF(seqN.sequences[0].requests!);
+    const result = seqnToSASF(seqN.sequences[0].requests!);
     expect(result.requests?.trimEnd()).toEqual(
       `request(ep_atr_testing_setup,
 	START_TIME, 2024-001T00:00:00.000,ABSOLUTE,
@@ -1130,8 +1132,8 @@ end;`,
 end;`,
     );
   });
-  it('should return valid satf times', async () => {
-    const result = await seqnToSASF(`
+  it('should return valid satf times', () => {
+    const result = seqnToSASF(`
       G-00:00:00.100 "test" @REQUEST_BEGIN("request.name")
         A2025-001T10:00:00 CMD
         R10:00:00 CMD
