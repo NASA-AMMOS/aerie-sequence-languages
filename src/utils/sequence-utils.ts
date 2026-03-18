@@ -11,6 +11,7 @@ import type {
   FswCommandArgumentInteger,
   FswCommandArgumentNumeric,
   FswCommandArgumentRepeat,
+  FswCommandArgumentTime,
   FswCommandArgumentUnsigned,
   FswCommandArgumentVarString,
   HwCommand,
@@ -185,6 +186,10 @@ export function isFswCommandArgumentRepeat(arg: FswCommandArgument): arg is FswC
 
 export function isFswCommandArgumentVarString(arg: FswCommandArgument): arg is FswCommandArgumentVarString {
   return arg.arg_type === 'var_string';
+}
+
+export function isFswCommandArgumentTime(arg: FswCommandArgument): arg is FswCommandArgumentTime {
+  return arg.arg_type === 'time';
 }
 
 export function isFswCommandArgumentFixedString(arg: FswCommandArgument): arg is FswCommandArgumentFixedString {
