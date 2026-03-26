@@ -173,11 +173,11 @@ export function seqJsonToSeqn(seqJson: SeqJson): string {
           .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {}) as Metadata,
       ),
     );
-  }
 
-  // Load and Go
-  if (seqJson.metadata.lgo) {
-    sequence.push(`\n@LOAD_AND_GO`);
+    // Load and Go
+    if (seqJson.metadata.lgo) {
+      sequence.push(`\n@LOAD_AND_GO`);
+    }
   }
 
   // command, activate, load, ground block, ground event
