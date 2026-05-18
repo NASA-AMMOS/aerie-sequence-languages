@@ -30,27 +30,7 @@ export type { PhoenixAdaptation } from './interfaces/adaptation.js';
 
 export type { TimeTagInfo, StringArg, ArgTextDef, CommandInfoMapper } from './interfaces/command-info-mapper.js';
 
-export {
-  fswCommandArgDefault,
-  isFswCommand,
-  isHwCommand,
-  isFswCommandArgumentEnum,
-  isFswCommandArgumentInteger,
-  isFswCommandArgumentFloat,
-  isFswCommandArgumentNumeric,
-  isFswCommandArgumentUnsigned,
-  isFswCommandArgumentRepeat,
-  isFswCommandArgumentVarString,
-  isFswCommandArgumentFixedString,
-  isFswCommandArgumentBoolean,
-  isHexValue,
-  addDefaultArgs,
-  getDefaultVariableArgs,
-  addDefaultVariableArgs,
-  parseNumericArg,
-  decodeInt32Array,
-  getAllEnumSymbols,
-} from './utils/sequence-utils.js';
+export * from './utils/sequence-utils.js';
 
 export { seqJsonLanguage } from './languages/seqjson/language.js';
 

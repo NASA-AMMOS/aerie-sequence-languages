@@ -1,6 +1,7 @@
+import { NodePropSource } from '@lezer/common';
 import { styleTags, tags } from '@lezer/highlight';
 
-export const handlebarsHighlighter = styleTags({
+export const handlebarsHighlighter: NodePropSource = styleTags({
   BIHelper: tags.keyword,
   BlockComment: tags.comment,
   DirectiveContent: tags.variableName,
