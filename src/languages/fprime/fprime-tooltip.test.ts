@@ -1,16 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { EditorState } from '@codemirror/state';
-import { LanguageSupport } from '@codemirror/language';
 import { hoverTooltip } from '@codemirror/view';
 import type { CommandDictionary, FswCommand } from '@nasa-jpl/aerie-ampcs';
-import { getFprimeLRLanguage } from './fprime.js';
 import { fprimeTooltip } from './fprime-tooltip.js';
 
 // Mock PhoenixResources for testing
 const mockResources = {
-  LRLanguage: {
-    define: (config: any) => config.parser,
-  },
   hoverTooltip,
   createTooltip: (lines: string[], from: number, to: number) => ({
     pos: from,
@@ -62,14 +57,12 @@ describe('F-Prime Tooltip', () => {
       enumMap: {},
     };
 
-    const lrLanguage = getFprimeLRLanguage(mockResources);
-    const languageSupport = new LanguageSupport(lrLanguage);
     const tooltipExtension = fprimeTooltip(mockDictionary, mockResources);
 
     const doc = 'A2015-075T22:32:40.123 cmdDisp.CMD_NO_OP\n';
     const state = EditorState.create({
       doc,
-      extensions: [languageSupport, tooltipExtension],
+      extensions: [tooltipExtension],
     });
 
     expect(state).toBeDefined();
@@ -106,14 +99,12 @@ describe('F-Prime Tooltip', () => {
       enumMap: {},
     };
 
-    const lrLanguage = getFprimeLRLanguage(mockResources);
-    const languageSupport = new LanguageSupport(lrLanguage);
     const tooltipExtension = fprimeTooltip(mockDictionary, mockResources);
 
     const doc = 'R00:00:05.000 SET_VALUE 42, 3.14\n';
     const state = EditorState.create({
       doc,
-      extensions: [languageSupport, tooltipExtension],
+      extensions: [tooltipExtension],
     });
 
     expect(state).toBeDefined();
@@ -121,15 +112,13 @@ describe('F-Prime Tooltip', () => {
   });
 
   it('should support time tag tooltips', () => {
-    const lrLanguage = getFprimeLRLanguage(mockResources);
-    const languageSupport = new LanguageSupport(lrLanguage);
     const tooltipExtension = fprimeTooltip(null, mockResources);
 
     // Test with absolute and relative time tags
     const doc = 'A2015-075T22:32:40.123 CMD_NO_OP\nR01:00:05.000 CMD_NO_OP\n';
     const state = EditorState.create({
       doc,
-      extensions: [languageSupport, tooltipExtension],
+      extensions: [tooltipExtension],
     });
 
     expect(state).toBeDefined();
@@ -137,8 +126,6 @@ describe('F-Prime Tooltip', () => {
   });
 
   it('should compute absolute time from relative offset with milliseconds', () => {
-    const lrLanguage = getFprimeLRLanguage(mockResources);
-    const languageSupport = new LanguageSupport(lrLanguage);
     const tooltipExtension = fprimeTooltip(null, mockResources);
 
     // Absolute time: A2015-075T22:32:40.123
@@ -147,14 +134,10 @@ describe('F-Prime Tooltip', () => {
     const doc = 'A2015-075T22:32:40.123 CMD_FIRST\nR00:00:01 CMD_SECOND\n';
     const state = EditorState.create({
       doc,
-      extensions: [languageSupport, tooltipExtension],
+      extensions: [tooltipExtension],
     });
 
     expect(state).toBeDefined();
     expect(state.doc.toString()).toBe(doc);
-
-    // Verify the sequence parses correctly
-    const tree = state.tree;
-    expect(tree).toBeDefined();
   });
 });

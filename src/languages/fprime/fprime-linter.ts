@@ -90,12 +90,25 @@ function createErrorDiagnostic(node: SyntaxNode, text: string, _view: EditorView
         message = 'Missing comma before this string argument';
       }
     }
+
+    // For empty error nodes in Args context, still report as missing comma
+    // (zero-width errors typically indicate missing separators)
+    if (!text.trim() && prevSibling) {
+      // Return diagnostic for zero-width error indicating missing comma
+      return {
+        from: node.from,
+        to: node.from + 1, // Make it at least 1 character wide for visibility
+        severity,
+        message: 'Missing comma between arguments',
+        source: 'fprime-linter',
+      };
+    }
   } else if (parent?.name === FPRIME_NODES.Command) {
     // Error at command level
     message = 'Invalid command syntax';
   }
 
-  // If the error is just whitespace or empty, skip it
+  // If the error is just whitespace or empty (and not handled above), skip it
   if (!text.trim()) {
     return null;
   }

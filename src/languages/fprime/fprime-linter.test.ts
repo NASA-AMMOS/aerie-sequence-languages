@@ -2,24 +2,21 @@ import { describe, expect, it } from 'vitest';
 import { EditorState } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { fprimeLinter } from './fprime-linter.js';
-import { getFprimeLRLanguage } from './fprime.js';
-import { LanguageSupport } from '@codemirror/language';
-
-// Mock PhoenixResources for testing
-const mockResources = {
-  LRLanguage: {
-    define: (config: any) => config.parser,
-  },
-} as any;
+import { fprimeParser } from './fprime.js';
+import { LRLanguage, LanguageSupport } from '@codemirror/language';
 
 describe('F-Prime Linter', () => {
   function lint(doc: string) {
-    const lrLanguage = getFprimeLRLanguage(mockResources);
-    const languageSupport = new LanguageSupport(lrLanguage);
+    // Create a simple language support with our parser
+    const fprimeLanguage = LRLanguage.define({
+      parser: fprimeParser,
+    });
+
     const state = EditorState.create({
       doc,
-      extensions: [languageSupport],
+      extensions: [new LanguageSupport(fprimeLanguage)],
     });
+
     const view = { state } as EditorView;
     return fprimeLinter(view);
   }

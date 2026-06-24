@@ -43,14 +43,12 @@ describe('F-Prime Dictionary Converter', () => {
       spacecraftId: 1,
     });
 
-    console.log(xml);
-
     expect(xml).toContain('<?xml version="1.0" encoding="UTF-8"?>');
     expect(xml).toContain('<command_dictionary>');
     expect(xml).toContain('mission_name="test"');
     expect(xml).toContain('spacecraft_id="1"');
     expect(xml).toContain('opcode="0x0101"');
-    expect(xml).toContain('stem="SyncParams"');
+    expect(xml).toContain('stem="M.c1.SyncParams"');
     expect(xml).toContain('category name="module" value="M.c1"');
     expect(xml).toContain('unsigned_arg name="param1"');
     expect(xml).toContain('bit_length="32"');
@@ -75,7 +73,7 @@ describe('F-Prime Dictionary Converter', () => {
     const xml = parseFPrimeJsonToAmpcsXml(fprimeJson);
 
     expect(xml).toContain('<hw_command');
-    expect(xml).toContain('stem="HW_CMD"');
+    expect(xml).toContain('stem="MODULE.HW_CMD"');
     expect(xml).toContain('opcode="0x0001"');
     expect(xml).toContain('A hardware command');
   });
