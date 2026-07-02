@@ -58,26 +58,6 @@ describe('F-Prime Dictionary Converter', () => {
     expect(xml).toContain('Param 2');
   });
 
-  it('should convert hardware commands (no parameters)', () => {
-    const fprimeJson = JSON.stringify({
-      commands: [
-        {
-          name: 'MODULE.HW_CMD',
-          commandKind: 'sync',
-          opcode: 1,
-          annotation: 'A hardware command',
-        },
-      ],
-    });
-
-    const xml = parseFPrimeJsonToAmpcsXml(fprimeJson);
-
-    expect(xml).toContain('<hw_command');
-    expect(xml).toContain('stem="MODULE.HW_CMD"');
-    expect(xml).toContain('opcode="0x0001"');
-    expect(xml).toContain('A hardware command');
-  });
-
   it('should handle various integer types', () => {
     const fprimeJson = JSON.stringify({
       commands: [

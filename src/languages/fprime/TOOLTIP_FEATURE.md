@@ -128,7 +128,10 @@ Hover here to see time info
 ```
 Absolute Time:
 2015-075T22:32:40.123
+Monday, March 16, 2015
 ```
+
+The tooltip now includes a human-readable calendar date showing the day of week, month name, day, and year.
 
 #### Relative Time Tags
 
@@ -152,6 +155,7 @@ Relative Time:
 
 Computed Absolute Time:
 2015-075T23:32:45.123
+Monday, March 16, 2015
 ```
 
 The computed absolute time is calculated by:

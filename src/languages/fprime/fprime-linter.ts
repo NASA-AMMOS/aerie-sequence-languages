@@ -78,11 +78,11 @@ function createErrorDiagnostic(node: SyntaxNode, text: string, _view: EditorView
     if (text.trim()) {
       const trimmed = text.trim();
       // Check if it's a number-like token
-      if (/^\d+(\.\d+)?$/.test(trimmed) || /^0x[0-9a-fA-F]+$/i.test(trimmed)) {
+      if (/^\d+(\.\d+)?$/.test(trimmed) || /^0x[0-9a-f]+$/i.test(trimmed)) {
         message = 'Missing comma before this number argument';
       }
       // Check if it's an identifier-like token
-      else if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(trimmed)) {
+      else if (/^[a-z_]\w*$/i.test(trimmed)) {
         message = 'Missing comma before this identifier';
       }
       // Check if it's a string-like token

@@ -203,6 +203,44 @@ describe('F-Prime Time Computation Logic', () => {
     // Formatted: 2015-075T10:15:30.500
   });
 
+  it('should convert day of year to calendar date', () => {
+    // Test day-of-year to month/day conversion
+    // 2015-075 should be March 16, 2015 (Monday)
+
+    // 2015 is not a leap year
+    const isLeapYear = (2015 % 4 === 0 && 2015 % 100 !== 0) || 2015 % 400 === 0;
+    expect(isLeapYear).toBe(false);
+
+    // Days in each month for non-leap year: 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    // Jan: 1-31 (31 days)
+    // Feb: 32-59 (28 days)
+    // Mar: 60-90 (31 days)
+    // Day 75 is in March: 75 - 59 = 16
+
+    // Calculate manually
+    const dayOfYear = 75;
+    const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+    let remainingDays = dayOfYear;
+    let month = 0;
+
+    for (let i = 0; i < daysInMonth.length; i++) {
+      if (remainingDays <= daysInMonth[i]) {
+        month = i + 1; // 1-based month
+        break;
+      }
+      remainingDays -= daysInMonth[i];
+    }
+
+    expect(month).toBe(3); // March
+    expect(remainingDays).toBe(16); // 16th day
+
+    // Verify day of week: March 16, 2015
+    const date = new Date(2015, 2, 16); // Month is 0-based in Date constructor
+    const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    expect(dayOfWeek).toBe(1); // Monday
+  });
+
   it('should compute different absolute times for each relative command', () => {
     // This test verifies that each relative time gets its own computed absolute time
     // Base: A2015-075T22:00:00.000

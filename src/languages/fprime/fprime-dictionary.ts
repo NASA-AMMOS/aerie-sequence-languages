@@ -154,24 +154,20 @@ function convertCommandToXml(
   // F-Prime commands with parameters are FSW commands
   const hasFormalParams = command.formalParams && command.formalParams.length > 0;
 
-  if (hasFormalParams) {
-    // FSW command
-    xml.push(
-      `        <fsw_command opcode="${opcode}" stem="${escapeXml(stem)}" class="${escapeXml(options.defaultCommandClass)}">`,
-    );
+  // FSW command
+  // Unclear what FPrime defines as hardware command
+  xml.push(
+    `        <fsw_command opcode="${opcode}" stem="${escapeXml(stem)}" class="${escapeXml(options.defaultCommandClass)}">`,
+  );
 
-    // Arguments
-    if (command.formalParams && command.formalParams.length > 0) {
-      xml.push('            <arguments>');
-      for (const param of command.formalParams) {
-        const argXml = convertArgumentToXml(param, options.defaultUnits);
-        xml.push(argXml);
-      }
-      xml.push('            </arguments>');
+  // Arguments
+  if (command.formalParams && command.formalParams.length > 0) {
+    xml.push('            <arguments>');
+    for (const param of command.formalParams) {
+      const argXml = convertArgumentToXml(param, options.defaultUnits);
+      xml.push(argXml);
     }
-  } else {
-    // Hardware command (no parameters)
-    xml.push(`        <hw_command opcode="${opcode}" stem="${escapeXml(stem)}">`);
+    xml.push('            </arguments>');
   }
 
   // Categories
@@ -186,7 +182,7 @@ function convertCommandToXml(
     xml.push(`            <description>${escapeXml(command.annotation)}</description>`);
   }
 
-  xml.push(`        </${hasFormalParams ? 'fsw_command' : 'hw_command'}>`);
+  xml.push(`        </fsw_command>`);
 
   return xml.join('\n');
 }

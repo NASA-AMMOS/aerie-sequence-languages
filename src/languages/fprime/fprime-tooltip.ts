@@ -90,6 +90,72 @@ function millisecondsToTime(ms: number): { hours: number; minutes: number; secon
 }
 
 /**
+ * Converts day-of-year to month and day
+ */
+function dayOfYearToMonthDay(year: number, dayOfYear: number): { month: number; day: number } {
+  const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  const daysInMonth = [31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+  let remainingDays = dayOfYear;
+  let month = 0;
+
+  for (let i = 0; i < daysInMonth.length; i++) {
+    if (remainingDays <= daysInMonth[i]) {
+      month = i;
+      break;
+    }
+    remainingDays -= daysInMonth[i];
+  }
+
+  return { month: month + 1, day: remainingDays };
+}
+
+/**
+ * Gets day of week for a given date
+ */
+function getDayOfWeek(year: number, month: number, day: number): string {
+  const date = new Date(year, month - 1, day);
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  return days[date.getDay()];
+}
+
+/**
+ * Gets month name
+ */
+function getMonthName(month: number): string {
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  return months[month - 1];
+}
+
+/**
+ * Formats an absolute time as a calendar date
+ */
+function formatCalendarDate(parsed: ParsedTimeTag): string | null {
+  if (parsed.type !== 'absolute' || parsed.year === undefined || parsed.dayOfYear === undefined) {
+    return null;
+  }
+
+  const { month, day } = dayOfYearToMonthDay(parsed.year, parsed.dayOfYear);
+  const dayOfWeek = getDayOfWeek(parsed.year, month, day);
+  const monthName = getMonthName(month);
+
+  return `${dayOfWeek}, ${monthName} ${day}, ${parsed.year}`;
+}
+
+/**
  * Formats a time for display
  */
 function formatTime(parsed: ParsedTimeTag): string {
@@ -239,14 +305,18 @@ export function fprimeTooltip(
       if (node.name === FPRIME_NODES.TimeAbsolute) {
         const parsed = parseAbsoluteTime(timeText);
         if (parsed) {
-          tooltipLines.push('Absolute Time:');
-          tooltipLines.push(formatTime(parsed));
+          tooltipLines.push('Absolute Time:', formatTime(parsed));
+
+          // Add calendar date format
+          const calendarDate = formatCalendarDate(parsed);
+          if (calendarDate) {
+            tooltipLines.push(calendarDate);
+          }
         }
       } else if (node.name === FPRIME_NODES.TimeRelative) {
         const parsed = parseRelativeTime(timeText);
         if (parsed) {
-          tooltipLines.push('Relative Time:');
-          tooltipLines.push(formatTime(parsed));
+          tooltipLines.push('Relative Time:', formatTime(parsed));
 
           // Find the containing command node
           let commandNode: SyntaxNode | null | undefined = node.parent;
@@ -261,6 +331,12 @@ export function fprimeTooltip(
               if (absoluteTime.type === 'absolute') {
                 tooltipLines.push('Computed Absolute Time:');
                 tooltipLines.push(formatTime(absoluteTime));
+
+                // Add calendar date format for computed absolute time
+                const calendarDate = formatCalendarDate(absoluteTime);
+                if (calendarDate) {
+                  tooltipLines.push(calendarDate);
+                }
               } else {
                 tooltipLines.push('Cumulative Relative Time:');
                 tooltipLines.push(formatTime(absoluteTime));
