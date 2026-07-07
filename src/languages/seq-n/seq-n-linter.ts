@@ -91,6 +91,8 @@ export function seqnLinter(
   const docText = view.state.doc.toString();
   const diagnostics: Diagnostic[] = [];
 
+  console.log('seqnLinter');
+
   diagnostics.push(...validateParserErrors(tree));
 
   // TODO: Get identify type mapping to use

@@ -4,6 +4,8 @@ import type { EditorView } from '@codemirror/view';
 import type { SyntaxNode } from '@lezer/common';
 import type { CommandDictionary } from '@nasa-jpl/aerie-ampcs';
 import { distance } from 'fastest-levenshtein';
+import { getChildrenNode, getFromAndTo } from '../../utils/tree-utils.js';
+import { pluralize } from '../../utils/string.js';
 import { FPRIME_NODES } from './fprime-grammar-constants.js';
 
 /**
@@ -21,6 +23,8 @@ export function fprimeLinter(view: EditorView, commandDictionary?: CommandDictio
   // Walk the tree and find error nodes
   tree.iterate({
     enter: node => {
+      console.log(`${node.name} node.name`);
+
       // Flag any parse errors (⚠ nodes)
       if (node.type.isError) {
         const text = view.state.sliceDoc(node.from, node.to);
@@ -215,6 +219,8 @@ export function validateCommandDictionary(
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
 
+  console.log(`validateCommandDictionary`);
+
   // Get the command mnemonic node
   const mnemonicNode = commandNode.getChild(FPRIME_NODES.CommandMnemonic);
   if (!mnemonicNode) {
@@ -223,12 +229,15 @@ export function validateCommandDictionary(
 
   // Extract the mnemonic text
   const mnemonicText = view.state.sliceDoc(mnemonicNode.from, mnemonicNode.to);
+  console.log(`${mnemonicText} mnemonicText`);
 
   // Check if the command exists in either FSW or hardware command maps
   const { fswCommandMap, hwCommandMap, fswCommands, hwCommands } = commandDictionary;
-  const commandExists = fswCommandMap[mnemonicText] || hwCommandMap[mnemonicText];
+  const dictionaryCommand = fswCommandMap[mnemonicText] || hwCommandMap[mnemonicText];
 
-  if (!commandExists) {
+  if (!dictionaryCommand) {
+    console.log(`${mnemonicText} missing`);
+
     // Command not found - generate suggestions using Levenshtein distance
     const allCommandStems = [...fswCommands.map(cmd => cmd.stem), ...hwCommands.map(cmd => cmd.stem)];
 
@@ -248,6 +257,77 @@ export function validateCommandDictionary(
           });
         },
       })),
+    });
+    return diagnostics;
+  }
+
+  // Validate argument count
+  const argsNode = commandNode.getChild(FPRIME_NODES.Args);
+  const expectedArgCount = dictionaryCommand.arguments?.length ?? 0;
+
+  if (argsNode) {
+    const argNodes = getChildrenNode(argsNode);
+    const actualArgCount = argNodes.length;
+
+    if (actualArgCount > expectedArgCount) {
+      // Too many arguments
+      const extraArgs = argNodes.slice(expectedArgCount);
+      const { from, to } = getFromAndTo(extraArgs);
+      const commandArgs = `argument${pluralize(extraArgs.length)}`;
+
+      // Check if there's a comma before the first extra argument
+      const firstExtraArg = extraArgs[0];
+      let deleteFrom = from;
+      if (firstExtraArg && expectedArgCount > 0) {
+        // Look for comma between last valid arg and first extra arg
+        const lastValidArg = argNodes[expectedArgCount - 1];
+        if (lastValidArg) {
+          const textBetween = view.state.sliceDoc(lastValidArg.to, firstExtraArg.from);
+          const commaMatch = textBetween.match(/,/);
+          if (commaMatch) {
+            // Include the comma in the deletion range
+            deleteFrom = lastValidArg.to + textBetween.indexOf(',');
+          }
+        }
+      }
+
+      diagnostics.push({
+        from,
+        to,
+        severity: 'error',
+        message: `Extra ${commandArgs}, definition has ${expectedArgCount}, but ${actualArgCount} ${pluralize(actualArgCount) ? 'are' : 'is'} present`,
+        source: 'fprime-linter',
+        actions: [
+          {
+            name: `Remove ${extraArgs.length} extra ${commandArgs}`,
+            apply(view, argsFrom, argsTo) {
+              view.dispatch({ changes: { from: deleteFrom, to: argsTo } });
+            },
+          },
+        ],
+      });
+    } else if (actualArgCount < expectedArgCount) {
+      // Too few arguments
+      const commandArgs = `argument${pluralize(expectedArgCount - actualArgCount)}`;
+
+      diagnostics.push({
+        from: argsNode.from,
+        to: argsNode.to,
+        severity: 'error',
+        message: `Missing ${commandArgs}, definition has ${expectedArgCount}, but ${actualArgCount} ${pluralize(actualArgCount) ? 'are' : 'is'} present`,
+        source: 'fprime-linter',
+      });
+    }
+  } else if (expectedArgCount > 0) {
+    // No arguments provided but command expects some
+    const commandArgs = `argument${pluralize(expectedArgCount)}`;
+
+    diagnostics.push({
+      from: mnemonicNode.to,
+      to: mnemonicNode.to,
+      severity: 'error',
+      message: `Missing ${commandArgs}, definition has ${expectedArgCount}, but 0 are present`,
+      source: 'fprime-linter',
     });
   }
 

@@ -6,6 +6,7 @@ import { getFprimeLRLanguage } from './fprime.js';
 import { FPrimeCommandInfoMapper } from './fprime-tree-utils.js';
 import { fprimeLinter } from './fprime-linter.js';
 import { fprimeTooltip } from './fprime-tooltip.js';
+import { fprimeCompletion } from './fprime-completion.js';
 
 /**
  * Get keyed object for F' editor extensions to more easily replace/extend components.
@@ -18,11 +19,13 @@ export function getFprimeExtensions(
   mapper = mapper ?? new FPrimeCommandInfoMapper();
   const fprimeLRLanguage = getFprimeLRLanguage(resources);
   return {
-    languageSupport: new LanguageSupport(fprimeLRLanguage),
-    linter: resources.linter(fprimeLinter),
+    languageSupport: new LanguageSupport(fprimeLRLanguage, [
+      fprimeLRLanguage.data.of({
+        autocomplete: fprimeCompletion(context.commandDictionary),
+      }),
+    ]),
+    linter: resources.linter(view => fprimeLinter(view, context.commandDictionary)),
     tooltip: fprimeTooltip(context.commandDictionary, resources),
-    // Future extensions can be added here:
-    // - completion: for command/argument autocomplete
   };
 }
 
