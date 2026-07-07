@@ -23,8 +23,6 @@ export function fprimeLinter(view: EditorView, commandDictionary?: CommandDictio
   // Walk the tree and find error nodes
   tree.iterate({
     enter: node => {
-      console.log(`${node.name} node.name`);
-
       // Flag any parse errors (⚠ nodes)
       if (node.type.isError) {
         const text = view.state.sliceDoc(node.from, node.to);
@@ -219,8 +217,6 @@ export function validateCommandDictionary(
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
 
-  console.log(`validateCommandDictionary`);
-
   // Get the command mnemonic node
   const mnemonicNode = commandNode.getChild(FPRIME_NODES.CommandMnemonic);
   if (!mnemonicNode) {
@@ -229,15 +225,12 @@ export function validateCommandDictionary(
 
   // Extract the mnemonic text
   const mnemonicText = view.state.sliceDoc(mnemonicNode.from, mnemonicNode.to);
-  console.log(`${mnemonicText} mnemonicText`);
 
   // Check if the command exists in either FSW or hardware command maps
   const { fswCommandMap, hwCommandMap, fswCommands, hwCommands } = commandDictionary;
   const dictionaryCommand = fswCommandMap[mnemonicText] || hwCommandMap[mnemonicText];
 
   if (!dictionaryCommand) {
-    console.log(`${mnemonicText} missing`);
-
     // Command not found - generate suggestions using Levenshtein distance
     const allCommandStems = [...fswCommands.map(cmd => cmd.stem), ...hwCommands.map(cmd => cmd.stem)];
 
