@@ -84,7 +84,7 @@
     "lodash-es": "^4.17.21"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "publishConfig": {
     "access": "public"
@@ -94,5 +94,9 @@
       "name": "npm",
       "onFail": "warn"
     }
+  },
+  "allowScripts": {
+    "esbuild@0.25.5": true,
+    "fsevents@2.3.3": true
   }
 }
