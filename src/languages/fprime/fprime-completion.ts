@@ -93,15 +93,23 @@ export function fprimeCompletion(
 
       if (typed === 'R') {
         // Just "R" - suggest full template
-        completion = `00:00:00`;
+        completion = `R00:00:00`;
       } else {
         // Has R and possibly some time - complete the rest
         const timePart = typed.slice(1); // Remove 'R'
         if (!timePart.includes(':')) {
-          completion = typed + `00:00:00`;
+          // Partial hours (0-1 digits)
+          if (timePart.length < 2) {
+            // Incomplete hours - replace with full valid time tag
+            completion = `R00:00:00`;
+          } else {
+            // Full 2-digit hours but no colon yet
+            completion = typed + `:00:00`;
+          }
         } else {
           const colons = (timePart.match(/:/g) || []).length;
           if (colons === 1) {
+            // Has hours and first colon, needs minutes and seconds
             completion = typed + `:00`;
           }
         }
