@@ -11,6 +11,7 @@ import type {
   FswCommandArgumentInteger,
   FswCommandArgumentNumeric,
   FswCommandArgumentRepeat,
+  FswCommandArgumentTime,
   FswCommandArgumentUnsigned,
   FswCommandArgumentVarString,
   HwCommand,
@@ -193,6 +194,10 @@ export function isFswCommandArgumentFixedString(arg: FswCommandArgument): arg is
 
 export function isFswCommandArgumentBoolean(arg: FswCommandArgument): arg is FswCommandArgumentBoolean {
   return arg.arg_type === 'boolean';
+}
+
+export function isFswCommandArgumentTime(arg: FswCommandArgument): arg is FswCommandArgumentTime {
+  return arg.arg_type === 'time';
 }
 
 export function isHexValue(argText: string) {
