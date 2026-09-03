@@ -43,6 +43,7 @@ export {
   isFswCommandArgumentVarString,
   isFswCommandArgumentFixedString,
   isFswCommandArgumentBoolean,
+  isFswCommandArgumentTime,
   isHexValue,
   addDefaultArgs,
   getDefaultVariableArgs,
